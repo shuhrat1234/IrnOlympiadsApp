@@ -11,7 +11,9 @@ import { useLanguage } from '../context/LanguageContext';
 
 export const Canvas = ({ children, style }) => (
 	<View style={[{ flex: 1, backgroundColor: colors.bg }, style]}>
-		<LinearGradient colors={gradients.canvas} style={[StyleSheet.absoluteFill, { height: 360 }]} />
+		<LinearGradient colors={gradients.canvas} locations={[0, 0.55, 1]} style={[StyleSheet.absoluteFill, { height: 440 }]} />
+		<View pointerEvents="none" style={styles.ambientGold} />
+		<View pointerEvents="none" style={styles.ambientBlue} />
 		{children}
 	</View>
 );
@@ -34,7 +36,7 @@ export const Screen = ({ children, onRefresh, header, contentStyle, tabBar = fal
 			{header}
 			<ScrollView
 				ref={scrollRef}
-				contentContainerStyle={[{ paddingHorizontal: 18, paddingTop: header ? 4 : insets.top + 12, paddingBottom: tabBar ? 120 : insets.bottom + 32 }, contentStyle]}
+				contentContainerStyle={[styles.screenContent, { paddingTop: header ? 4 : insets.top + 12, paddingBottom: tabBar ? 120 : insets.bottom + 32 }, contentStyle]}
 				showsVerticalScrollIndicator={false}
 				keyboardShouldPersistTaps="handled"
 				keyboardDismissMode={keyboard ? 'interactive' : 'on-drag'}
@@ -51,8 +53,8 @@ export const StackHeader = ({ title, subtitle, right, onBack }) => {
 	return (
 		<View style={[styles.header, { paddingTop: insets.top + 6 }]}>
 			<IconButton icon={ChevronLeft} onPress={onBack || (() => (router.canGoBack() ? router.back() : router.replace('/')))} />
-			<View style={{ flex: 1 }}>
-				{title ? <T v="h3" numberOfLines={1} style={{ fontSize: 17 }}>{title}</T> : null}
+			<View style={{ flex: 1, minWidth: 0 }}>
+				{title ? <T v="h3" numberOfLines={2} style={{ fontSize: 17 }}>{title}</T> : null}
 				{subtitle ? <T v="small" numberOfLines={1}>{subtitle}</T> : null}
 			</View>
 			{right}
@@ -61,8 +63,8 @@ export const StackHeader = ({ title, subtitle, right, onBack }) => {
 };
 
 export const LargeTitle = ({ title, subtitle, right, style }) => (
-	<View style={[{ flexDirection: 'row', alignItems: 'flex-end', marginBottom: 18, gap: 12 }, style]}>
-		<View style={{ flex: 1 }}>
+	<View style={[styles.largeTitle, style]}>
+		<View style={{ flexGrow: 1, flexShrink: 1, flexBasis: 220, minWidth: 0 }}>
 			<T v="display">{title}</T>
 			{subtitle ? <T v="body" style={{ marginTop: 4 }}>{subtitle}</T> : null}
 		</View>
@@ -117,6 +119,10 @@ export const PaymentCountdown = ({ seconds, onExpire, style }) => {
 };
 
 const styles = StyleSheet.create({
-	header: { flexDirection: 'row', alignItems: 'center', gap: 12, paddingHorizontal: 18, paddingBottom: 12, backgroundColor: 'rgba(255,246,226,0.97)', zIndex: 10 },
+	ambientGold: { position: 'absolute', top: 34, right: -92, width: 220, height: 220, borderRadius: 110, backgroundColor: 'rgba(253,200,0,0.075)' },
+	ambientBlue: { position: 'absolute', top: 240, left: -110, width: 210, height: 210, borderRadius: 105, backgroundColor: 'rgba(47,111,235,0.035)' },
+	screenContent: { width: '100%', maxWidth: 760, alignSelf: 'center', paddingHorizontal: 18 },
+	largeTitle: { flexDirection: 'row', flexWrap: 'wrap', alignItems: 'flex-end', marginBottom: 18, gap: 12 },
+	header: { flexDirection: 'row', alignItems: 'center', gap: 12, paddingHorizontal: 18, paddingBottom: 12, backgroundColor: 'rgba(251,250,247,0.96)', zIndex: 10, borderBottomWidth: StyleSheet.hairlineWidth, borderBottomColor: 'rgba(230,224,211,0.7)' },
 	countdown: { flexDirection: 'row', alignItems: 'center', gap: 8, paddingHorizontal: 14, paddingVertical: 9, borderRadius: radius.pill, alignSelf: 'flex-start' },
 });

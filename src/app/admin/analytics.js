@@ -371,7 +371,7 @@ export default function Analytics() {
 								<Card key={r.id} style={{ marginBottom: 10, padding: 14 }}>
 									<T v="strong">{r.user_full_name || '—'}</T>
 									<T v="small" style={{ fontSize: 12 }} numberOfLines={2}>{r.user_grade ? `${r.user_grade} · ` : ''}{r.olympiad_title} · {formatShortDate(r.registered_at, lang)}</T>
-									<View style={{ flexDirection: 'row', gap: 8, marginTop: 10 }}>
+									<View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginTop: 10 }}>
 										{r.user_phone ? <Button style={{ flex: 1 }} size="sm" variant="light" icon={Phone} title={r.user_phone} onPress={() => Linking.openURL(`tel:${r.user_phone}`)} /> : <Pill label={tx(L.noPhone)} />}
 										<Button size="sm" variant={r.last_called_at ? 'success' : 'soft'} icon={PhoneCall} title={tx(L.markCalled)} loading={calling === r.id} onPress={() => markCalled(r.id)} />
 									</View>
@@ -405,7 +405,7 @@ export default function Analytics() {
 								{row.manual_adjustment ? <Pill label={`${tx(L.manual)}: ${row.manual_adjustment > 0 ? '+' : ''}${row.manual_adjustment}`} color={colors.purple} bg={colors.purpleSoft} /> : null}
 								{row.teacher_approved ? <Pill icon={CheckCircle2} label={tx(L.approved)} color={colors.green} bg={colors.greenSoft} /> : null}
 							</View>
-							<View style={{ flexDirection: 'row', gap: 8, marginTop: 10 }}>
+							<View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginTop: 10 }}>
 								<Button style={{ flex: 1 }} size="sm" variant="light" icon={History} title={tx(L.history)} onPress={() => openHistory(row)} />
 								<Button style={{ flex: 1 }} size="sm" variant="soft" icon={Plus} title={tx(L.adjust)} onPress={() => openAdjust(row)} />
 							</View>

@@ -113,7 +113,7 @@ export default function RegistrationCard({ reg, oly, onAction, onPermission, onC
 			) : (
 				<View style={{ gap: 10, marginTop: 14 }}>
 					{reg.seconds_left > 0 ? <PaymentCountdown seconds={reg.seconds_left} onExpire={fetchMe} /> : null}
-					<View style={{ flexDirection: 'row', gap: 10 }}>
+					<View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 10 }}>
 						<Button style={{ flex: 1 }} size="md" icon={CreditCard} title={t('pay')} onPress={() => onAction({ title: t('confirmPayTitle'), msg: t('confirmPayMsg'), route: `/payment/${oly.id}`, icon: CreditCard })} />
 						<Tap onPress={() => onAction({ title: t('confirmCancelTitle'), msg: t('confirmCancelMsg'), cancelRegId: reg.id, tone: 'red' })} style={styles.cancelBtn}>
 							<X size={20} color={colors.red} />
@@ -143,7 +143,7 @@ export default function RegistrationCard({ reg, oly, onAction, onPermission, onC
 								{startable ? (
 									<Button size="md" icon={Play} title={t('startExam')} style={{ marginTop: 10 }} onPress={() => onAction({ title: t('confirmStartTitle'), msg: t('confirmStartMsg'), route: `/exam/${session.id}`, icon: Play, start: true })} />
 								) : (done && online) || showCert ? (
-									<View style={{ flexDirection: 'row', gap: 8, marginTop: 10 }}>
+								<View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginTop: 10 }}>
 										{done && online ? (
 											<Button style={{ flex: 1 }} size="sm" variant="dark" icon={BarChart3} title={t('viewResult')} onPress={() => onAction({ title: t('viewResult'), msg: '', route: { pathname: `/analysis/${oly.id}`, params: { session: session.id } }, direct: true })} />
 										) : null}
@@ -179,9 +179,9 @@ const styles = StyleSheet.create({
 	grade: { minWidth: 26, height: 24, borderRadius: 8, paddingHorizontal: 5, backgroundColor: colors.cardMuted, alignItems: 'center', justifyContent: 'center' },
 	gradeMine: { backgroundColor: colors.gold },
 	paidRow: { flexDirection: 'row', alignItems: 'center', gap: 6 },
-	docRow: { flexDirection: 'row', gap: 8 },
+	docRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
 	idBox: { flex: 1, backgroundColor: colors.cardMuted, borderRadius: radius.md, paddingHorizontal: 12, paddingVertical: 9, gap: 3, borderWidth: 1, borderColor: colors.line },
-	docBtn: { width: 76, borderRadius: radius.md, backgroundColor: colors.navySoft, alignItems: 'center', justifyContent: 'center', gap: 4, paddingVertical: 8 },
+	docBtn: { minWidth: 76, flexGrow: 1, borderRadius: radius.md, backgroundColor: colors.navySoft, alignItems: 'center', justifyContent: 'center', gap: 4, paddingHorizontal: 10, paddingVertical: 8 },
 	payBox: { flexDirection: 'row', alignItems: 'center', gap: 10, padding: 12, borderRadius: radius.lg, marginTop: 14 },
 	cancelBtn: { width: 48, height: 48, borderRadius: 24, backgroundColor: colors.redSoft, alignItems: 'center', justifyContent: 'center' },
 	sub: { backgroundColor: colors.cardMuted, borderRadius: radius.lg, padding: 12, borderWidth: 1, borderColor: colors.line },

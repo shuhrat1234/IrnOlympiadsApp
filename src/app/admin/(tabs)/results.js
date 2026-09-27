@@ -139,8 +139,8 @@ const MistakesEditor = ({ mistakes, onChange, tx }) => {
 	const update = (list) => onChange(list, Math.max(0, 100 - list.reduce((a, m) => a + (parseInt(m.minus_points, 10) || 0), 0)));
 	return (
 		<View style={{ gap: 8 }}>
-			<View style={{ flexDirection: 'row', alignItems: 'center' }}>
-				<T v="h3" style={{ flex: 1 }}>{tx(L.mistakes)}</T>
+			<View style={{ flexDirection: 'row', flexWrap: 'wrap', alignItems: 'center', gap: 8 }}>
+				<T v="h3" style={{ flexGrow: 1, flexShrink: 1, flexBasis: 140 }}>{tx(L.mistakes)}</T>
 				<Button size="sm" variant="soft" title={tx(L.addMistake)} onPress={() => update([...(mistakes || []), { question_number: '', user_answer: '', correct_answer: '', minus_points: '' }])} />
 			</View>
 			{!mistakes?.length ? <T v="small">{tx(L.noMistakes)}</T> : null}

@@ -151,8 +151,8 @@ export default function TestsScreen() {
 						<EmptyState icon={ClipboardList} title={tx(L.noTest)} action={<Button title={tx(L.createTest)} icon={Plus} onPress={newTest} />} />
 					) : (
 						<>
-							<View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
-								<T v="strong">{questions.length} {tx(L.questions)}</T>
+							<View style={{ flexDirection: 'row', flexWrap: 'wrap', alignItems: 'center', justifyContent: 'space-between', gap: 8, marginBottom: 12 }}>
+								<T v="strong" style={{ flexGrow: 1, flexShrink: 1 }}>{questions.length} {tx(L.questions)}</T>
 								<Button size="sm" icon={Plus} title={tx(L.addQuestion)} onPress={() => openForm(null)} />
 							</View>
 							{!questions.length ? <EmptyState icon={ClipboardList} title={tx(L.noQuestions)} /> : null}
@@ -242,4 +242,3 @@ const styles = StyleSheet.create({
 	letter: { width: 26, height: 26, borderRadius: 13, backgroundColor: colors.white, alignItems: 'center', justifyContent: 'center' },
 	letterBig: { width: 46, height: 46, borderRadius: 23, backgroundColor: colors.white, borderWidth: 1.5, borderColor: colors.line, alignItems: 'center', justifyContent: 'center' },
 });
-

@@ -215,7 +215,7 @@ export default function TeacherStudents() {
 	return (
 		<Screen tabBar onRefresh={() => Promise.all([fetchStudents(), fetchRequests()])} keyboard>
 			<LargeTitle title={tx(L.title)} subtitle={tx(L.subtitle)} />
-			<View style={{ flexDirection: 'row', gap: 10, marginBottom: 16 }}>
+			<View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 10, marginBottom: 16 }}>
 				<Button style={{ flex: 1 }} size="md" icon={UserPlus} title={tx(L.addStudent)} onPress={() => { setCreds(null); setAddErrors({}); setAddOpen(true); }} />
 				<Button style={{ flex: 1 }} size="md" variant="dark" icon={Search} title={tx(L.invite)} onPress={() => { setQuery(''); setResults([]); setInviteOpen(true); }} />
 			</View>
@@ -274,7 +274,7 @@ export default function TeacherStudents() {
 							<T v="label">{tx(L.login)}</T>
 							<T style={{ fontFamily: fonts.extrabold, fontSize: 22, color: colors.ink }} selectable>{creds.login}</T>
 						</View>
-						<View style={{ flexDirection: 'row', gap: 8, alignSelf: 'stretch' }}>
+						<View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8, alignSelf: 'stretch' }}>
 							<Button style={{ flex: 1 }} size="md" variant="light" icon={Copy} title={tx(L.copy)} onPress={async () => { await Clipboard.setStringAsync(String(creds.login)); toast.info(tx(L.copied)); }} />
 							<Button style={{ flex: 1 }} size="md" title={tx(L.close)} onPress={() => { setCreds(null); setAddOpen(false); }} />
 						</View>

@@ -154,9 +154,10 @@ export default function LoginScreen() {
 							</Pressable>
 						</View>
 
-						<Animated.View entering={FadeInDown.duration(600)} style={styles.logoWrap}>
-							<View style={styles.logoHalo}>
-								<Image source={require('../../assets/brand/trophy.png')} style={{ width: 92, height: 92 }} resizeMode="contain" />
+						<Animated.View entering={FadeInDown.duration(650)} style={styles.logoWrap}>
+							<View style={styles.heroArtWrap}>
+								<Image source={require('../../assets/illustrations/olympiad-hero.png')} style={styles.heroArt} resizeMode="cover" />
+								<LinearGradient colors={['transparent', colors.navyDeep]} locations={[0.72, 1]} style={styles.heroFade} />
 							</View>
 						</Animated.View>
 						<Animated.View entering={FadeInDown.delay(120).duration(600)}>
@@ -294,8 +295,10 @@ const styles = StyleSheet.create({
 	langBtn: { paddingHorizontal: 11, paddingVertical: 7, borderRadius: radius.pill },
 	langBtnActive: { backgroundColor: colors.gold },
 	browse: { flexDirection: 'row', alignItems: 'center', gap: 6, paddingHorizontal: 13, paddingVertical: 9, borderRadius: radius.pill, backgroundColor: 'rgba(255,255,255,0.08)', borderWidth: 1, borderColor: 'rgba(255,255,255,0.1)' },
-	logoWrap: { alignItems: 'center', marginTop: 28, marginBottom: 18 },
-	logoHalo: { width: 120, height: 120, borderRadius: 42, backgroundColor: 'rgba(255,255,255,0.96)', alignItems: 'center', justifyContent: 'center', shadowColor: colors.gold, shadowOpacity: 0.5, shadowRadius: 30, shadowOffset: { width: 0, height: 0 }, elevation: 12, transform: [{ rotate: '-6deg' }] },
+	logoWrap: { alignItems: 'center', marginTop: 12, marginBottom: -4 },
+	heroArtWrap: { width: 190, height: 174, overflow: 'hidden', borderRadius: 48, shadowColor: colors.gold, shadowOpacity: 0.24, shadowRadius: 30, shadowOffset: { width: 0, height: 10 }, elevation: 10 },
+	heroArt: { width: '100%', height: '100%' },
+	heroFade: { ...StyleSheet.absoluteFillObject },
 	card: { flex: 1, backgroundColor: colors.bg, borderTopLeftRadius: 36, borderTopRightRadius: 36, paddingHorizontal: 22, paddingTop: 28, ...shadow(3) },
 	backBtn: { width: 38, height: 38, borderRadius: 19, backgroundColor: colors.white, alignItems: 'center', justifyContent: 'center', ...shadow(1) },
 	errorBox: { flexDirection: 'row', alignItems: 'center', gap: 10, padding: 12, backgroundColor: colors.redSoft, borderRadius: radius.md, marginBottom: 14 },

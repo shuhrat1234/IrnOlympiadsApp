@@ -69,10 +69,10 @@ export const TabBar = ({ state, navigation, items }) => {
 
 const styles = StyleSheet.create({
 	wrap: { position: 'absolute', left: 14, right: 14 },
-	bar: { flexDirection: 'row', height: 70, borderRadius: 28, overflow: 'hidden', borderWidth: 1, borderColor: 'rgba(230,215,178,0.7)', paddingHorizontal: 6, ...shadow(3) },
+	bar: { flexDirection: 'row', height: 72, borderRadius: 30, overflow: 'hidden', borderWidth: 1, borderColor: 'rgba(255,255,255,0.88)', paddingHorizontal: 6, ...shadow(3) },
 	item: { flex: 1, alignItems: 'center', justifyContent: 'center', gap: 3 },
 	iconBox: { width: 52, height: 32, alignItems: 'center', justifyContent: 'center' },
-	pill: { position: 'absolute', width: 52, height: 32, borderRadius: 16, backgroundColor: colors.gold },
+	pill: { position: 'absolute', width: 52, height: 32, borderRadius: 16, backgroundColor: colors.gold, shadowColor: colors.goldDeep, shadowOpacity: 0.28, shadowRadius: 8, shadowOffset: { width: 0, height: 3 } },
 	label: { fontSize: 10.5 },
 	badge: { position: 'absolute', top: -3, right: 6, minWidth: 17, height: 17, borderRadius: 9, paddingHorizontal: 4, backgroundColor: colors.red, alignItems: 'center', justifyContent: 'center', borderWidth: 2, borderColor: colors.white },
 	badgeText: { color: colors.white, fontFamily: fonts.extrabold, fontSize: 9 },

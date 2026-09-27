@@ -277,9 +277,9 @@ export default function AdminUserDetail() {
 				<>
 					{/* Telegram */}
 					<Card style={{ marginTop: 12 }}>
-						<View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
+						<View style={{ flexDirection: 'row', flexWrap: 'wrap', alignItems: 'center', gap: 10 }}>
 							<Send size={17} color="#0088CC" />
-							<T v="h3" style={{ flex: 1 }}>{tx(UL.telegram)}</T>
+							<T v="h3" style={{ flexGrow: 1, flexShrink: 1, minWidth: 120 }}>{tx(UL.telegram)}</T>
 							<Pill dot label={tx(user.telegram_chat_id ? UL.linked : UL.notLinked)} color={user.telegram_chat_id ? colors.green : colors.red} bg={user.telegram_chat_id ? colors.greenSoft : colors.redSoft} />
 						</View>
 						{user.telegram_chat_id ? (
@@ -353,8 +353,8 @@ export default function AdminUserDetail() {
 
 			{/* Teachers (free-text list) */}
 			<Card style={{ marginTop: 12 }}>
-				<View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 10 }}>
-					<T v="h3" style={{ flex: 1 }}>{tx(UL.teachers)}</T>
+				<View style={{ flexDirection: 'row', flexWrap: 'wrap', alignItems: 'center', gap: 8, marginBottom: 10 }}>
+					<T v="h3" style={{ flexGrow: 1, flexShrink: 1, minWidth: 120 }}>{tx(UL.teachers)}</T>
 					{editing ? <Button size="sm" variant="soft" icon={Plus} title={tx(UL.add)} onPress={() => setForm((p) => ({ ...p, teachers: [...(p.teachers || []), { name: '', phone: '+998' }] }))} /> : null}
 					{!editing && coordinator ? <Button size="sm" variant="light" icon={Edit2} title={tx(UL.requestEdit)} onPress={() => setReqTeachers({ teacher_name: user.teacher_name || '', teacher_phone: user.teacher_phone || '', teachers: JSON.parse(JSON.stringify(user.teachers || [])), reason: '' })} /> : null}
 				</View>
@@ -429,8 +429,8 @@ export default function AdminUserDetail() {
 					<View style={{ gap: 12, paddingBottom: 10 }}>
 						<Field label={tx(UL.teacherName)} value={reqTeachers.teacher_name} onChangeText={(v) => setReqTeachers((p) => ({ ...p, teacher_name: v }))} />
 						<Field label={tx(UL.teacherPhone)} value={reqTeachers.teacher_phone} keyboardType="phone-pad" onChangeText={(v) => setReqTeachers((p) => ({ ...p, teacher_phone: phoneMask(v) }))} />
-						<View style={{ flexDirection: 'row', alignItems: 'center' }}>
-							<T v="h3" style={{ flex: 1 }}>{tx(UL.teachers)}</T>
+						<View style={{ flexDirection: 'row', flexWrap: 'wrap', alignItems: 'center', gap: 8 }}>
+							<T v="h3" style={{ flexGrow: 1, flexShrink: 1, minWidth: 120 }}>{tx(UL.teachers)}</T>
 							<Button size="sm" variant="soft" icon={Plus} title={tx(UL.add)} onPress={() => setReqTeachers((p) => ({ ...p, teachers: [...p.teachers, { name: '', phone: '+998' }] }))} />
 						</View>
 						{reqTeachers.teachers.map((tch, idx) => (

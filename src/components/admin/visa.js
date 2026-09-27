@@ -1,5 +1,5 @@
 import React, { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
-import { ScrollView, StyleSheet, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 import { router, usePathname } from 'expo-router';
 import * as Haptics from 'expo-haptics';
 import { Bell, CalendarDays, Clock, FileBarChart, FlaskConical, Kanban, LayoutDashboard, Trash2, Users2 } from 'lucide-react-native';
@@ -236,24 +236,25 @@ export const VisaNav = () => {
 	const { tx } = useLanguage();
 	const path = usePathname();
 	return (
-		<ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 8, paddingBottom: 14, paddingHorizontal: 18 }} style={{ marginHorizontal: -18 }}>
+		<View style={styles.navWrap}>
 			{NAV.map((n) => {
 				const on = path === n.path;
 				return (
-					<Tap key={n.path} onPress={() => !on && router.replace(n.path)} style={[styles.nav, on && styles.navOn]}>
+					<Tap key={n.path} onPress={() => !on && router.navigate(n.path)} style={[styles.nav, on && styles.navOn]}>
 						<n.icon size={15} color={on ? colors.navyDeep : colors.muted} />
 						<T style={[styles.navText, on && { color: colors.navyDeep }]}>{tx(n.label)}</T>
 					</Tap>
 				);
 			})}
-		</ScrollView>
+		</View>
 	);
 };
 
 const styles = StyleSheet.create({
-	nav: { flexDirection: 'row', alignItems: 'center', gap: 6, paddingHorizontal: 14, height: 38, borderRadius: radius.pill, backgroundColor: colors.white, borderWidth: 1, borderColor: colors.line },
+	navWrap: { flexDirection: 'row', flexWrap: 'wrap', gap: 8, paddingBottom: 14 },
+	nav: { flexGrow: 1, flexBasis: 100, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 6, paddingHorizontal: 12, minHeight: 42, borderRadius: radius.pill, backgroundColor: colors.white, borderWidth: 1, borderColor: colors.line },
 	navOn: { backgroundColor: colors.gold, borderColor: colors.goldDeep },
-	navText: { fontFamily: fonts.bold, fontSize: 13, color: colors.ink2 },
+	navText: { fontFamily: fonts.bold, fontSize: 13, color: colors.ink2, flexShrink: 1 },
 	chipBtn: { flexDirection: 'row', alignItems: 'center', gap: 4, paddingHorizontal: 12, height: 32, borderRadius: radius.pill, backgroundColor: colors.cardMuted },
 	chipBtnText: { fontFamily: fonts.bold, fontSize: 12, color: colors.ink2 },
 	notif: { flexDirection: 'row', gap: 10, padding: 12, borderRadius: radius.md, marginBottom: 6 },

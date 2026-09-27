@@ -162,8 +162,8 @@ export default function VisaApplicants() {
 			<VisaNav />
 
 			<Field icon={Search} value={search} onChangeText={setSearch} placeholder={tx(L.search)} style={{ marginBottom: 10 }} />
-			<View style={{ flexDirection: 'row', gap: 8, marginBottom: 12 }}>
-				<View style={{ flex: 1 }}>
+			<View style={styles.filters}>
+				<View style={styles.statusFilter}>
 					<SelectField title={tx(L.status)} icon={Filter} value={statusFilter} placeholder={tx(L.allStatuses)} options={[{ value: '', label: tx(L.allStatuses) }, ...STATUS_OPTIONS.map((s) => ({ value: s.value, label: tx(s) }))]} onChange={setStatusFilter} />
 				</View>
 				<Tap onPress={() => setStaleOnly((v) => !v)} style={[styles.stale, staleOnly && styles.staleOn]}>
@@ -258,11 +258,13 @@ export default function VisaApplicants() {
 }
 
 const styles = StyleSheet.create({
-	stale: { flexDirection: 'row', alignItems: 'center', gap: 6, paddingHorizontal: 12, borderRadius: radius.lg, backgroundColor: colors.white, borderWidth: 1, borderColor: colors.line, maxWidth: 150 },
+	filters: { flexDirection: 'row', flexWrap: 'wrap', alignItems: 'stretch', gap: 8, marginBottom: 12 },
+	statusFilter: { flexGrow: 1, flexBasis: 230, minWidth: 0 },
+	stale: { flexGrow: 1, flexBasis: 150, minHeight: 56, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 7, paddingHorizontal: 14, borderRadius: radius.lg, backgroundColor: colors.white, borderWidth: 1, borderColor: colors.line },
 	staleOn: { backgroundColor: colors.gold, borderColor: colors.goldDeep },
-	staleText: { fontFamily: fonts.bold, fontSize: 12, color: colors.muted, flexShrink: 1 },
-	selectBar: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 10 },
-	bulkRow: { flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 12 },
+	staleText: { fontFamily: fonts.bold, fontSize: 12, lineHeight: 16, color: colors.muted, flexShrink: 1, textAlign: 'center' },
+	selectBar: { flexDirection: 'row', flexWrap: 'wrap', alignItems: 'center', justifyContent: 'space-between', gap: 8, marginBottom: 10 },
+	bulkRow: { flexDirection: 'row', flexWrap: 'wrap', alignItems: 'center', gap: 8, marginBottom: 12 },
 	box: { width: 22, height: 22, borderRadius: 7, borderWidth: 1.5, borderColor: colors.lineStrong, alignItems: 'center', justifyContent: 'center', backgroundColor: colors.white },
 	boxOn: { backgroundColor: colors.gold, borderColor: colors.goldDeep },
 });

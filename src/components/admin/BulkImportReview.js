@@ -420,10 +420,10 @@ export const RowReview = ({ batch, onBatchUpdate }) => {
 								</>
 							) : <T v="small" color={colors.muted}>{tx(L.noMatch)}</T>}
 						</View>
-						<View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, marginTop: 10 }}>
+						<View style={{ flexDirection: 'row', flexWrap: 'wrap', alignItems: 'center', gap: 6, marginTop: 10 }}>
 							<Pill icon={st.icon} label={st.label} color={st.color} bg={st.bg} />
 							<Pill icon={row.has_permission ? ShieldCheck : undefined} label={tx(row.has_permission ? L.granted : L.notGranted)} color={row.has_permission ? colors.amber : colors.muted} bg={row.has_permission ? colors.goldTint : colors.cardMuted} />
-							<View style={{ flex: 1 }} />
+							<View style={{ flexGrow: 1 }} />
 							<Button size="sm" variant="light" icon={UserPlus} title={tx(L.resolve)} onPress={() => setResolving(row)} />
 						</View>
 					</Card>

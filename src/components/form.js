@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Platform, Pressable, StyleSheet, Switch, View } from 'react-native';
+import { Platform, Pressable, StyleSheet, Switch, useWindowDimensions, View } from 'react-native';
 import DateTimePicker, { DateTimePickerAndroid } from '@react-native-community/datetimepicker';
 import { Calendar, Check, X } from 'lucide-react-native';
 import { useLanguage } from '../context/LanguageContext';
@@ -8,16 +8,22 @@ import { colors, radius } from '../theme';
 import { formatShortDate, formatDay } from '../utils/format';
 
 // Section card with a title — admin forms are long, this keeps them scannable.
-export const FormSection = ({ icon: Icon, title, children, right, style }) => (
-	<View style={[styles.section, style]}>
-		<View style={styles.sectionHead}>
-			{Icon ? <View style={styles.sectionIcon}><Icon size={16} color={colors.amber} /></View> : null}
-			<T v="h3" style={{ flex: 1 }}>{title}</T>
-			{right}
+export const FormSection = ({ icon: Icon, title, children, right, style }) => {
+	const { width, fontScale } = useWindowDimensions();
+	const compact = width < 520 || fontScale > 1.15;
+	return (
+		<View style={[styles.section, style]}>
+			<View style={[styles.sectionHead, compact && styles.sectionHeadCompact]}>
+				<View style={styles.sectionHeading}>
+					{Icon ? <View style={styles.sectionIcon}><Icon size={16} color={colors.amber} /></View> : null}
+					<T v="h3" style={styles.sectionTitle}>{title}</T>
+				</View>
+				{right ? <View style={[styles.sectionAction, compact && styles.sectionActionCompact]}>{right}</View> : null}
+			</View>
+			<View style={{ gap: 14 }}>{children}</View>
 		</View>
-		<View style={{ gap: 14 }}>{children}</View>
-	</View>
-);
+	);
+};
 
 export const TextArea = ({ rows = 4, ...props }) => (
 	<Field multiline textAlignVertical="top" inputStyle={{ minHeight: rows * 22, paddingTop: 14 }} {...props} />
@@ -148,10 +154,14 @@ export const errorText = (err) => {
 const styles = StyleSheet.create({
 	section: { backgroundColor: colors.white, borderRadius: radius.xl, padding: 18, borderWidth: 1, borderColor: colors.line, marginBottom: 14 },
 	sectionHead: { flexDirection: 'row', alignItems: 'center', gap: 10, marginBottom: 16 },
-	sectionIcon: { width: 32, height: 32, borderRadius: 11, backgroundColor: colors.goldTint, alignItems: 'center', justifyContent: 'center' },
-	switchRow: { flexDirection: 'row', alignItems: 'center', gap: 12, padding: 14, borderRadius: radius.lg, backgroundColor: colors.cardMuted, borderWidth: 1, borderColor: colors.line },
+	sectionHeadCompact: { flexDirection: 'column', alignItems: 'stretch' },
+	sectionHeading: { flex: 1, minWidth: 0, flexDirection: 'row', alignItems: 'center', gap: 10 },
+	sectionIcon: { width: 32, height: 32, borderRadius: 11, backgroundColor: colors.goldTint, alignItems: 'center', justifyContent: 'center', flexShrink: 0 },
+	sectionTitle: { flex: 1, minWidth: 0 },
+	sectionAction: { maxWidth: '58%', flexShrink: 0, marginLeft: 'auto' },
+	sectionActionCompact: { maxWidth: '100%', marginLeft: 42, alignSelf: 'flex-start' },
+	switchRow: { flexDirection: 'row', alignItems: 'center', gap: 12, padding: 14, borderRadius: radius.lg, backgroundColor: colors.cardMuted, borderWidth: 1, borderColor: colors.line, minWidth: 0 },
 	chip: { flexDirection: 'row', alignItems: 'center', gap: 5, paddingHorizontal: 13, paddingVertical: 9, borderRadius: radius.pill, backgroundColor: colors.cardMuted, borderWidth: 1, borderColor: colors.line },
 	chipOn: { backgroundColor: colors.gold, borderColor: colors.goldDeep },
 	dateField: { flexDirection: 'row', alignItems: 'center', gap: 10, backgroundColor: colors.white, borderRadius: radius.lg, borderWidth: 1.5, borderColor: colors.line, paddingHorizontal: 16, minHeight: 54 },
 });
-

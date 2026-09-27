@@ -3,11 +3,11 @@ import { Platform } from 'react-native';
 // Brand: IRN gold (#FDC800 on the website) paired with a deep "medal ink" navy
 // used on the certificates (#16305c). Warm cream canvas instead of flat white.
 export const colors = {
-	bg: '#FFF9EE',
-	bgDeep: '#FFF1D2',
+	bg: '#FBFAF7',
+	bgDeep: '#F2EEE4',
 	card: '#FFFFFF',
-	cardMuted: '#FBF6EA',
-	line: '#F0E6CF',
+	cardMuted: '#F7F4EC',
+	line: '#EAE4D8',
 	lineStrong: '#E6D7B2',
 
 	ink: '#101A33',
@@ -40,9 +40,9 @@ export const colors = {
 
 export const gradients = {
 	gold: ['#FFD83A', '#FDC800', '#F2A900'],
-	goldSoft: ['#FFF6D6', '#FFEFC2'],
+	goldSoft: ['#FFF8DC', '#FFEDAD'],
 	navy: ['#1D3A6E', '#12264A', '#0C1A36'],
-	canvas: ['#FFF4DA', '#FFF9EE', '#FFF9EE'],
+	canvas: ['#FFF6DA', '#FBFAF7', '#FBFAF7'],
 	success: ['#2BC56B', '#12A150'],
 	danger: ['#FF6B6F', '#E5484D'],
 };
@@ -67,7 +67,7 @@ export const shadow = (level = 1) => {
 	const p = presets[level] || presets[1];
 	return Platform.select({
 		ios: {
-			shadowColor: '#3A2A00',
+			shadowColor: '#25304A',
 			shadowOpacity: p.opacity,
 			shadowRadius: p.radius,
 			shadowOffset: { width: 0, height: p.y },

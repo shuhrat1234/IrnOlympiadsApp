@@ -177,7 +177,7 @@ export default function OlympiadForm() {
 				<View>
 					<T v="label" style={{ marginBottom: 8, marginLeft: 4 }}>{tx(L.banner)}</T>
 					{form.bannerPreview ? <Image source={{ uri: form.bannerPreview }} style={styles.banner} resizeMode="cover" /> : null}
-					<View style={{ flexDirection: 'row', gap: 8, marginTop: form.bannerPreview ? 10 : 0 }}>
+					<View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginTop: form.bannerPreview ? 10 : 0 }}>
 						<Button style={{ flex: 1 }} size="sm" variant="light" icon={ImagePlus} title={tx(L.uploadBanner)} onPress={uploadBanner} />
 						{form.bannerPreview ? <Button size="sm" variant="danger" icon={Trash2} title="" onPress={() => setForm((p) => ({ ...p, banner_image: null, bannerPreview: '' }))} /> : null}
 					</View>
@@ -220,9 +220,9 @@ export default function OlympiadForm() {
 									{['uz', 'ru', 'en'].map((lk) => (
 										<Field key={lk} value={sub[`title_${lk}`]} onChangeText={(v) => updSub(sub._key, `title_${lk}`, v)} placeholder={`${tx(L.subjectName)} (${lk.toUpperCase()})`} />
 									))}
-									<View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginTop: 4 }}>
-										<T v="label">{tx(L.gradeSchedule)}</T>
-										<View style={{ flexDirection: 'row', gap: 6 }}>
+									<View style={styles.scheduleHead}>
+										<T v="label" style={{ flexGrow: 1, flexShrink: 1 }}>{tx(L.gradeSchedule)}</T>
+										<View style={styles.scheduleActions}>
 											<Button size="sm" variant="light" title={tx(L.allGrades)} onPress={() => addSessions(sub._key, ALL_GRADES.filter((g) => !existing.includes(g)))} />
 											<Button size="sm" variant="soft" icon={Plus} title={tx(L.addGrade)} onPress={() => addSessions(sub._key, [''])} />
 										</View>
@@ -230,11 +230,11 @@ export default function OlympiadForm() {
 									{!sub.grade_sessions.length ? <T v="small">{tx(L.noGrades)}</T> : null}
 									{[...sub.grade_sessions].sort((a, b) => (parseInt(a.grade, 10) || 0) - (parseInt(b.grade, 10) || 0)).map((gs) => (
 										<View key={gs._key} style={styles.session}>
-											<View style={{ flexDirection: 'row', gap: 8, alignItems: 'flex-end' }}>
-												<View style={{ flex: 1.2 }}>
+										<View style={styles.sessionFields}>
+											<View style={{ flexGrow: 1, flexBasis: 150 }}>
 													<SelectField label={tx(L.grade)} value={gs.grade} onChange={(v) => updSession(sub._key, gs._key, { grade: v })} placeholder="—" options={ALL_GRADES.map((g) => ({ value: g, label: gradeLabel(g) }))} />
 												</View>
-												<View style={{ flex: 1 }}>
+											<View style={{ flexGrow: 1, flexBasis: 150 }}>
 													<NumberField label={tx(L.duration)} value={gs.duration_minutes} onChange={(v) => updSession(sub._key, gs._key, { duration_minutes: v })} />
 												</View>
 												<Tap onPress={() => removeSession(sub._key, gs._key)} style={[styles.iconBtn, { backgroundColor: colors.redSoft, marginBottom: 8 }]}><X size={16} color={colors.red} /></Tap>
@@ -280,5 +280,8 @@ const styles = StyleSheet.create({
 	sub: { padding: 12, borderRadius: radius.lg, backgroundColor: colors.cardMuted, borderWidth: 1, borderColor: colors.line },
 	session: { gap: 8, padding: 12, borderRadius: radius.md, backgroundColor: colors.white, borderWidth: 1, borderColor: colors.line },
 	iconBtn: { width: 36, height: 36, borderRadius: 18, backgroundColor: colors.white, alignItems: 'center', justifyContent: 'center', borderWidth: 1, borderColor: colors.line },
+	scheduleHead: { flexDirection: 'row', flexWrap: 'wrap', alignItems: 'center', justifyContent: 'space-between', gap: 10, marginTop: 4 },
+	scheduleActions: { flexDirection: 'row', flexWrap: 'wrap', gap: 6, maxWidth: '100%' },
+	sessionFields: { flexDirection: 'row', flexWrap: 'wrap', gap: 8, alignItems: 'flex-end' },
 	tbd: { flexDirection: 'row', alignItems: 'center', gap: 8, padding: 12, borderRadius: radius.md, backgroundColor: colors.goldTint, borderWidth: 1, borderStyle: 'dashed', borderColor: colors.gold },
 });

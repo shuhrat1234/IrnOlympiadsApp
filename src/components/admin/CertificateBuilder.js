@@ -230,7 +230,7 @@ export default function CertificateBuilder({ certificatePreview, config: certifi
 				<T v="label" style={{ marginBottom: 8, marginLeft: 4 }}>{tx(L.certLang)}</T>
 				<Segmented value={certLang} onChange={(v) => onChange({ ...full, certificateLanguage: v })} options={[{ value: 'uz', label: '🇺🇿 UZ' }, { value: 'ru', label: '🇷🇺 RU' }, { value: 'en', label: '🇬🇧 EN' }]} />
 			</View>
-			<View style={{ flexDirection: 'row', gap: 8 }}>
+			<View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8 }}>
 				<Button style={{ flex: 1 }} size="sm" variant="dark" icon={Users} title={`${tx(L.import)}${full.recipients.length ? ` (${full.recipients.length})` : ''}`} onPress={() => setImportOpen(true)} />
 				{full.recipients.length ? (
 					<Button size="sm" variant="soft" icon={Download} title={zip ? `${zip.current}/${zip.total}` : 'ZIP'} disabled={!!zip} onPress={async () => {
@@ -245,28 +245,32 @@ export default function CertificateBuilder({ certificatePreview, config: certifi
 
 			<ChoicePills value={award} onChange={setAward} options={AWARD_TABS.map((a) => ({ value: a.id, label: `${a.label}${templates[a.id] ? ' •' : ''}` }))} />
 
-			<View style={{ flexDirection: 'row', gap: 8 }}>
+			<View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8 }}>
 				<Button style={{ flex: 1 }} size="sm" variant="light" icon={ImagePlus} title={converting ? tx(L.converting) : rawTemplate ? tx(L.change) : tx(L.upload)} loading={converting} onPress={uploadTemplate} />
 				{rawTemplate ? <Tap onPress={() => setTemplate('')} style={styles.round}><Trash2 size={17} color={colors.red} /></Tap> : null}
 				<Tap onPress={() => setSample((i) => (i + 1) % SAMPLES.length)} style={[styles.round, { backgroundColor: colors.goldTint }]}><Shuffle size={17} color={colors.amber} /></Tap>
 			</View>
-			<T v="small">{tx(L.dragHint)}</T>
+			{preview ? <T v="small">{tx(L.dragHint)}</T> : null}
 
 			{/* Canvas */}
 			<View onLayout={(e) => setCanvasW(e.nativeEvent.layout.width)}>
 				{canvasW ? (
-					<View ref={canvasRef} style={[styles.canvas, { width: canvasW, height: H }]} {...responder.panHandlers}>
+					<View ref={canvasRef} style={[styles.canvas, { width: canvasW, height: H }]} {...(preview ? responder.panHandlers : {})}>
 						{preview ? <Image source={{ uri: preview }} style={{ width: canvasW, height: H }} resizeMode="stretch" /> : (
-							<View style={styles.empty}><ImagePlus size={32} color={colors.faint} /><T v="small" style={{ textAlign: 'center', marginTop: 8 }}>{tx(L.noTemplate)}</T></View>
+							<View style={styles.empty}>
+								<View style={styles.emptyIcon}><ImagePlus size={28} color={colors.amber} /></View>
+								<T v="strong" style={{ textAlign: 'center' }}>{tx(L.noTemplate)}</T>
+								<Button size="sm" variant="soft" icon={ImagePlus} title={tx(L.upload)} style={{ marginTop: 14 }} onPress={uploadTemplate} />
+							</View>
 						)}
 						{['name', 'score', 'grade', 'date'].map((k) =>
-							full[k].show ? (
+							preview && full[k].show ? (
 								<View key={k} pointerEvents="none" style={{ position: 'absolute', left: (full[k].x / 100) * canvasW - canvasW, top: (full[k].y / 100) * H - full[k].fontSize * s, width: canvasW * 2, height: full[k].fontSize * s * 2, alignItems: 'center', justifyContent: 'center' }}>
 									<Text numberOfLines={1} style={[{ color: full[k].color, fontSize: Math.max(4, full[k].fontSize * s), fontFamily: nativeFont(full[k].fontFamily), fontWeight: k === 'score' ? '800' : '700' }, tab === k && styles.activeEl]}>{texts[k]}</Text>
 								</View>
 							) : null
 						)}
-						{full.qr.show ? (
+						{preview && full.qr.show ? (
 							<View pointerEvents="none" style={[styles.qr, { left: (full.qr.x / 100) * canvasW - ((full.qr.size + 8) * s) / 2, top: (full.qr.y / 100) * H - ((full.qr.size + 8) * s) / 2 }, tab === 'qr' && styles.activeEl]}>
 								{qr ? <SvgXml xml={qr} width={full.qr.size * s} height={full.qr.size * s} /> : <QrCode size={full.qr.size * s} color={colors.navy} />}
 								{full.qr.showLabel ? <Text style={{ fontSize: Math.max(3, 7 * s), fontFamily: fonts.extrabold, color: '#16305c' }}>IRNOLYMPIAD.UZ</Text> : null}
@@ -342,7 +346,8 @@ export default function CertificateBuilder({ certificatePreview, config: certifi
 
 const styles = StyleSheet.create({
 	canvas: { borderRadius: 12, overflow: 'hidden', backgroundColor: colors.cardMuted, borderWidth: 1, borderColor: colors.lineStrong },
-	empty: { flex: 1, alignItems: 'center', justifyContent: 'center', padding: 20 },
+	empty: { flex: 1, alignItems: 'center', justifyContent: 'center', padding: 24 },
+	emptyIcon: { width: 58, height: 58, borderRadius: 20, alignItems: 'center', justifyContent: 'center', backgroundColor: colors.goldTint, marginBottom: 12 },
 	qr: { position: 'absolute', backgroundColor: '#fff', padding: 3, borderRadius: 5, alignItems: 'center' },
 	activeEl: { backgroundColor: 'rgba(253,200,0,0.25)', borderRadius: 4 },
 	stepper: { flexDirection: 'row', alignItems: 'center', gap: 8, padding: 10, paddingLeft: 14, borderRadius: radius.lg, backgroundColor: colors.cardMuted, borderWidth: 1, borderColor: colors.line },

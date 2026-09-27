@@ -241,15 +241,11 @@ export default function AdminOlympiads() {
 					const online = oly.olympiad_type === 'online';
 					const hasSubs = oly.subs?.length > 0;
 					const open = expanded[oly.id];
+					const dateText = formatDate(oly.date || oly.start_datetime, lang);
 					return (
 						<Card key={oly.id} style={[{ marginBottom: 12, padding: 16 }, oly.is_active === false && { opacity: 0.75 }]}>
-							<View style={{ flexDirection: 'row', gap: 10 }}>
-								<View style={styles.order}>
-									<Tap onPress={() => moveOlympiad(oly.id, 'up')} disabled={index === 0} style={[styles.orderBtn, index === 0 && { opacity: 0.3 }]}><ArrowUp size={14} color={colors.ink2} /></Tap>
-									<T v="strong" style={{ fontSize: 11 }}>#{index + 1}</T>
-									<Tap onPress={() => moveOlympiad(oly.id, 'down')} disabled={index === olympiads.length - 1} style={[styles.orderBtn, index === olympiads.length - 1 && { opacity: 0.3 }]}><ArrowDown size={14} color={colors.ink2} /></Tap>
-								</View>
-								<View style={{ flex: 1 }}>
+							<View style={styles.cardHead}>
+								<View style={{ flex: 1, minWidth: 0 }}>
 									<T v="h3" numberOfLines={3} style={{ fontSize: 15.5 }}>{pick(oly)}</T>
 									<View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 6, marginTop: 8 }}>
 										<Pill icon={online ? Wifi : Building2} label={tx(online ? L.online : L.offline)} color={online ? colors.amber : colors.navy} bg={online ? colors.goldTint : colors.navySoft} />
@@ -257,22 +253,31 @@ export default function AdminOlympiads() {
 										<Pill icon={Users} label={`${oly.registered_count || 0}${oly.max_participants > 0 ? `/${oly.max_participants}` : ''}`} />
 										{Number(oly.price) > 0 ? <Pill label={formatPrice(oly.price)} color={colors.navyDeep} bg={colors.goldSoft} /> : null}
 									</View>
-									<View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, marginTop: 8 }}>
+									{dateText ? <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, marginTop: 8 }}>
 										<Calendar size={12} color={colors.faint} />
-										<T v="small" style={{ fontSize: 12 }}>{formatDate(oly.date || oly.start_datetime, lang)}</T>
+										<T v="small" style={{ fontSize: 12 }}>{dateText}</T>
+									</View> : null}
+								</View>
+								<View style={styles.order}>
+									<T v="label" color={colors.ink2} style={{ fontSize: 9 }}>#{index + 1}</T>
+									<View style={styles.orderControls}>
+										<Tap onPress={() => moveOlympiad(oly.id, 'up')} disabled={index === 0} style={[styles.orderBtn, index === 0 && { opacity: 0.3 }]}><ArrowUp size={14} color={colors.ink2} /></Tap>
+										<Tap onPress={() => moveOlympiad(oly.id, 'down')} disabled={index === olympiads.length - 1} style={[styles.orderBtn, index === olympiads.length - 1 && { opacity: 0.3 }]}><ArrowDown size={14} color={colors.ink2} /></Tap>
 									</View>
 								</View>
 							</View>
 
 							<View style={styles.actions}>
-								<Tap onPress={() => act(() => updateOlympiad(oly.id, { is_active: !oly.is_active }), oly.is_active ? L.toastHidden : L.toastShown)} style={styles.iconAct}>
-									{oly.is_active ? <Eye size={17} color={colors.green} /> : <EyeOff size={17} color={colors.muted} />}
-								</Tap>
-								<Tap onPress={() => router.push({ pathname: '/admin/olympiad-form', params: { id: oly.id } })} style={styles.iconAct}><Edit3 size={17} color={colors.blue} /></Tap>
-								<Tap onPress={() => ask(L.confirmDelete, () => act(() => deleteOlympiad(oly.id), L.toastDeleted), 'red')} style={styles.iconAct}><Trash2 size={17} color={colors.red} /></Tap>
-								<View style={{ flex: 1 }} />
+								<View style={styles.secondaryActions}>
+									<Tap onPress={() => act(() => updateOlympiad(oly.id, { is_active: !oly.is_active }), oly.is_active ? L.toastHidden : L.toastShown)} style={styles.iconAct}>
+										{oly.is_active ? <Eye size={17} color={colors.green} /> : <EyeOff size={17} color={colors.muted} />}
+									</Tap>
+									<Tap onPress={() => router.push({ pathname: '/admin/olympiad-form', params: { id: oly.id } })} style={styles.iconAct}><Edit3 size={17} color={colors.blue} /></Tap>
+									<Tap onPress={() => ask(L.confirmDelete, () => act(() => deleteOlympiad(oly.id), L.toastDeleted), 'red')} style={styles.iconAct}><Trash2 size={17} color={colors.red} /></Tap>
+								</View>
+								<View style={styles.primaryAction}>
 								{hasSubs ? (
-									<Button size="sm" variant="soft" icon={open ? ChevronUp : ChevronDown} title={tx(open ? L.hide : L.schedule)} onPress={() => setExpanded((p) => ({ ...p, [oly.id]: !p[oly.id] }))} />
+									<Button style={{ minWidth: 126 }} size="sm" variant="soft" icon={open ? ChevronUp : ChevronDown} title={tx(open ? L.hide : L.schedule)} onPress={() => setExpanded((p) => ({ ...p, [oly.id]: !p[oly.id] }))} />
 								) : oly.is_completed ? (
 									<Pill label={tx(L.completed)} color={colors.muted} bg={colors.cardMuted} />
 								) : oly.is_started ? (
@@ -280,6 +285,7 @@ export default function AdminOlympiads() {
 								) : (
 									<Button size="sm" variant="success" icon={Play} title={tx(L.start)} onPress={() => ask(L.confirmStart, () => act(() => startOlympiad(oly.id), L.toastStarted), 'green')} />
 								)}
+								</View>
 							</View>
 
 							{hasSubs && open ? (
@@ -345,9 +351,13 @@ export default function AdminOlympiads() {
 }
 
 const styles = StyleSheet.create({
-	order: { alignItems: 'center', gap: 4 },
-	orderBtn: { width: 28, height: 28, borderRadius: 9, backgroundColor: colors.cardMuted, alignItems: 'center', justifyContent: 'center' },
-	actions: { flexDirection: 'row', alignItems: 'center', gap: 8, marginTop: 14, paddingTop: 12, borderTopWidth: 1, borderTopColor: colors.line },
+	cardHead: { flexDirection: 'row', alignItems: 'flex-start', gap: 12 },
+	order: { alignItems: 'center', gap: 5, flexShrink: 0 },
+	orderControls: { flexDirection: 'row', backgroundColor: colors.cardMuted, borderRadius: 12, padding: 2 },
+	orderBtn: { width: 30, height: 30, borderRadius: 10, alignItems: 'center', justifyContent: 'center' },
+	actions: { flexDirection: 'row', flexWrap: 'wrap', alignItems: 'center', justifyContent: 'space-between', gap: 10, marginTop: 14, paddingTop: 12, borderTopWidth: 1, borderTopColor: colors.line },
+	secondaryActions: { flexDirection: 'row', gap: 7, flexShrink: 0 },
+	primaryAction: { minWidth: 126, alignItems: 'stretch', marginLeft: 'auto' },
 	iconAct: { width: 38, height: 38, borderRadius: 19, backgroundColor: colors.cardMuted, alignItems: 'center', justifyContent: 'center' },
 	sub: { padding: 12, borderRadius: radius.lg, backgroundColor: colors.cardMuted, borderWidth: 1, borderColor: colors.line },
 	session: { flexDirection: 'row', alignItems: 'center', gap: 10, paddingVertical: 8, borderTopWidth: 1, borderTopColor: colors.line },

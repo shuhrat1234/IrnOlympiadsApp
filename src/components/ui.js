@@ -74,7 +74,7 @@ export const Button = ({ title, onPress, variant = 'primary', icon: Icon, iconRi
 			) : (
 				<>
 					{Icon ? <Icon size={18} color={palette.fg} strokeWidth={2.4} /> : null}
-					<Text style={[styles.btnText, { color: palette.fg, fontSize: fs }]} numberOfLines={1}>{title}</Text>
+					<Text style={[styles.btnText, { color: palette.fg, fontSize: fs }]} numberOfLines={2}>{title}</Text>
 					{IconRight ? <IconRight size={18} color={palette.fg} strokeWidth={2.4} /> : null}
 				</>
 			)}
@@ -127,8 +127,8 @@ export const IconBadge = ({ icon: Icon, color = colors.amber, bg = colors.goldTi
 export const Divider = ({ style }) => <View style={[{ height: 1, backgroundColor: colors.line }, style]} />;
 
 export const SectionTitle = ({ title, action, onAction, style }) => (
-	<View style={[{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12, marginTop: 8 }, style]}>
-		<T v="h2">{title}</T>
+	<View style={[{ flexDirection: 'row', flexWrap: 'wrap', alignItems: 'center', justifyContent: 'space-between', gap: 8, marginBottom: 12, marginTop: 8 }, style]}>
+		<T v="h2" style={{ flexGrow: 1, flexShrink: 1, minWidth: 0 }}>{title}</T>
 		{action ? (
 			<Pressable onPress={onAction} hitSlop={10}>
 				<T v="strong" color={colors.amber} style={{ fontSize: 14 }}>{action}</T>
@@ -360,19 +360,19 @@ export const Avatar = ({ initials, size = 56, dark }) => (
 
 const styles = StyleSheet.create({
 	btnShape: { borderRadius: radius.pill, overflow: 'hidden' },
-	btnInner: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8, paddingHorizontal: 22 },
-	btnText: { fontFamily: fonts.extrabold, letterSpacing: 0.2 },
-	card: { backgroundColor: colors.card, borderRadius: radius.xl, borderWidth: 1, borderColor: colors.line, ...shadow(1) },
-	pill: { flexDirection: 'row', alignItems: 'center', gap: 5, paddingHorizontal: 10, paddingVertical: 5, borderRadius: radius.pill, alignSelf: 'flex-start' },
-	pillText: { fontFamily: fonts.bold, fontSize: 11.5, letterSpacing: 0.2 },
+	btnInner: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8, paddingHorizontal: 18, minWidth: 0 },
+	btnText: { fontFamily: fonts.extrabold, letterSpacing: 0.1, flexShrink: 1, textAlign: 'center' },
+	card: { backgroundColor: colors.card, borderRadius: radius.xl, borderWidth: 1, borderColor: 'rgba(230,224,211,0.85)', ...shadow(1) },
+	pill: { flexDirection: 'row', alignItems: 'center', gap: 5, paddingHorizontal: 10, paddingVertical: 5, borderRadius: radius.pill, alignSelf: 'flex-start', maxWidth: '100%' },
+	pillText: { fontFamily: fonts.bold, fontSize: 11.5, letterSpacing: 0.2, flexShrink: 1 },
 	dot: { width: 6, height: 6, borderRadius: 3 },
 	badgeDot: { position: 'absolute', top: -2, right: -2, minWidth: 18, height: 18, paddingHorizontal: 4, borderRadius: 9, backgroundColor: colors.red, alignItems: 'center', justifyContent: 'center', borderWidth: 2, borderColor: colors.white },
 	badgeDotText: { color: colors.white, fontFamily: fonts.extrabold, fontSize: 9 },
-	field: { flexDirection: 'row', alignItems: 'center', gap: 10, backgroundColor: colors.white, borderRadius: radius.lg, borderWidth: 1.5, borderColor: colors.line, paddingHorizontal: 16, minHeight: 54 },
-	fieldFocused: { borderColor: colors.gold, backgroundColor: '#FFFDF6' },
+	field: { flexDirection: 'row', alignItems: 'center', gap: 10, backgroundColor: colors.white, borderRadius: 18, borderWidth: 1.5, borderColor: colors.line, paddingHorizontal: 16, minHeight: 56 },
+	fieldFocused: { borderColor: colors.goldDeep, backgroundColor: '#FFFEF9', ...shadow(1) },
 	fieldError: { borderColor: colors.red, backgroundColor: '#FFF8F8' },
 	input: { flex: 1, fontFamily: fonts.semibold, fontSize: 15.5, color: colors.ink, paddingVertical: 14 },
-	segment: { flexDirection: 'row', backgroundColor: colors.bgDeep, borderRadius: radius.pill, padding: 4 },
+	segment: { flexDirection: 'row', backgroundColor: colors.bgDeep, borderRadius: radius.pill, padding: 4, borderWidth: 1, borderColor: 'rgba(230,224,211,0.75)' },
 	segmentItem: { flex: 1, flexDirection: 'row', gap: 6, alignItems: 'center', justifyContent: 'center', paddingVertical: 10, paddingHorizontal: 8, borderRadius: radius.pill },
 	segmentActive: { backgroundColor: colors.white, ...shadow(1) },
 	segmentActiveDark: { backgroundColor: colors.gold },
