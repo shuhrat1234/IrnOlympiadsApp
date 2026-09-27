@@ -137,7 +137,13 @@ export default function LoginScreen() {
 			<View style={styles.glow2} />
 
 			<KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined} style={{ flex: 1 }}>
-				<ScrollView contentContainerStyle={{ flexGrow: 1 }} keyboardShouldPersistTaps="handled" showsVerticalScrollIndicator={false} bounces={false}>
+				<ScrollView
+					contentContainerStyle={{ flexGrow: 1 }}
+					keyboardShouldPersistTaps="always"
+					keyboardDismissMode="none"
+					showsVerticalScrollIndicator={false}
+					bounces={false}
+				>
 					{/* Hero */}
 					<View style={[styles.hero, { paddingTop: insets.top + 12 }]}>
 						<View style={styles.topRow}>

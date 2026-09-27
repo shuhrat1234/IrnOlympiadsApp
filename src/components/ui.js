@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { ActivityIndicator, Modal, Pressable, ScrollView, StyleSheet, Text, TextInput, View, KeyboardAvoidingView, Platform } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import * as Haptics from 'expo-haptics';
@@ -141,15 +141,21 @@ export const SectionTitle = ({ title, action, onAction, style }) => (
 export const Field = ({ label, icon: Icon, error, secure, right, style, inputStyle, hint, ...props }) => {
 	const [focused, setFocused] = useState(false);
 	const [hidden, setHidden] = useState(true);
+	const inputRef = useRef(null);
 	return (
 		<View style={style}>
 			{label ? <T v="label" style={{ marginBottom: 8, marginLeft: 4 }}>{label}</T> : null}
-			<View style={[styles.field, focused && styles.fieldFocused, error && styles.fieldError]}>
+			<View
+				style={[styles.field, focused && styles.fieldFocused, error && styles.fieldError]}
+				onTouchEnd={() => inputRef.current?.focus()}
+			>
 				{Icon ? <Icon size={18} color={focused ? colors.amber : colors.faint} strokeWidth={2.2} /> : null}
 				<TextInput
+					ref={inputRef}
 					placeholderTextColor={colors.faint}
 					style={[styles.input, inputStyle]}
 					secureTextEntry={secure && hidden}
+					showSoftInputOnFocus
 					onFocus={(e) => { setFocused(true); props.onFocus?.(e); }}
 					onBlur={(e) => { setFocused(false); props.onBlur?.(e); }}
 					{...props}
