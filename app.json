@@ -1,17 +1,25 @@
 {
   "expo": {
-    "name": "IrnOlymApp",
-    "slug": "IrnOlymApp",
+    "name": "IRN Olympiads",
+    "slug": "irn-olympiads",
+    "scheme": "irnolympiads",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
+    "backgroundColor": "#09090C",
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "uz.irnolympiad.app",
+      "infoPlist": {
+        "NSPhotoLibraryUsageDescription": "Qo'llab-quvvatlash xizmatiga rasm yuborish uchun galereyaga ruxsat kerak.",
+        "ITSAppUsesNonExemptEncryption": false
+      }
     },
     "android": {
+      "package": "uz.irnolympiad.app",
       "adaptiveIcon": {
-        "backgroundColor": "#E6F4FE",
+        "backgroundColor": "#09090C",
         "foregroundImage": "./assets/android-icon-foreground.png",
         "backgroundImage": "./assets/android-icon-background.png",
         "monochromeImage": "./assets/android-icon-monochrome.png"
@@ -19,6 +27,27 @@
     },
     "web": {
       "favicon": "./assets/favicon.png"
+    },
+    "plugins": [
+      "expo-router",
+      "expo-secure-store",
+      "expo-sharing",
+      "expo-image",
+      "expo-font",
+      "expo-web-browser",
+      [
+        "expo-splash-screen",
+        {
+          "image": "./assets/splash-icon.png",
+          "imageWidth": 220,
+          "backgroundColor": "#09090C",
+          "resizeMode": "contain"
+        }
+      ],
+      "@react-native-community/datetimepicker"
+    ],
+    "experiments": {
+      "typedRoutes": false
     }
   }
 }
