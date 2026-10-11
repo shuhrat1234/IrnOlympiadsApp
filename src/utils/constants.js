@@ -20,6 +20,7 @@ export const GRADES = ['KG', '1', '2', '3', '4', '5', '6', '7', '8', '9', '10', 
 export const LINKS = {
 	bot: 'https://t.me/irnolympiad_bot',
 	channel: 'https://t.me/IRN_Olympiads',
+	instagram: 'https://www.instagram.com/irn_olympiads_/',
 	coordinator: 'https://t.me/IRN_Coordinator_Main',
 	site: 'https://irnolympiad.uz',
 	books: 'https://irnolympiad.uz/books',

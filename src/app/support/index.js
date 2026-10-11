@@ -1,8 +1,8 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { StyleSheet, View } from 'react-native';
+import { Linking, StyleSheet, View } from 'react-native';
 import { router } from 'expo-router';
 import Animated, { FadeInDown } from 'react-native-reanimated';
-import { ChevronRight, Clock, LifeBuoy, MessageCircle, Plus } from 'lucide-react-native';
+import { Camera, ChevronRight, Clock, LifeBuoy, MessageCircle, Plus, Send } from 'lucide-react-native';
 import { useLanguage } from '../../context/LanguageContext';
 import { useSupport } from '../../context/SupportContext';
 import { Screen, StackHeader, LargeTitle } from '../../components/layout';
@@ -10,6 +10,7 @@ import { Button, Card, EmptyState, IconBadge, Pill, Segmented, T } from '../../c
 import { colors, radius } from '../../theme';
 import { formatShortDate } from '../../utils/format';
 import { ticketStatus } from '../../components/support';
+import { LINKS } from '../../utils/constants';
 
 const SL = {
 	allTickets: { uz: 'Barcha murojaatlar', ru: 'Все обращения', en: 'All tickets' },
@@ -48,7 +49,12 @@ export default function SupportList() {
 						<Clock size={16} color={colors.green} />
 						<T v="small" style={{ flex: 1, color: colors.ink2 }}>{t('supportNotice')}</T>
 					</View>
-					<Button title={t('newTicket')} icon={Plus} onPress={() => router.push('/support/new')} style={{ marginBottom: 18 }} />
+					<Button title={t('newTicket')} icon={Plus} onPress={() => router.push('/support/new')} style={{ marginBottom: 12 }} />
+					{/* Social links from the website's support sidebar */}
+					<View style={{ flexDirection: 'row', gap: 10, marginBottom: 18 }}>
+						<View style={{ flex: 1 }}><Button size="sm" variant="light" icon={Send} title="Telegram" onPress={() => Linking.openURL(LINKS.channel)} /></View>
+						<View style={{ flex: 1 }}><Button size="sm" variant="light" icon={Camera} title="Instagram" onPress={() => Linking.openURL(LINKS.instagram)} /></View>
+					</View>
 				</>
 			)}
 			{sorted.length === 0 ? (

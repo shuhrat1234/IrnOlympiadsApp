@@ -1,11 +1,12 @@
-import React, { useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
-import { GraduationCap, MapPin, Search, SlidersHorizontal, Trophy, Wifi, X } from 'lucide-react-native';
+import { BookOpen, GraduationCap, MapPin, Search, SlidersHorizontal, Trophy, Wifi, X } from 'lucide-react-native';
+import { router } from 'expo-router';
 import { useAuth } from '../context/AuthContext';
 import { useLanguage } from '../context/LanguageContext';
 import { useOlympiad } from '../context/OlympiadContext';
 import { Screen, StackHeader, LargeTitle } from '../components/layout';
-import { EmptyState, Field, SelectSheet, SkeletonCard, T } from '../components/ui';
+import { EmptyState, Field, IconButton, SelectSheet, SkeletonCard, T } from '../components/ui';
 import OlympiadCard from '../components/OlympiadCard';
 import { colors, fonts, radius } from '../theme';
 import { GRADES } from '../utils/constants';
@@ -22,7 +23,7 @@ const Chip = ({ icon: Icon, label, active, onPress, onClear }) => (
 );
 
 export default function CatalogScreen() {
-	const { currentUser, regions } = useAuth();
+	const { currentUser, regions, fetchMe } = useAuth();
 	const { t, pick } = useLanguage();
 	const { olympiads, isLoaded, fetchOlympiads, userRegistrations, isRegistrationClosed } = useOlympiad();
 	const [query, setQuery] = useState('');
@@ -31,17 +32,26 @@ export default function CatalogScreen() {
 	const [region, setRegion] = useState('all');
 	const [sheet, setSheet] = useState(null);
 
+	useEffect(() => { if (currentUser) fetchMe(); }, []);
+
+	// Every word must match somewhere in the titles (all languages), category, type or subjects.
 	const filtered = useMemo(
-		() =>
-			olympiads.filter((o) => {
+		() => {
+			const words = query.toLowerCase().trim().split(/\s+/).filter(Boolean);
+			return olympiads.filter((o) => {
 				if (o.is_active === false) return false;
-				if (query && !pick(o).toLowerCase().includes(query.toLowerCase())) return false;
+				if (words.length) {
+					const subs = (o.subs || []).map((s) => `${s.title_uz || ''} ${s.title_ru || ''} ${s.title_en || ''}`).join(' ');
+					const hay = `${o.title_uz || ''} ${o.title_ru || ''} ${o.title_en || ''} ${o.category || ''} ${o.type || ''} ${subs}`.toLowerCase();
+					if (!words.every((w) => hay.includes(w))) return false;
+				}
 				if (type !== 'all' && o.type !== type) return false;
 				if (grade !== 'all' && !(o.grades || []).some((g) => String(g) === String(grade))) return false;
 				if (region !== 'all' && !(o.region_ids || []).includes(parseInt(region, 10))) return false;
 				return true;
-			}),
-		[olympiads, query, type, grade, region, pick]
+			});
+		},
+		[olympiads, query, type, grade, region]
 	);
 
 	// Grouped by brand (category, else first word of the title) like the website.
@@ -58,12 +68,12 @@ export default function CatalogScreen() {
 	const regionName = region !== 'all' ? pick(regions.find((r) => String(r.id) === String(region)), 'name') : t('region');
 
 	return (
-		<Screen header={<StackHeader />} onRefresh={() => fetchOlympiads(true)}>
+		<Screen header={<StackHeader right={<IconButton icon={BookOpen} onPress={() => router.push('/books')} />} />} onRefresh={() => fetchOlympiads(true)}>
 			<LargeTitle title={t('catalogTitle')} subtitle={t('catalogSub')} />
 			<Field icon={Search} value={query} onChangeText={setQuery} placeholder={t('search')} returnKeyType="search" />
 			<ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ marginHorizontal: -18, marginTop: 12, marginBottom: 18 }} contentContainerStyle={{ paddingHorizontal: 18, gap: 8 }}>
 				<Chip icon={Wifi} label={type === 'all' ? t('type') : type === 'online' ? t('online') : t('offline')} active={type !== 'all'} onPress={() => setSheet('type')} onClear={() => setType('all')} />
-				<Chip icon={GraduationCap} label={grade === 'all' ? t('grade') : `${grade}${t('gradeSuffix')}`} active={grade !== 'all'} onPress={() => setSheet('grade')} onClear={() => setGrade('all')} />
+				<Chip icon={GraduationCap} label={grade === 'all' ? t('grade') : grade === 'KG' ? t('kindergarten') : `${grade}${t('gradeSuffix')}`} active={grade !== 'all'} onPress={() => setSheet('grade')} onClear={() => setGrade('all')} />
 				<Chip icon={MapPin} label={regionName} active={region !== 'all'} onPress={() => setSheet('region')} onClear={() => setRegion('all')} />
 				{type !== 'all' || grade !== 'all' || region !== 'all' ? (
 					<Chip icon={SlidersHorizontal} label={t('clearFilters')} onPress={() => { setType('all'); setGrade('all'); setRegion('all'); }} />
@@ -84,14 +94,14 @@ export default function CatalogScreen() {
 						</View>
 						{items.map((o) => {
 							const st = currentUser ? registrationStateFor(currentUser, userRegistrations, o) : {};
-							return <OlympiadCard key={o.id} oly={o} userGrade={currentUser?.grade} registered={st.isRegistered} closed={isRegistrationClosed(o)} />;
+							return <OlympiadCard key={o.id} oly={o} userGrade={currentUser?.grade} registered={st.isPaid} pendingPayment={st.isPendingPayment} closed={isRegistrationClosed(o)} />;
 						})}
 					</View>
 				))
 			)}
 
 			<SelectSheet visible={sheet === 'type'} onClose={() => setSheet(null)} title={t('type')} value={type} onSelect={setType} options={[{ value: 'all', label: t('all') }, { value: 'online', label: t('online') }, { value: 'offline', label: t('offline') }]} />
-			<SelectSheet visible={sheet === 'grade'} onClose={() => setSheet(null)} title={t('grade')} value={grade} onSelect={setGrade} options={[{ value: 'all', label: t('all') }, ...GRADES.filter((g) => g !== 'KG').map((g) => ({ value: g, label: `${g}${t('gradeSuffix')}` }))]} />
+			<SelectSheet visible={sheet === 'grade'} onClose={() => setSheet(null)} title={t('grade')} value={grade} onSelect={setGrade} options={[{ value: 'all', label: t('all') }, ...GRADES.map((g) => ({ value: g, label: g === 'KG' ? t('kindergarten') : `${g}${t('gradeSuffix')}` }))]} />
 			<SelectSheet visible={sheet === 'region'} onClose={() => setSheet(null)} title={t('region')} value={region} onSelect={setRegion} options={[{ value: 'all', label: t('all') }, ...regions.map((r) => ({ value: String(r.id), label: pick(r, 'name') }))]} />
 		</Screen>
 	);

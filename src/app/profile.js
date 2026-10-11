@@ -10,6 +10,7 @@ import { useToast } from '../context/ToastContext';
 import { Screen, StackHeader } from '../components/layout';
 import { Avatar, Button, Card, Dialog, Field, IconBadge, Segmented, SelectField, T, Tap } from '../components/ui';
 import TeacherSearch from '../components/TeacherSearch';
+import SubjectTeachers from '../components/SubjectTeachers';
 import { colors, radius } from '../theme';
 import { gradeLabel, initialsOf } from '../utils/format';
 
@@ -181,8 +182,12 @@ export default function ProfileScreen() {
 				</View>
 			) : null}
 
+			{/* Subject teachers (math / english) */}
+			<T v="h2" style={{ marginTop: 26, marginBottom: 12 }}>{t('subjectTeachersTitle')}</T>
+			<SubjectTeachers variant="section" />
+
 			{/* Linked teacher */}
-			<T v="h2" style={{ marginTop: 26, marginBottom: 12 }}>{t('myTeacherTitle')}</T>
+			<T v="h2" style={{ marginTop: 16, marginBottom: 12 }}>{t('myTeacherTitle')}</T>
 			{invite ? (
 				<Card style={{ marginBottom: 12, backgroundColor: colors.goldTint, borderColor: colors.goldSoft }}>
 					<T v="strong">{invite.teacher_name}</T>

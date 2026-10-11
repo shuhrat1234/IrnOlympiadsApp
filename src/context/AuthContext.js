@@ -7,17 +7,14 @@ import { FALLBACK_REGIONS } from '../utils/constants';
 const AuthContext = createContext(null);
 
 export const STUDENT_ROLE = 'participant';
-export const STAFF_ROLES = ['admin', 'superadmin', 'coordinator'];
-export const KNOWN_ROLES = [STUDENT_ROLE, 'teacher', ...STAFF_ROLES];
+// The app serves students and teachers only — staff accounts use the website.
+export const KNOWN_ROLES = [STUDENT_ROLE, 'teacher'];
 export const isStudent = (user) => user?.role === STUDENT_ROLE;
-export const isStaff = (user) => STAFF_ROLES.includes(user?.role);
-export const isAdminRole = (user) => user?.role === 'admin' || user?.role === 'superadmin';
-export const isCoordinator = (user) => user?.role === 'coordinator';
 export const isTeacher = (user) => user?.role === 'teacher';
 const allowed = (user) => KNOWN_ROLES.includes(user?.role);
 
 // Where each role lands after login.
-export const homeRouteFor = (user) => (isStaff(user) ? (isCoordinator(user) ? '/admin/users' : '/admin') : isTeacher(user) ? '/teacher' : '/');
+export const homeRouteFor = (user) => (isTeacher(user) ? '/teacher' : '/');
 
 export const AuthProvider = ({ children }) => {
 	const [currentUser, setCurrentUser] = useState(null);
@@ -64,7 +61,7 @@ export const AuthProvider = ({ children }) => {
 			persistUser(res.data);
 			return res.data;
 		} catch (err) {
-			if (err.response?.status === 401) await logout();
+			if (err.response?.status === 401 || err.response?.status === 403) await logout();
 			return null;
 		}
 	}, [logout, persistUser]);
@@ -86,7 +83,11 @@ export const AuthProvider = ({ children }) => {
 	}, []);
 
 	const completeLogin = useCallback(
-		async ({ user, access, refresh }) => {
+		async (data) => {
+			// Same fallbacks as the website: tokens may come flat or nested.
+			const user = data.user;
+			const access = data.access || data.tokens?.access || data.token;
+			const refresh = data.refresh || data.tokens?.refresh;
 			if (!allowed(user)) {
 				return { success: false, error: 'role', role: user?.role };
 			}
@@ -100,7 +101,7 @@ export const AuthProvider = ({ children }) => {
 	const login = useCallback(
 		async (username, password) => {
 			try {
-				const res = await api.post(E.LOGIN, { username, password });
+				const res = await api.post(E.LOGIN, { phone_or_id: username, username, password });
 				if (res.data.multiple_accounts) {
 					return { success: false, multiple_accounts: true, accounts: res.data.accounts || [] };
 				}
@@ -154,7 +155,9 @@ export const AuthProvider = ({ children }) => {
 					teachers: [],
 				};
 				const res = await api.post(E.REGISTER, payload);
-				const { user, access, refresh } = res.data;
+				const user = res.data.user;
+				const access = res.data.access || res.data.tokens?.access || res.data.token;
+				const refresh = res.data.refresh || res.data.tokens?.refresh;
 				if (access && refresh) {
 					await tokens.set(access, refresh);
 					persistUser(user);
@@ -184,19 +187,32 @@ export const AuthProvider = ({ children }) => {
 		[persistUser]
 	);
 
-	// Staff: edit any user (PATCH users/:id), own profile goes through PROFILE.
-	const updateUser = useCallback(
-		async (userId, data) => {
-			const self = userRef.current && String(userRef.current.id) === String(userId);
-			if (self) return updateProfile(data);
+	// Website's /register-teacher page (username = phone); the new teacher is signed in right away.
+	const registerTeacher = useCallback(
+		async (form) => {
 			try {
-				const res = await api.patch(E.USER_DETAIL(userId), data);
-				return { success: true, data: res.data };
-			} catch (err) {
-				return { success: false, error: err.response?.data };
+				const res = await api.post(E.REGISTER_TEACHER, {
+					username: form.phone,
+					password: form.password,
+					first_name: form.firstName,
+					last_name: form.lastName,
+					middle_name: form.middleName,
+					phone: form.phone,
+					region: form.regionId,
+				});
+				const d = res.data;
+				const access = d.access || d.tokens?.access || d.token;
+				const refresh = d.refresh || d.tokens?.refresh;
+				if (access && refresh) {
+					await tokens.set(access, refresh);
+					persistUser(d.user);
+				}
+				return { success: true, user: d.user, loggedIn: !!(access && refresh) };
+			} catch (error) {
+				return { success: false, error: error.response?.data?.error || (error.response ? 'registration_failed' : 'network'), fields: error.response?.data };
 			}
 		},
-		[updateProfile]
+		[persistUser]
 	);
 
 	const markNotificationAsRead = useCallback(async (id) => {
@@ -252,17 +268,17 @@ export const AuthProvider = ({ children }) => {
 			verify2FA,
 			logout,
 			register,
+			registerTeacher,
 			fetchMe,
 			fetchRegions,
 			updateProfile,
-			updateUser,
 			setCurrentUser,
 			markNotificationAsRead,
 			markAllNotificationsAsRead,
 			deleteNotification,
 			deleteAllNotifications,
 		}),
-		[currentUser, booting, regions, login, verify2FA, logout, register, fetchMe, fetchRegions, updateProfile, updateUser, markNotificationAsRead, markAllNotificationsAsRead, deleteNotification, deleteAllNotifications]
+		[currentUser, booting, regions, login, verify2FA, logout, register, registerTeacher, fetchMe, fetchRegions, updateProfile, markNotificationAsRead, markAllNotificationsAsRead, deleteNotification, deleteAllNotifications]
 	);
 
 	return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

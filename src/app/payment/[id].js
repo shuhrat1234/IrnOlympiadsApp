@@ -42,8 +42,12 @@ export default function PaymentScreen() {
 
 	const reg = useMemo(() => {
 		const byId = (r) => regId && String(r.id) === String(regId);
-		const byOly = (r) => String(r.olympiad?.id || r.olympiad) === String(id) && r.payment_status !== 'expired';
-		return userRegistrations.find(byId) || currentUser?.registrations?.find(byId) || userRegistrations.find(byOly) || currentUser?.registrations?.find(byOly) || null;
+		const byOly = (r) => String(r.olympiad_id || r.olympiad?.id || r.olympiad) === String(id) && r.payment_status !== 'expired';
+		const found = userRegistrations.find(byId) || currentUser?.registrations?.find(byId);
+		if (found) return found;
+		// A fresh registration may not be in the lists yet — pay by its id anyway (website fallback).
+		if (regId) return { id: Number(regId) || regId, seconds_left: 600, olympiad: id };
+		return userRegistrations.find(byOly) || currentUser?.registrations?.find(byOly) || null;
 	}, [userRegistrations, currentUser?.registrations, id, regId]);
 
 	useEffect(() => {
@@ -101,6 +105,11 @@ export default function PaymentScreen() {
 	};
 
 	const tryAgain = async () => {
+		// The reservation is still alive → just show the payment methods again.
+		if (reg && (reg.payment_status === 'pending' || !reg.is_expired) && timeLeft > 0) {
+			setStatus('pending');
+			return;
+		}
 		setStatus('processing');
 		const res = await registerForOlympiad(id);
 		if (res.success) {

@@ -101,7 +101,10 @@ export default function LoginScreen() {
 			setPhoneError(t('phoneInvalid'));
 			return;
 		}
-		if (!password || (mode === 'id' && !participantId.trim())) return;
+		if (!password || (mode === 'id' && !participantId.trim())) {
+			toast.error(t('fillAllFields'));
+			return;
+		}
 		setLoading(true);
 		const res = await login(mode === 'phone' ? phone : participantId.trim(), password);
 		setLoading(false);
@@ -260,6 +263,12 @@ export default function LoginScreen() {
 										<T v="strong" color={colors.amber} style={{ fontSize: 13.5 }}>{t('register')}</T>
 									</Pressable>
 								</View>
+								<View style={[styles.registerRow, { marginTop: 0 }]}>
+									<T v="small">{t('teacherQuestion')}</T>
+									<Pressable onPress={() => router.push('/register-teacher')} hitSlop={8}>
+										<T v="strong" color={colors.amber} style={{ fontSize: 13.5 }}>{t('teacherSignup')}</T>
+									</Pressable>
+								</View>
 							</View>
 						)}
 					</Animated.View>
@@ -311,6 +320,6 @@ const styles = StyleSheet.create({
 	shield: { width: 64, height: 64, borderRadius: 22, backgroundColor: colors.goldTint, alignItems: 'center', justifyContent: 'center', alignSelf: 'center' },
 	account: { flexDirection: 'row', alignItems: 'center', gap: 12, padding: 14, borderRadius: radius.lg, backgroundColor: colors.white, borderWidth: 1, borderColor: colors.line },
 	accIcon: { width: 42, height: 42, borderRadius: 14, backgroundColor: colors.goldTint, alignItems: 'center', justifyContent: 'center' },
-	registerRow: { flexDirection: 'row', justifyContent: 'center', alignItems: 'center', gap: 6, marginTop: 6 },
+	registerRow: { flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'center', alignItems: 'center', gap: 6, marginTop: 6 },
 	tgIcon: { width: 70, height: 70, borderRadius: 24, alignItems: 'center', justifyContent: 'center' },
 });

@@ -176,106 +176,6 @@ export const OlympiadProvider = ({ children }) => {
 	);
 
 
-	// ——— Admin operations (website OlympiadContext) ———
-	const run = useCallback(async (fn, refetch = true) => {
-		try {
-			const res = await fn();
-			if (refetch) await fetchOlympiads(true);
-			return { success: true, data: res?.data };
-		} catch (err) {
-			return { success: false, error: errorMessage(err), raw: err.response?.data };
-		}
-	}, [fetchOlympiads]);
-
-	const createOlympiad = useCallback(
-		(form) =>
-			run(() =>
-				api.post(
-					E.OLYMPIADS,
-					{
-						...form,
-						olympiad_type: form.type || form.olympiad_type || 'online',
-						start_datetime: form.date || form.start_datetime || null,
-						duration_minutes: form.duration || form.duration_minutes || 60,
-						max_participants: parseInt(form.max_participants, 10) || 0,
-						registration_end_date: form.registration_end_date || null,
-						subs: (form.subs || []).map((sub) => ({
-							title_ru: sub.title_ru,
-							title_uz: sub.title_uz,
-							title_en: sub.title_en,
-							grade_sessions: (sub.grade_sessions || []).map((gs) => ({ grade: String(gs.grade), start_datetime: gs.start_datetime || null, duration_minutes: parseInt(gs.duration_minutes, 10) || 60 })),
-						})),
-					},
-					{ timeout: 120000 }
-				)
-			),
-		[run]
-	);
-	const updateOlympiad = useCallback((id, data) => run(() => api.patch(E.OLYMPIAD_DETAIL(id), data, { timeout: 120000 })), [run]);
-	const deleteOlympiad = useCallback((id) => run(() => api.delete(E.OLYMPIAD_DETAIL(id))), [run]);
-	const startOlympiad = useCallback((id) => run(() => api.post(E.OLYMPIAD_START(id))), [run]);
-	const finishOlympiad = useCallback((id) => run(() => api.post(E.OLYMPIAD_FINISH(id))), [run]);
-	const startGradeSession = useCallback((id, userIds) => run(() => api.post(E.GRADE_SESSION_START(id), userIds ? { user_ids: userIds } : undefined)), [run]);
-	const finishGradeSession = useCallback((id, userIds) => run(() => api.post(E.GRADE_SESSION_FINISH(id), userIds ? { user_ids: userIds } : undefined)), [run]);
-
-	const moveOlympiad = useCallback(async (id, direction) => {
-		let order = [];
-		setOlympiads((prev) => {
-			const list = [...prev];
-			const i = list.findIndex((o) => Number(o.id) === Number(id));
-			const j = direction === 'up' ? i - 1 : i + 1;
-			if (i < 0 || j < 0 || j >= list.length) return prev;
-			const [moved] = list.splice(i, 1);
-			list.splice(j, 0, moved);
-			order = list.map((o) => Number(o.id));
-			store.set('olympiads', list);
-			return list;
-		});
-		if (order.length) {
-			try {
-				await api.post(E.OLYMPIADS_REORDER, { order });
-			} catch {}
-		}
-	}, []);
-
-	const createTest = useCallback(
-		(payload) => {
-			const clean = {
-				olympiad: payload.olympiad ? parseInt(payload.olympiad, 10) : undefined,
-				sub_olympiad: payload.sub_olympiad ? parseInt(payload.sub_olympiad, 10) : undefined,
-				sub_olympiad_grade: payload.sub_olympiad_grade ? parseInt(payload.sub_olympiad_grade, 10) : undefined,
-			};
-			const title = `Test for ${clean.sub_olympiad_grade ? `Grade ${clean.sub_olympiad_grade}` : clean.sub_olympiad ? `Sub ${clean.sub_olympiad}` : `Oly ${clean.olympiad}`}`;
-			return run(() => api.post(E.TESTS, { ...clean, title }));
-		},
-		[run]
-	);
-
-	// Question with an optional new image picked from the gallery ({ uri, name, mimeType }).
-	const saveQuestion = useCallback(
-		(testId, questionId, q) => {
-			const fields = {
-				test: parseInt(testId, 10),
-				text_uz: q.text_uz || '',
-				text_ru: q.text_ru || '',
-				text_en: q.text_en || '',
-				correct_option: q.correct_option || 'A',
-				options: q.options,
-			};
-			let body = fields;
-			if (q.newImage) {
-				body = new FormData();
-				Object.keys(fields).forEach((k) => body.append(k, k === 'options' ? JSON.stringify(fields[k]) : String(fields[k])));
-				body.append('image', { uri: q.newImage.uri, name: q.newImage.name || 'question.jpg', type: q.newImage.mimeType || 'image/jpeg' });
-			} else if (q.removeImage) {
-				body = { ...fields, image: null };
-			}
-			return run(() => (questionId ? api.patch(E.QUESTION_DETAIL(questionId), body) : api.post(E.QUESTIONS, body)));
-		},
-		[run]
-	);
-	const deleteQuestion = useCallback((questionId) => run(() => api.delete(E.QUESTION_DETAIL(questionId))), [run]);
-
 	const getRemainingSeats = useCallback((oly) => {
 		if (!oly) return 0;
 		if (!oly.max_participants) return 9999;
@@ -317,20 +217,8 @@ export const OlympiadProvider = ({ children }) => {
 			getRemainingSeats,
 			isFull,
 			isRegistrationClosed,
-			createOlympiad,
-			updateOlympiad,
-			deleteOlympiad,
-			startOlympiad,
-			finishOlympiad,
-			startGradeSession,
-			finishGradeSession,
-			moveOlympiad,
-			createTest,
-			saveQuestion,
-			deleteQuestion,
-			setOlympiads,
 		}),
-		[olympiads, isLoaded, isFetching, userRegistrations, fetchOlympiads, fetchOlympiadById, fetchUserRegistrations, getOlympiad, registerForOlympiad, cancelRegistration, getPaymentLink, fetchExamQuestions, submitExamResult, getRemainingSeats, isFull, isRegistrationClosed, createOlympiad, updateOlympiad, deleteOlympiad, startOlympiad, finishOlympiad, startGradeSession, finishGradeSession, moveOlympiad, createTest, saveQuestion, deleteQuestion]
+		[olympiads, isLoaded, isFetching, userRegistrations, fetchOlympiads, fetchOlympiadById, fetchUserRegistrations, getOlympiad, registerForOlympiad, cancelRegistration, getPaymentLink, fetchExamQuestions, submitExamResult, getRemainingSeats, isFull, isRegistrationClosed]
 	);
 
 	return <OlympiadContext.Provider value={value}>{children}</OlympiadContext.Provider>;
