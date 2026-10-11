@@ -84,6 +84,8 @@ const S = {
 		en: 'Please sign in with this account on the irnolympiad.uz website.',
 	},
 	teacherBadge: { uz: "O'qituvchi", ru: 'Учитель', en: 'Teacher' },
+	teacherSignup: { uz: "O'qituvchi sifatida ro'yxatdan o'tish", ru: 'Регистрация в качестве учителя', en: 'Register as a teacher' },
+	teacherQuestion: { uz: "O'qituvchimisiz?", ru: 'Вы учитель?', en: 'Are you a teacher?' },
 
 	// ——— gates ———
 	tgGateTitle: { uz: 'Telegram botni faollashtiring', ru: 'Активируйте Telegram-бота', en: 'Activate Telegram Bot' },
@@ -150,6 +152,12 @@ const S = {
 	selectGrade: { uz: 'Sinfni tanlang', ru: 'Выберите класс', en: 'Select grade' },
 
 	myTeacherTitle: { uz: "Mening o'qituvchim", ru: 'Мой учитель', en: 'My Teacher' },
+	allRegionsNationwide: { uz: "Barcha viloyatlar (Respublika bo'ylab)", ru: 'Все регионы (По всей республике)', en: 'All Regions (Nationwide)' },
+	btsPickupPoint: { uz: 'BTS topshirish punkti', ru: 'Пункт выдачи BTS', en: 'BTS pickup point' },
+	paymentNotConfirmed: { uz: "To'lov tasdiqlanmagan", ru: 'Оплата не подтверждена', en: 'Payment pending' },
+	bookShop: { uz: "Kitoblar do'koni", ru: 'Книжный магазин', en: 'Book shop' },
+	fillAllFields: { uz: "Login va parolni kiriting", ru: 'Введите логин и пароль', en: 'Enter your login and password' },
+	subjectTeachersTitle: { uz: "Fan o'qituvchilarim", ru: 'Мои учителя по предметам', en: 'My subject teachers' },
 	teacherSearchPlaceholder: { uz: "Ism yoki telefon bo'yicha qidirish...", ru: 'Поиск по имени или телефону...', en: 'Search by name or phone...' },
 	requestSent: { uz: "So'rov yuborildi", ru: 'Запрос отправлен', en: 'Request sent' },
 	requestSentDesc: { uz: 'tasdiqlashini kutmoqda', ru: 'ожидает подтверждения', en: 'awaiting confirmation' },

@@ -1,18 +1,19 @@
 import React from 'react';
-import { StyleSheet, View } from 'react-native';
+import { Image, StyleSheet, View } from 'react-native';
 import { router } from 'expo-router';
 import { LinearGradient } from 'expo-linear-gradient';
-import { ArrowRight, Building2, Calendar, CheckCircle2, Clock, Sparkles, Users, Wifi } from 'lucide-react-native';
+import { AlertTriangle, ArrowRight, Building2, Calendar, CheckCircle2, Clock, CreditCard, Sparkles, Users, Wifi } from 'lucide-react-native';
 import { useLanguage } from '../context/LanguageContext';
 import { useOlympiad } from '../context/OlympiadContext';
+import { mediaUrl } from '../api/client';
 import { Card, Pill, ProgressBar, T } from './ui';
 import { colors, fonts, radius } from '../theme';
 import { formatDate, formatPrice, formatShortDate, formatTime, sortedSessions } from '../utils/format';
 
 // Catalog card — schedule summary per sub-olympiad, seats bar, grade chips.
-export default function OlympiadCard({ oly, userGrade, registered, closed }) {
+export default function OlympiadCard({ oly, userGrade, registered, pendingPayment, closed }) {
 	const { t, lang, pick } = useLanguage();
-	const { getRemainingSeats } = useOlympiad();
+	const { getRemainingSeats, isFull } = useOlympiad();
 	const online = (oly.type || oly.olympiad_type) === 'online';
 	const remaining = getRemainingSeats(oly);
 	const fill = oly.max_participants > 0 ? Math.round(((oly.registered_count || 0) / oly.max_participants) * 100) : 0;
@@ -32,8 +33,21 @@ export default function OlympiadCard({ oly, userGrade, registered, closed }) {
 		return { id: sub.id, title: pick(sub), when: when || (soon ? t('soon') : ''), soon };
 	});
 
+	// Same priority as the website card: completed → closed → full → pay → registered → register.
+	const state = oly.is_completed ? 'completed' : closed ? 'closed' : isFull(oly) ? 'full' : pendingPayment ? 'pay' : registered ? 'registered' : 'register';
+	const cta = {
+		completed: { icon: CheckCircle2, label: t('completed'), color: colors.muted, bg: colors.cardMuted },
+		closed: { icon: AlertTriangle, label: t('noSeats'), color: colors.muted, bg: colors.cardMuted },
+		full: { label: t('noSeats'), color: colors.muted, bg: colors.cardMuted },
+		pay: { icon: CreditCard, label: t('payNow'), color: colors.amber, bg: colors.goldTint },
+		registered: { icon: CheckCircle2, label: t('alreadyRegistered'), color: colors.green, bg: colors.greenSoft },
+		register: { label: t('registerBtn'), color: colors.navyDeep, bg: colors.goldTint, arrow: true },
+	}[state];
+	const open = () => router.push(state === 'registered' ? '/olympiads' : state === 'pay' ? `/payment/${oly.id}` : `/olympiad/${oly.id}`);
+
 	return (
-		<Card onPress={() => router.push(`/olympiad/${oly.id}`)} style={{ marginBottom: 14, overflow: 'hidden' }} padded={false}>
+		<Card onPress={open} style={{ marginBottom: 14, overflow: 'hidden' }} padded={false}>
+			{oly.banner_image ? <Image source={{ uri: mediaUrl(oly.banner_image) }} style={styles.banner} resizeMode="cover" /> : null}
 			<LinearGradient colors={online ? ['#FFF7D9', '#FFFFFF'] : ['#EEF2FA', '#FFFFFF']} style={{ padding: 18, paddingBottom: 14 }}>
 				<View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start', gap: 10 }}>
 					<View style={[styles.typeIcon, { backgroundColor: online ? colors.gold : colors.navy }]}>
@@ -68,6 +82,13 @@ export default function OlympiadCard({ oly, userGrade, registered, closed }) {
 					</View>
 				)}
 
+				{oly.registration_end_date ? (
+					<View style={styles.schedRow}>
+						<Clock size={13} color={colors.faint} />
+						<T v="small" numberOfLines={1} style={{ flex: 1 }}>{t('regEndDate')}: <T v="small" style={{ fontFamily: fonts.bold, color: colors.ink2 }}>{formatShortDate(oly.registration_end_date, lang)}</T></T>
+					</View>
+				) : null}
+
 				<View style={{ gap: 6 }}>
 					<View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
 						<View style={styles.schedRow}>
@@ -92,12 +113,10 @@ export default function OlympiadCard({ oly, userGrade, registered, closed }) {
 					</View>
 				) : null}
 
-				<View style={[styles.cta, registered ? { backgroundColor: colors.greenSoft } : closed ? { backgroundColor: colors.cardMuted } : null]}>
-					{registered ? <CheckCircle2 size={16} color={colors.green} /> : null}
-					<T v="strong" style={{ fontSize: 14 }} color={registered ? colors.green : closed ? colors.muted : colors.navyDeep}>
-						{registered ? t('alreadyRegistered') : closed ? t('noSeats') : t('registerBtn')}
-					</T>
-					{!registered && !closed ? <ArrowRight size={16} color={colors.navyDeep} /> : null}
+				<View style={[styles.cta, { backgroundColor: cta.bg }, state !== 'register' && state !== 'pay' && { borderColor: 'transparent' }]}>
+					{cta.icon ? <cta.icon size={16} color={cta.color} /> : null}
+					<T v="strong" style={{ fontSize: 14 }} color={cta.color}>{cta.label}</T>
+					{cta.arrow ? <ArrowRight size={16} color={colors.navyDeep} /> : null}
 				</View>
 			</View>
 		</Card>
@@ -105,6 +124,7 @@ export default function OlympiadCard({ oly, userGrade, registered, closed }) {
 }
 
 const styles = StyleSheet.create({
+	banner: { width: '100%', height: 130, backgroundColor: colors.cardMuted },
 	typeIcon: { width: 44, height: 44, borderRadius: 15, alignItems: 'center', justifyContent: 'center' },
 	price: { backgroundColor: colors.navyDeep, paddingHorizontal: 12, paddingVertical: 6, borderRadius: radius.pill },
 	priceText: { fontFamily: fonts.extrabold, fontSize: 13, color: colors.gold },

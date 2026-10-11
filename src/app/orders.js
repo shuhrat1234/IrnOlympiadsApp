@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { StyleSheet, View } from 'react-native';
-import * as WebBrowser from 'expo-web-browser';
+import { router } from 'expo-router';
 import { BookOpen, CheckCircle2, Clock, MapPin, Package, Truck, XCircle } from 'lucide-react-native';
 import api from '../api/client';
 import E from '../api/endpoints';
@@ -10,7 +10,6 @@ import { Screen, StackHeader, LargeTitle } from '../components/layout';
 import { Button, Card, EmptyState, Pill, SkeletonCard, T } from '../components/ui';
 import { colors, fonts, radius } from '../theme';
 import { formatDay, formatMoney } from '../utils/format';
-import { LINKS } from '../utils/constants';
 
 const STATUS = {
 	pending: { icon: Clock, color: colors.amber, bg: colors.goldTint, key: 'stepPending' },
@@ -42,7 +41,7 @@ export default function OrdersScreen() {
 		load();
 	}, []);
 
-	const openShop = () => WebBrowser.openBrowserAsync(LINKS.books);
+	const openShop = () => router.push('/books');
 
 	return (
 		<Screen header={<StackHeader />} onRefresh={load}>
@@ -61,7 +60,7 @@ export default function OrdersScreen() {
 							<View style={{ flexDirection: 'row', justifyContent: 'space-between', gap: 10 }}>
 								<View style={{ flex: 1 }}>
 									<T v="label">{t('orderId')} #{order.id}</T>
-									<T v="h3" numberOfLines={2} style={{ marginTop: 4 }}>{pick(order, 'book_title') || order.book_title_ru}</T>
+									<T v="h3" numberOfLines={2} style={{ marginTop: 4 }}>{pick(order, 'book_title') || order.book_title_ru || (order.book ? `#${order.book}` : '')}</T>
 								</View>
 								<Pill icon={st.icon} label={t(st.key)} color={st.color} bg={st.bg} />
 							</View>
@@ -97,6 +96,16 @@ export default function OrdersScreen() {
 								<View style={styles.address}>
 									<MapPin size={15} color={colors.muted} />
 									<T v="small" style={{ flex: 1 }}>{order.delivery_address}</T>
+								</View>
+							) : null}
+							{order.bts_point_detail?.name || order.bts_point_name ? (
+								<View style={[styles.address, { backgroundColor: colors.blueSoft }]}>
+									<Truck size={15} color={colors.blue} />
+									<View style={{ flex: 1 }}>
+										<T v="label" color={colors.blue} style={{ fontSize: 9.5 }}>{t('btsPickupPoint')}</T>
+										<T v="strong" style={{ fontSize: 13.5 }}>{order.bts_point_detail?.name || order.bts_point_name}</T>
+										{order.bts_point_detail?.address ? <T v="small">{order.bts_point_detail.address}</T> : null}
+									</View>
 								</View>
 							) : null}
 							{order.status === 'rejected' && order.rejection_reason ? (

@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Linking, StyleSheet, View } from 'react-native';
 import { router } from 'expo-router';
 import Constants from 'expo-constants';
-import { ChevronRight, Globe, History, Languages, LifeBuoy, LogOut, Package, Send, User } from 'lucide-react-native';
+import { BookOpen, ChevronRight, Globe, History, Languages, LifeBuoy, LogOut, Package, Send, User } from 'lucide-react-native';
 import { useAuth } from '../../context/AuthContext';
 import { useLanguage, LANGS } from '../../context/LanguageContext';
 import { useSupport } from '../../context/SupportContext';
@@ -49,6 +49,7 @@ export default function MoreTab() {
 			<Card padded={false}>
 				<Row icon={User} tint={[colors.goldTint, colors.amber]} label={t('profile')} onPress={() => router.push('/profile')} />
 				<Row icon={History} tint={[colors.blueSoft, colors.blue]} label={t('history')} onPress={() => router.push('/history')} />
+				<Row icon={BookOpen} tint={[colors.goldTint, colors.amber]} label={t('bookShop')} onPress={() => router.push('/books')} />
 				<Row icon={Package} tint={[colors.purpleSoft, colors.purple]} label={t('myOrders')} onPress={() => router.push('/orders')} />
 				<Row icon={LifeBuoy} tint={[colors.greenSoft, colors.green]} label={t('support')} badge={unreadCount || notClosedCount || null} onPress={() => router.push('/support')} last />
 			</Card>

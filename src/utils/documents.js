@@ -4,8 +4,6 @@ import * as Sharing from 'expo-sharing';
 import { Asset } from 'expo-asset';
 import { File, Paths } from 'expo-file-system';
 import QRCode from 'qrcode';
-import JSZip from 'jszip';
-import { shareFile } from './files';
 import { mediaUrl } from '../api/client';
 import { getEnglishSubject } from './format';
 
@@ -96,15 +94,32 @@ const waves = `
 <svg class="wave r" viewBox="0 0 200 200"><path fill="rgba(245,158,11,.1)" d="M200 0 C 80 0, 40 40, 40 100 C 40 165, 110 180, 200 200 Z"/><path fill="rgba(250,204,21,.8)" d="M200 0 C 110 0, 80 30, 80 70 C 80 120, 140 140, 200 160 Z"/></svg>
 <div class="bar1"></div><div class="bar2"></div>`;
 
+// Payment state shown on the permission letter (website PermissionModal).
+export const permissionState = (reg, oly) => {
+	const free = reg?.payment_status === 'free' || oly?.is_free || Number(oly?.price) === 0;
+	const isPaid = reg?.payment_status === 'paid' || free;
+	const label = reg?.payment_status === 'paid' ? 'Paid' : free ? 'Free' : reg?.payment_status === 'expired' ? 'Expired' : 'Pending (Not Paid)';
+	const color = isPaid ? '#059669' : reg?.payment_status === 'expired' ? '#e11d48' : '#d97706';
+	return { isPaid, label, color };
+};
+
+export const permissionSubtitle = (oly, lang) => {
+	const title = oly?.[`title_${lang}`] || oly?.title_en || oly?.title_ru || oly?.title_uz || '';
+	const nextGen = [oly?.category, oly?.title_uz, oly?.title_ru, oly?.title_en, title].some((v) => String(v || '').toLowerCase().includes('nextgen'));
+	const subject = getEnglishSubject(oly?.title_en || oly?.title_ru || oly?.title_uz || '');
+	return `${nextGen ? 'NEXTGEN OLYMPIAD' : 'RESPUBLIKA OLIMPIADASI'} • ${(subject || 'MATHEMATICS').toUpperCase()}`;
+};
+
 export const permissionPdf = async ({ reg, oly, user, lang }) => {
 	const olyTitle = oly?.[`title_${lang}`] || oly?.title_en || oly?.title_ru || oly?.title_uz || 'IRN Olympiad';
 	const subject = getEnglishSubject(oly?.title_en || oly?.title_ru || oly?.title_uz);
 	const logo = await assetDataUri(ASSETS.irnLogo);
-	const verify = `https://irnolympiad.uz/verify?id=${reg?.unique_participant_id}&student=${user?.first_name}+${user?.last_name}&user=${user?.username || user?.id}&olympiad=${olyTitle}`;
+	const verify = `https://irnolympiad.uz/verify?id=${reg?.unique_participant_id}&student=${user?.first_name}+${user?.last_name}&user=${user?.username || user?.id}&olympiad=${olyTitle}&status=${reg?.payment_status || 'pending'}`;
 	const qr = await qrSvg(verify, '#000000');
+	const pay = permissionState(reg, oly);
 	const body = `${waves}
 <div class="wrap">
-	<div><img class="logo" src="${logo}" /><h1>PERMISSION</h1><div class="sub">${esc(olyTitle)}</div></div>
+	<div><img class="logo" src="${logo}" /><h1>PERMISSION</h1><div class="sub">${esc(permissionSubtitle(oly, lang))}</div></div>
 	<div>
 		<div class="tag">Information:</div>
 		<div class="row"><b>Name-Surname:</b><span>${esc(user?.first_name)} ${esc(user?.last_name)}</span></div>
@@ -114,12 +129,12 @@ export const permissionPdf = async ({ reg, oly, user, lang }) => {
 				<div class="row"><b>Subject:</b><span>${esc(subject)}</span></div>
 				<div class="row"><b>User ID:</b><span class="mono">${esc(user?.username || user?.id)}</span></div>
 				<div class="row"><b>ID Number:</b><span class="mono" style="color:#d97706">${esc(reg?.unique_participant_id)}</span></div>
-				<div class="row"><b>Payment Status:</b><span style="color:#059669">Paid</span></div>
+				<div class="row"><b>Payment Status:</b><span style="color:${pay.color}">${pay.label}</span></div>
 			</div>
 			<div class="qr"><div>${qr}</div></div>
 		</div>
 	</div>
-	<div class="foot">This student can participate in <b>${esc(olyTitle)}</b>.</div>
+	<div class="foot">${pay.isPaid ? `This student can participate in <b>${esc(olyTitle)}</b>.` : '<b style="color:#d97706">Payment is pending. This student CANNOT participate until the registration fee is confirmed.</b>'}</div>
 </div>`;
 	return sharePdf(page(595, 842, body, permissionCss), { width: 595, height: 842, fileName: `Permission_${reg?.unique_participant_id || 'IRN'}` });
 };
@@ -143,7 +158,7 @@ export const finalPermissionPdf = async ({ perm, user, lang }) => {
 	const L = (k) => FINAL_LABELS[k]?.[lang] || FINAL_LABELS[k]?.en;
 	const olyTitle = perm?.olympiad?.[`title_${lang}`] || perm?.olympiad?.title_en || perm?.olympiad?.title_ru || perm?.olympiad?.title_uz || 'IRN Olympiad';
 	const logo = await assetDataUri(ASSETS.irnLogo);
-	const qr = await qrSvg(`https://irnolympiad.uz/verify?permission=${perm?.unique_permission_id || perm?.id}&student=${user?.first_name}+${user?.last_name}`, '#000000');
+	const qr = await qrSvg(`https://irnolympiad.uz/verify?permission=${perm?.unique_permission_id || perm?.id}&student=${user?.first_name}+${user?.last_name}&olympiad=${olyTitle}`, '#000000');
 	const rows = [
 		['gradeLabel', perm?.grade],
 		['subjectLabel', perm?.subject],
@@ -165,8 +180,9 @@ export const finalPermissionPdf = async ({ perm, user, lang }) => {
 		<div class="tag">Information:</div>
 		<div class="row"><b>${esc(L('nameLabel'))}</b><span>${esc(user?.first_name)} ${esc(user?.last_name)}</span></div>
 		<div class="grid"><div class="fields">${rows}</div><div class="qr"><div>${qr}</div></div></div>
+		${perm?.custom_message ? `<div style="margin-top:16px;padding:10px 14px;border-left:3px solid #f59e0b;background:#fffbeb;font-size:12px;color:#374151">${esc(perm.custom_message)}</div>` : ''}
 	</div>
-	<div class="foot">${esc(L('description'))} <b>${esc(olyTitle)}</b> ${esc(L('descriptionSuffix'))}</div>
+	<div class="foot">${esc(L('description'))} <b>${esc(user?.first_name)} ${esc(user?.last_name)}</b> ${esc(L('descriptionSuffix'))}</div>
 </div>`;
 	return sharePdf(page(595, 842, body, permissionCss), { width: 595, height: 842, fileName: `Permission_Final_${perm?.unique_permission_id || 'IRN'}` });
 };
@@ -305,26 +321,4 @@ export const certificateHtml = async ({ data, user, lang }) => {
 export const certificatePdf = async ({ data, user, lang }) => {
 	const c = await certificateHtml({ data, user, lang });
 	return sharePdf(c.html, { width: c.width, height: c.height, fileName: `Sertifikat_${c.name.replace(/\s+/g, '_')}` });
-};
-
-// Admin: all uploaded recipients → one ZIP of PDFs (website certificateBundle.js).
-export const recipientsCertificatesZip = async ({ recipients, olympiadTitle, certificateConfig, certificateImage, lang, onProgress }) => {
-	const zip = new JSZip();
-	for (let i = 0; i < recipients.length; i++) {
-		onProgress?.(i + 1, recipients.length);
-		const r = recipients[i];
-		try {
-			const c = await certificateHtml({
-				data: { title: olympiadTitle, certificate_config: certificateConfig, certificate_image: certificateImage, name: r.name, grade: r.grade, score: r.score, award: r.award, regId: r.id_number || r.id },
-				user: { first_name: r.name, participant_id: r.id_number, grade: r.grade },
-				lang: certificateConfig?.certificateLanguage || lang,
-			});
-			const uri = await renderPdf(c.html, c);
-			const b64 = await new File(uri).base64();
-			const clean = (r.name || `Qatnashchi_${i + 1}`).trim().replace(/[\s/\\:]+/g, '_');
-			zip.file(`${String(i + 1).padStart(2, '0')}_${clean}${r.id_number ? `_${r.id_number}` : ''}${r.award ? `_${String(r.award).toUpperCase()}` : ''}.pdf`, b64, { base64: true });
-		} catch {}
-	}
-	const zipB64 = await zip.generateAsync({ type: 'base64' });
-	return shareFile(zipB64, `Sertifikatlar_${(olympiadTitle || 'Olimpiada').replace(/[\s/\\:]+/g, '_')}_${recipients.length}_ta.zip`, 'application/zip');
 };

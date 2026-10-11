@@ -16,6 +16,7 @@ import { colors, fonts, gradients, radius, shadow } from '../../theme';
 import { formatDate, gradeLabel, initialsOf } from '../../utils/format';
 import { canStartExam, olyIdOf, userSessionFor } from '../../utils/olympiadLogic';
 import { finalPermissionPdf } from '../../utils/documents';
+import SubjectTeachers from '../../components/SubjectTeachers';
 
 const ACH_ICONS = { Trophy, Star, Award, Shield, Bird: Star };
 
@@ -116,6 +117,9 @@ export default function HomeScreen() {
 					</View>
 				</LinearGradient>
 			</Animated.View>
+
+			{/* Subject teachers promo (math / english) */}
+			<SubjectTeachers variant="banner" style={{ marginTop: 16 }} />
 
 			{/* Live sessions */}
 			{liveNow.length > 0 ? (

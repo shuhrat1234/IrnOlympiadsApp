@@ -6,7 +6,7 @@ import { StatusBar } from 'expo-status-bar';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { useFonts, Manrope_500Medium, Manrope_600SemiBold, Manrope_700Bold, Manrope_800ExtraBold } from '@expo-google-fonts/manrope';
 import { LanguageProvider } from '../context/LanguageContext';
-import { AuthProvider, useAuth, homeRouteFor, isStaff, isStudent, isTeacher } from '../context/AuthContext';
+import { AuthProvider, useAuth, homeRouteFor, isStudent, isTeacher } from '../context/AuthContext';
 import { ToastProvider } from '../context/ToastContext';
 import { SocketProvider } from '../context/SocketContext';
 import { SupportProvider } from '../context/SupportContext';
@@ -19,8 +19,8 @@ import { colors } from '../theme';
 SplashScreen.preventAutoHideAsync().catch(() => {});
 
 // Top-level route areas per role.
-const AREA = { participant: '(tabs)', teacher: 'teacher', admin: 'admin', superadmin: 'admin', coordinator: 'admin' };
-const STUDENT_ONLY = ['(tabs)', 'payment', 'exam', 'analysis', 'profile', 'history', 'orders'];
+const AREA = { participant: '(tabs)', teacher: 'teacher' };
+const STUDENT_ONLY = ['(tabs)', 'payment', 'exam', 'analysis', 'profile', 'history', 'orders', 'books', 'checkout'];
 
 const RootNavigator = ({ onReady }) => {
 	const { isLoggedIn, booting, currentUser } = useAuth();
@@ -28,7 +28,6 @@ const RootNavigator = ({ onReady }) => {
 	const segments = useSegments();
 	const role = currentUser?.role;
 	const student = isStudent(currentUser);
-	const staff = isStaff(currentUser);
 	const teacher = isTeacher(currentUser);
 
 	// Guests may browse the public catalog; anything else sends them to login.
@@ -38,7 +37,7 @@ const RootNavigator = ({ onReady }) => {
 		if (booting) return;
 		const first = segments[0];
 		if (!isLoggedIn) {
-			const publicRoute = ['login', 'catalog', 'olympiad', 'register'].includes(first);
+			const publicRoute = ['login', 'catalog', 'olympiad', 'register', 'register-teacher', 'books'].includes(first);
 			if (!landed.current || !publicRoute) {
 				landed.current = true;
 				if (first !== 'login') router.replace('/login');
@@ -47,7 +46,7 @@ const RootNavigator = ({ onReady }) => {
 		}
 		landed.current = true;
 		const area = AREA[role];
-		const inOtherArea = (first === 'admin' && area !== 'admin') || (first === 'teacher' && area !== 'teacher') || (STUDENT_ONLY.includes(first) && area !== '(tabs)') || first === 'login' || first === undefined;
+		const inOtherArea = (first === 'teacher' && area !== 'teacher') || (STUDENT_ONLY.includes(first) && area !== '(tabs)') || first === 'login' || first === undefined;
 		if (inOtherArea && !(first === undefined && area === '(tabs)')) router.replace(homeRouteFor(currentUser));
 	}, [booting, isLoggedIn, role, segments]);
 
@@ -68,9 +67,7 @@ const RootNavigator = ({ onReady }) => {
 					<Stack.Screen name="profile" />
 					<Stack.Screen name="history" />
 					<Stack.Screen name="orders" />
-				</Stack.Protected>
-				<Stack.Protected guard={staff}>
-					<Stack.Screen name="admin" options={{ animation: 'fade' }} />
+					<Stack.Screen name="checkout" />
 				</Stack.Protected>
 				<Stack.Protected guard={teacher}>
 					<Stack.Screen name="teacher" options={{ animation: 'fade' }} />
@@ -82,10 +79,12 @@ const RootNavigator = ({ onReady }) => {
 				</Stack.Protected>
 				<Stack.Protected guard={!isLoggedIn}>
 					<Stack.Screen name="login" options={{ animation: 'fade' }} />
+					<Stack.Screen name="register-teacher" />
 				</Stack.Protected>
 				{/* Public: stays mounted when signup logs the student in mid-flow. */}
 				<Stack.Screen name="register/[id]" />
 				<Stack.Screen name="catalog" />
+				<Stack.Screen name="books" />
 				<Stack.Screen name="olympiad/[id]" />
 			</Stack>
 			{student ? <StudentGates /> : null}

@@ -96,7 +96,7 @@ export default function RegistrationCard({ reg, oly, onAction, onPermission, onC
 								<FileText size={17} color={colors.navy} />
 								<T v="strong" style={{ fontSize: 11 }} color={colors.navy}>{t('permission')}</T>
 							</Tap>
-							{showCert && !sessions.length ? (
+							{showCert ? (
 								<Tap onPress={() => onCertificate(reg, oly)} style={[styles.docBtn, { backgroundColor: colors.goldTint }]}>
 									<Award size={17} color={colors.amber} />
 									<T v="strong" style={{ fontSize: 11 }} color={colors.amber}>{t('certificate')}</T>

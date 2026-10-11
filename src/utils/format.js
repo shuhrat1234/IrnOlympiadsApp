@@ -83,3 +83,5 @@ export const sortedSessions = (sub) =>
 	(sub?.grade_sessions || [])
 		.filter((s) => s.start_datetime && valid(s.start_datetime))
 		.sort((a, b) => (parseInt(a.grade, 10) || 0) - (parseInt(b.grade, 10) || 0));
+
+export const phoneMask = (value) => `+998${(value.startsWith('+998') ? value : '+998').slice(4).replace(/\D/g, '').slice(0, 9)}`;

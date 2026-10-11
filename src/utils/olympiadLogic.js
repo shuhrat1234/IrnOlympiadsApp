@@ -114,6 +114,8 @@ export const olympiadScore = (user, reg, oly) => {
 			if (hasScore(r)) return r.score;
 		}
 	}
+	const any = user?.exam_results?.find((r) => String(r.olympiad) === String(oly?.id) || oly?.subs?.some((s) => s.grade_sessions?.some((gs) => String(gs.id) === String(r.sub_olympiad_grade))));
+	if (hasScore(any)) return any.score;
 	return '';
 };
 

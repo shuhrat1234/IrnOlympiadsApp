@@ -61,6 +61,14 @@ export default function OlympiadDetailScreen() {
 	const { userReg, isPaid, isPendingPayment } = currentUser ? registrationStateFor(currentUser, userRegistrations, oly) : {};
 	const desc = pick(oly, 'description');
 	const hasSubs = oly.subs?.length > 0;
+	// Offline olympiads list one date per subject instead of a per-grade schedule (website).
+	const offlineDates = !online && hasSubs
+		? oly.subs.map((sub) => {
+			const first = (sub.grade_sessions || []).find((s) => s.start_datetime);
+			const dt = sub.start_datetime || first?.start_datetime || oly.start_datetime || oly.date;
+			return `${dt ? formatDate(dt, lang) : t('soon')} — ${pick(sub)}`;
+		}).join('\n')
+		: null;
 	const gradeRange = oly.grades?.length ? `${oly.grades[0]}–${oly.grades[oly.grades.length - 1]}${t('gradeSuffix')}` : '—';
 
 	const handleRegister = async () => {
@@ -74,7 +82,7 @@ export default function OlympiadDetailScreen() {
 		const paidOly = Number(oly.price) > 0;
 		setLoading(false);
 		if (res.success) {
-			if (paidOly) router.push({ pathname: `/payment/${id}`, params: { regId: res.id } });
+			if (paidOly) router.push({ pathname: `/payment/${id}`, params: { regId: res.registration_id || res.id } });
 			else {
 				setFreeResult(res);
 				setShowGroups(true);
@@ -164,29 +172,25 @@ export default function OlympiadDetailScreen() {
 			) : null}
 
 			<Card style={{ marginTop: 14, paddingVertical: 6 }}>
-				<InfoRow icon={Calendar} label={t('dateTime')} value={hasSubs ? t('scheduleBelow') : formatDate(oly.date || oly.start_datetime, lang)} />
+				<InfoRow icon={Calendar} label={t('dateTime')} value={offlineDates || (hasSubs ? t('scheduleBelow') : formatDate(oly.date || oly.start_datetime, lang))} />
 				{oly.registration_end_date ? <InfoRow icon={Clock} label={t('regEndDate')} value={formatShortDate(oly.registration_end_date, lang)} /> : null}
 				{online && oly.duration ? <InfoRow icon={Clock} label={t('duration')} value={`${oly.duration} ${t('minutes')}`} /> : null}
 				<InfoRow icon={GraduationCap} label={t('grades')} value={gradeRange} />
 				<InfoRow icon={Users} label={t('maxPart')} value={oly.max_participants > 0 ? String(oly.max_participants) : '∞'} last />
 			</Card>
 
-			{oly.region_ids?.length ? (
-				<Card style={{ marginTop: 14 }}>
-					<View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 12 }}>
-						<MapPin size={16} color={colors.amber} />
-						<T v="h3">{t('regions')}</T>
-					</View>
-					<View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 6 }}>
-						{oly.region_ids.map((rid) => {
-							const r = regions.find((x) => x.id === rid);
-							return r ? <Pill key={rid} label={pick(r, 'name')} /> : null;
-						})}
-					</View>
-				</Card>
-			) : null}
+			<Card style={{ marginTop: 14 }}>
+				<View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 12 }}>
+					<MapPin size={16} color={colors.amber} />
+					<T v="h3">{t('regions')}</T>
+				</View>
+				{oly.region_ids?.length ? null : <T v="small" style={{ marginBottom: 10 }}>{t('allRegionsNationwide')}</T>}
+				<View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 6 }}>
+					{(oly.region_ids?.length ? oly.region_ids.map((rid) => regions.find((x) => x.id === rid)) : regions).map((r) => (r ? <Pill key={r.id} label={pick(r, 'name')} /> : null))}
+				</View>
+			</Card>
 
-			{hasSubs ? (
+			{hasSubs && online ? (
 				<View style={{ marginTop: 22 }}>
 					<T v="h2">{t('schedule')}</T>
 					<T v="small" style={{ marginTop: 4, marginBottom: 12 }}>{t('scheduleSub')}</T>

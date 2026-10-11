@@ -1,15 +1,27 @@
-import React from 'react';
-import { Tabs } from 'expo-router';
+import React, { useEffect } from 'react';
+import { Tabs, usePathname } from 'expo-router';
 import { Bell, BookOpen, Home, Menu, Trophy } from 'lucide-react-native';
 import { useLanguage } from '../../context/LanguageContext';
 import { useAuth } from '../../context/AuthContext';
+import { useOlympiad } from '../../context/OlympiadContext';
 import { useSupport } from '../../context/SupportContext';
 import { TabBar } from '../../components/TabBar';
 import { colors } from '../../theme';
 
 export default function TabsLayout() {
 	const { t } = useLanguage();
-	const { currentUser } = useAuth();
+	const { currentUser, fetchMe } = useAuth();
+	const { fetchOlympiads, fetchUserRegistrations } = useOlympiad();
+	const pathname = usePathname();
+
+	// Like the website's DashboardLayout: every section change refreshes the profile,
+	// the catalog and the registrations so timers and statuses are never stale.
+	useEffect(() => {
+		if (!currentUser) return;
+		fetchMe();
+		fetchOlympiads();
+		fetchUserRegistrations();
+	}, [pathname]);
 	const { unreadCount } = useSupport();
 	const unreadNotifs = (currentUser?.notifications || []).filter((n) => !n.is_read).length;
 	const items = {

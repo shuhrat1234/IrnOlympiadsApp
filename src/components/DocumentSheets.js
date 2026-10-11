@@ -6,7 +6,7 @@ import { useLanguage } from '../context/LanguageContext';
 import { useToast } from '../context/ToastContext';
 import { Button, Sheet, T } from './ui';
 import { colors, fonts, radius } from '../theme';
-import { certificatePdf, certificateSize, mustaqillikLayout, permissionPdf, qrSvg, resolveCertificate, templateSize } from '../utils/documents';
+import { certificatePdf, certificateSize, mustaqillikLayout, permissionPdf, permissionState, permissionSubtitle, qrSvg, resolveCertificate, templateSize } from '../utils/documents';
 import { getEnglishSubject } from '../utils/format';
 
 // Live preview of the certificate (same resolver as the PDF), scaled to the sheet width.
@@ -118,6 +118,7 @@ export const PermissionSheet = ({ visible, onClose, reg, oly, user }) => {
 	const toast = useToast();
 	const [busy, setBusy] = useState(false);
 	if (!reg || !oly) return null;
+	const pay = permissionState(reg, oly);
 	const rows = [
 		['Name-Surname', `${user?.first_name || ''} ${user?.last_name || ''}`],
 		['Grade', user?.grade],
@@ -131,7 +132,7 @@ export const PermissionSheet = ({ visible, onClose, reg, oly, user }) => {
 				<View style={styles.letterBand} />
 				<Image source={require('../../assets/brand/irn-logo.jpg')} style={{ width: 110, height: 76, alignSelf: 'center' }} resizeMode="contain" />
 				<T v="h2" style={{ textAlign: 'center', letterSpacing: 3, marginTop: 6 }}>PERMISSION</T>
-				<T v="label" style={{ textAlign: 'center', marginTop: 4 }} numberOfLines={2}>{pick(oly)}</T>
+				<T v="label" style={{ textAlign: 'center', marginTop: 4 }} numberOfLines={2}>{permissionSubtitle(oly, lang)}</T>
 				<View style={{ marginTop: 16, gap: 10 }}>
 					{rows.map(([k, v]) => (
 						<View key={k} style={styles.letterRow}>
@@ -141,18 +142,23 @@ export const PermissionSheet = ({ visible, onClose, reg, oly, user }) => {
 					))}
 					<View style={styles.letterRow}>
 						<T v="strong" style={{ fontSize: 13.5 }}>Payment Status:</T>
-						<T v="strong" style={[styles.letterVal, { color: colors.green }]}>Paid</T>
+						<T v="strong" style={[styles.letterVal, { color: pay.color }]}>{pay.label}</T>
 					</View>
 				</View>
-				<View style={styles.letterFoot}>
+				<T v="small" style={{ marginTop: 14, fontSize: 12, color: pay.isPaid ? colors.muted : colors.amber }}>
+					{pay.isPaid ? `This student can participate in ${pick(oly)}.` : 'Payment is pending. This student CANNOT participate until the registration fee is confirmed.'}
+				</T>
+				<View style={[styles.letterFoot, { marginTop: 10 }]}>
 					<QrCode size={16} color={colors.muted} />
 					<T v="small" style={{ flex: 1, fontSize: 12 }}>QR · irnolympiad.uz/verify</T>
 				</View>
 			</View>
 			<Button
-				title={t('downloadPDF')}
+				title={pay.isPaid ? t('downloadPDF') : t('paymentNotConfirmed')}
 				icon={FileText}
 				loading={busy}
+				disabled={!pay.isPaid}
+				variant={pay.isPaid ? 'primary' : 'light'}
 				style={{ marginTop: 18 }}
 				onPress={async () => {
 					setBusy(true);

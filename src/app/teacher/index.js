@@ -1,7 +1,7 @@
-import React, { useCallback, useEffect, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { ActivityIndicator, StyleSheet, View } from 'react-native';
 import * as Clipboard from 'expo-clipboard';
-import { Check, Clock, Copy, Eye, EyeOff, KeyRound, Lock, Phone, Search, Send, UserPlus, Users, XCircle } from 'lucide-react-native';
+import { Check, Clock, Copy, Eye, EyeOff, KeyRound, Lock, Phone, Search, Send, UserPlus, Users, Wallet, XCircle } from 'lucide-react-native';
 import api from '../../api/client';
 import E from '../../api/endpoints';
 import { useAuth } from '../../context/AuthContext';
@@ -11,10 +11,11 @@ import { useToast } from '../../context/ToastContext';
 import { Screen, LargeTitle } from '../../components/layout';
 import { Avatar, Button, Card, EmptyState, Field, IconBadge, Pill, SelectField, Sheet, T, Tap } from '../../components/ui';
 import { DateTimeField } from '../../components/form';
-import { phoneMask } from '../../components/admin/userShared';
+import GroupPaySheet from '../../components/GroupPaySheet';
+
 import { colors, fonts, radius } from '../../theme';
 import { GRADES } from '../../utils/constants';
-import { initialsOf } from '../../utils/format';
+import { initialsOf, phoneMask } from '../../utils/format';
 
 const L = {
 	title: { uz: "Mening o'quvchilarim", ru: 'Мои ученики', en: 'My students' },
@@ -62,6 +63,15 @@ const L = {
 	pendingSub: { uz: "O'quvchilar sizni o'qituvchi sifatida tanladi", ru: 'Ученики выбрали вас своим учителем', en: 'Students who picked you as their teacher' },
 	accept: { uz: 'Qabul qilish', ru: 'Принять', en: 'Accept' },
 	reject: { uz: 'Rad etish', ru: 'Отклонить', en: 'Reject' },
+	searchStudents: { uz: "O'quvchini qidirish (F.I.SH, telefon, sinf)...", ru: 'Поиск ученика (ФИО, телефон, класс)...', en: 'Search student (name, phone, grade)...' },
+	results: { uz: 'Natijalar:', ru: 'Результаты:', en: 'Results:' },
+	noMatch: { uz: "So'rovingiz bo'yicha o'quvchilar topilmadi", ru: 'Ученики по вашему запросу не найдены', en: 'No students found matching your search' },
+	groupPayment: { uz: "Guruhli to'lov", ru: 'Групповая оплата', en: 'Group payment' },
+	paySelected: { uz: "Tanlanganlar uchun to'lash", ru: 'Оплатить за выбранных', en: 'Pay for selected' },
+	selected: { uz: 'Tanlandi', ru: 'Выбрано', en: 'Selected' },
+	totalStudents: { uz: "Jami o'quvchilar", ru: 'Всего учеников', en: 'Total students' },
+	selectAll: { uz: 'Barchasini tanlash', ru: 'Выбрать всех', en: 'Select all' },
+	clearSelection: { uz: 'Bekor qilish', ru: 'Сбросить', en: 'Clear' },
 	accepted: { uz: 'Qabul qilindi', ru: 'Принято', en: 'Accepted' },
 	rejected: { uz: 'Rad etildi', ru: 'Отклонено', en: 'Rejected' },
 };
@@ -96,6 +106,21 @@ export default function TeacherStudents() {
 	const [searching, setSearching] = useState(false);
 	const [invitingId, setInvitingId] = useState(null);
 	const debounce = useRef(null);
+	const [tableSearch, setTableSearch] = useState('');
+	const [selected, setSelected] = useState(() => new Set());
+	const [payOpen, setPayOpen] = useState(false);
+	const [payKey, setPayKey] = useState(0);
+
+	const filtered = useMemo(() => {
+		const words = tableSearch.toLowerCase().trim().split(/\s+/).filter(Boolean);
+		if (!words.length) return students;
+		return students.filter((s) => {
+			const hay = `${s.first_name || ''} ${s.last_name || ''} ${s.middle_name || ''} ${s.phone || ''} ${s.school || ''} ${s.grade || ''}`.toLowerCase();
+			return words.every((w) => hay.includes(w));
+		});
+	}, [students, tableSearch]);
+	const toggleSelect = (id) => setSelected((p) => { const n = new Set(p); if (n.has(id)) n.delete(id); else n.add(id); return n; });
+	const allSelected = filtered.length > 0 && filtered.every((s) => selected.has(s.id));
 
 	const fetchStudents = useCallback(async () => {
 		try {
@@ -145,6 +170,7 @@ export default function TeacherStudents() {
 			await api.post(E.TEACHER_LINK_REQUEST_INVITE_STUDENT, { student: s.id });
 			toast.success(tx(L.invited));
 			setResults((p) => p.map((x) => (x.id === s.id ? { ...x, invited: true } : x)));
+			fetchStudents();
 		} catch (err) {
 			toast.error(err.response?.data?.error || tx(L.error));
 		}
@@ -239,9 +265,25 @@ export default function TeacherStudents() {
 				</Card>
 			) : null}
 
-			{loading ? <ActivityIndicator color={colors.goldDeep} style={{ marginTop: 20 }} /> : !students.length ? <EmptyState icon={Users} title={tx(L.noStudents)} /> : students.map((s) => (
-				<Card key={s.id} style={{ marginBottom: 10, padding: 14 }}>
+			{!loading && students.length ? (
+				<View style={{ gap: 10, marginBottom: 12 }}>
+					<Button size="md" variant="soft" icon={Wallet} title={selected.size ? `${tx(L.paySelected)} (${selected.size})` : tx(L.groupPayment)} onPress={() => { setPayKey((k) => k + 1); setPayOpen(true); }} />
+					<Field icon={Search} value={tableSearch} onChangeText={setTableSearch} placeholder={tx(L.searchStudents)} autoCorrect={false} autoCapitalize="none" />
+					<View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
+						<T v="small" style={{ flex: 1 }}>{tableSearch.trim() ? `${tx(L.results)} ${filtered.length} / ${students.length}` : selected.size ? `${tx(L.selected)}: ${selected.size}` : `${tx(L.totalStudents)}: ${students.length}`}</T>
+						{filtered.length ? (
+							<Tap hitSlop={8} onPress={() => setSelected(allSelected ? new Set() : new Set(filtered.map((s) => s.id)))}>
+								<T v="strong" color={colors.amber} style={{ fontSize: 13 }}>{tx(allSelected ? L.clearSelection : L.selectAll)}</T>
+							</Tap>
+						) : null}
+					</View>
+				</View>
+			) : null}
+
+			{loading ? <ActivityIndicator color={colors.goldDeep} style={{ marginTop: 20 }} /> : !students.length ? <EmptyState icon={Users} title={tx(L.noStudents)} /> : !filtered.length ? <EmptyState icon={Search} title={tx(L.noMatch)} /> : filtered.map((s) => (
+				<Card key={s.id} style={[{ marginBottom: 10, padding: 14 }, selected.has(s.id) && { borderColor: colors.goldDeep, backgroundColor: '#FFFCF1' }]}>
 					<View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
+						<Tap onPress={() => toggleSelect(s.id)} hitSlop={8} style={[styles.check, selected.has(s.id) && styles.checkOn]}>{selected.has(s.id) ? <Check size={14} color={colors.navyDeep} strokeWidth={3} /> : null}</Tap>
 						<Avatar initials={initialsOf(s)} size={44} />
 						<View style={{ flex: 1 }}>
 							<T v="strong" numberOfLines={1}>{s.last_name} {s.first_name}</T>
@@ -251,7 +293,7 @@ export default function TeacherStudents() {
 					</View>
 					<View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 6, marginTop: 10, alignItems: 'center' }}>
 						{s.grade ? <Pill label={`${s.grade}`} color={colors.blue} bg={colors.blueSoft} /> : null}
-						<Pill label={`${(s.registrations || []).length} ${tx(L.olympiads)}`} color={colors.amber} bg={colors.goldTint} />
+						<Pill label={`${s.registrations_count ?? (s.registrations || []).length} ${tx(L.olympiads)}`} color={colors.amber} bg={colors.goldTint} />
 						{s.password_text ? (
 							<Tap onPress={() => toggleReveal(s.id)} style={styles.pass}>
 								<Lock size={12} color={colors.muted} />
@@ -263,6 +305,8 @@ export default function TeacherStudents() {
 					<Button size="sm" icon={Send} title={tx(L.register)} onPress={() => setReg({ student: s, olympiadId: '' })} style={{ marginTop: 12 }} />
 				</Card>
 			))}
+
+			<GroupPaySheet key={payKey} visible={payOpen} onClose={() => setPayOpen(false)} students={students} preselected={selected} onPaid={() => { setSelected(new Set()); fetchStudents(); }} />
 
 			<Sheet visible={addOpen} onClose={() => !adding && setAddOpen(false)} title={creds ? '' : tx(L.addStudent)} scroll maxHeight="94%">
 				{creds ? (
@@ -340,6 +384,8 @@ export default function TeacherStudents() {
 
 const styles = StyleSheet.create({
 	request: { flexDirection: 'row', alignItems: 'center', gap: 8, padding: 10, borderRadius: radius.md, backgroundColor: colors.white, marginTop: 6 },
+	check: { width: 26, height: 26, borderRadius: 9, borderWidth: 1.5, borderColor: colors.lineStrong, backgroundColor: colors.white, alignItems: 'center', justifyContent: 'center' },
+	checkOn: { backgroundColor: colors.gold, borderColor: colors.goldDeep },
 	round: { width: 36, height: 36, borderRadius: 18, alignItems: 'center', justifyContent: 'center' },
 	pass: { flexDirection: 'row', alignItems: 'center', gap: 5, paddingHorizontal: 10, height: 26, borderRadius: radius.pill, backgroundColor: colors.cardMuted },
 	creds: { alignSelf: 'stretch', alignItems: 'center', padding: 16, borderRadius: radius.lg, backgroundColor: colors.goldTint, gap: 4 },

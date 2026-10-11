@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 import { router, useLocalSearchParams } from 'expo-router';
 import * as Clipboard from 'expo-clipboard';
@@ -60,6 +60,17 @@ export default function RegisterScreen() {
 		if (!oly) fetchOlympiadById(id);
 	}, [id]);
 
+	// Only the regions and grades this olympiad is open for (website RegistrationPage).
+	const availableRegions = useMemo(() => {
+		const ids = Array.isArray(oly?.region_ids) && oly.region_ids.length ? oly.region_ids.map(Number) : (oly?.regions || []).map((r) => Number(typeof r === 'object' ? r.id : r));
+		return ids.length ? regions.filter((r) => ids.includes(Number(r.id))) : regions;
+	}, [regions, oly]);
+	const availableGrades = useMemo(() => {
+		const allowed = (oly?.grades || []).map(String);
+		const list = GRADES.filter((g) => allowed.includes(g));
+		return list.length ? list : GRADES;
+	}, [oly]);
+
 	const set = (key, value) => {
 		setForm((p) => ({ ...p, [key]: value }));
 		if (errors[key]) setErrors((p) => ({ ...p, [key]: undefined }));
@@ -96,11 +107,11 @@ export default function RegisterScreen() {
 		const res = await register(form);
 		const paidOly = Number(oly?.price) > 0;
 		if (res.success) {
-			const regRes = await registerForOlympiad(id);
+			const regRes = await registerForOlympiad(id, { teacher_name: form.teacher_name, teacher_phone: form.teacher_phone });
 			setLoading(false);
 			if (regRes.success) {
 				toast.success(t('regDoneMsg'));
-				if (paidOly) router.replace({ pathname: `/payment/${id}`, params: { regId: regRes.id } });
+				if (paidOly) router.replace({ pathname: `/payment/${id}`, params: { regId: regRes.registration_id || regRes.id } });
 				else setResult({ user: res.user, password: form.password, registration: regRes });
 			} else if (paidOly && regRes.isAlreadyRegistered) {
 				router.replace(`/payment/${id}`);
@@ -186,9 +197,9 @@ export default function RegisterScreen() {
 					</>
 				) : step === 1 ? (
 					<>
-						<SelectField label={t('region')} icon={MapPin} value={form.regionId} onChange={(v) => set('regionId', v)} placeholder={t('selectRegion')} error={errors.regionId} options={regions.map((r) => ({ value: r.id, label: pick(r, 'name') }))} />
+						<SelectField label={t('region')} icon={MapPin} value={form.regionId} onChange={(v) => set('regionId', v)} placeholder={t('selectRegion')} error={errors.regionId} options={availableRegions.map((r) => ({ value: r.id, label: pick(r, 'name') }))} />
 						<Field label={t('school')} icon={School} value={form.school} onChangeText={(v) => set('school', v)} placeholder={t('schoolPlaceholder')} error={errors.school} />
-						<SelectField label={t('grade')} icon={GraduationCap} value={form.grade} onChange={(v) => set('grade', v)} placeholder={t('selectGrade')} error={errors.grade} options={GRADES.map((g) => ({ value: g, label: g === 'KG' ? t('kindergarten') : `${g}${t('gradeSuffix')}` }))} />
+						<SelectField label={t('grade')} icon={GraduationCap} value={form.grade} onChange={(v) => set('grade', v)} placeholder={t('selectGrade')} error={errors.grade} options={availableGrades.map((g) => ({ value: g, label: g === 'KG' ? t('kindergarten') : `${g}${t('gradeSuffix')}` }))} />
 						<View>
 							<T v="label" style={{ marginBottom: 8, marginLeft: 4 }}>{t('teacherSearchLabel')} · {t('optional')}</T>
 							{form.teacherId ? (

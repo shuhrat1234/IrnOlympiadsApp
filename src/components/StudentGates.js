@@ -21,6 +21,11 @@ const suggestNextGrade = (g) => {
 	return n >= 11 ? '11+' : String(n + 1);
 };
 
+// True while one of the blocking gates below is on screen — other auto-opening
+// sheets (e.g. the "Who is your teacher?" prompt) wait for it, since iOS can't stack modals reliably.
+export const hasStudentGate = (user) =>
+	user?.role === 'participant' && (!user.telegram_chat_id || !!user.needs_grade_confirmation || ['first_name', 'last_name', 'middle_name'].some((k) => user[k] && CYRILLIC.test(user[k])));
+
 // Full-screen blockers from the website's DashboardLayout, shown one at a time:
 // 1) Telegram bot not linked  2) new school year → confirm grade  3) Cyrillic name.
 export default function StudentGates() {

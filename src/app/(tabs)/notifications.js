@@ -27,14 +27,16 @@ export default function NotificationsTab() {
 	const unread = list.filter((n) => !n.is_read).length;
 
 	const filtered = useMemo(() => {
-		const q = query.trim().toLowerCase();
+		// Every word must match in any language of the title/message or in the type.
+		const words = query.trim().toLowerCase().split(/\s+/).filter(Boolean);
 		return list.filter((n) => {
 			if (filter === 'unread' && n.is_read) return false;
 			if (filter === 'read' && !n.is_read) return false;
-			if (!q) return true;
-			return `${pick(n, 'title')} ${pick(n, 'message')}`.toLowerCase().includes(q);
+			if (!words.length) return true;
+			const pool = [n.title_uz, n.title_ru, n.title_en, n.title, n.message_uz, n.message_ru, n.message_en, n.message, n.type].filter(Boolean).join(' ').toLowerCase();
+			return words.every((w) => pool.includes(w));
 		});
-	}, [list, filter, query, pick]);
+	}, [list, filter, query]);
 
 	return (
 		<Screen onRefresh={fetchMe} tabBar>
