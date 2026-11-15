@@ -366,10 +366,32 @@ const styles = StyleSheet.create({
 	dot: { width: 6, height: 6, borderRadius: 3 },
 	badgeDot: { position: 'absolute', top: -2, right: -2, minWidth: 18, height: 18, paddingHorizontal: 4, borderRadius: 9, backgroundColor: colors.red, alignItems: 'center', justifyContent: 'center', borderWidth: 2, borderColor: colors.white },
 	badgeDotText: { color: colors.white, fontFamily: fonts.extrabold, fontSize: 9 },
-	field: { flexDirection: 'row', alignItems: 'center', gap: 11, backgroundColor: colors.white, borderRadius: 14, borderWidth: 1.2, borderColor: '#E2E8F0', paddingHorizontal: 15, minHeight: 52 },
-	fieldFocused: { borderColor: colors.amber, backgroundColor: '#FFFFFF', ...shadow(1) },
+	field: { flexDirection: 'row', alignItems: 'center', gap: 11, backgroundColor: colors.white, borderRadius: 14, borderWidth: 1.5, borderColor: '#E2E8F0', paddingHorizontal: 15, minHeight: 52 },
+	fieldFocused: {
+		borderColor: colors.goldDeep,
+		backgroundColor: '#FFFFFF',
+		...Platform.select({
+			web: {
+				boxShadow: '0 0 0 3px rgba(253, 200, 0, 0.22)',
+			},
+			default: shadow(1),
+		}),
+	},
 	fieldError: { borderColor: colors.red, backgroundColor: '#FFF8F8' },
-	input: { flex: 1, fontFamily: fonts.semibold, fontSize: 15, color: colors.ink, paddingVertical: 12 },
+	input: {
+		flex: 1,
+		fontFamily: fonts.semibold,
+		fontSize: 15,
+		color: colors.ink,
+		paddingVertical: 12,
+		...Platform.select({
+			web: {
+				outlineStyle: 'none',
+				outline: 'none',
+				outlineWidth: 0,
+			},
+		}),
+	},
 	segment: { flexDirection: 'row', backgroundColor: colors.bgDeep, borderRadius: radius.pill, padding: 4, borderWidth: 1, borderColor: 'rgba(230,224,211,0.75)' },
 	segmentItem: { flex: 1, flexDirection: 'row', gap: 6, alignItems: 'center', justifyContent: 'center', paddingVertical: 10, paddingHorizontal: 8, borderRadius: radius.pill },
 	segmentActive: { backgroundColor: colors.white, ...shadow(1) },
