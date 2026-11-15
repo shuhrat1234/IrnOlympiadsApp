@@ -196,7 +196,7 @@ export default function LoginScreen() {
 						onScrollBeginDrag={Keyboard.dismiss}
 					>
 						{/* Hero - tapping dismisses keyboard */}
-						<Pressable onPress={Keyboard.dismiss} style={[styles.hero, { paddingTop: insets.top + 14 }]}>
+						<Pressable onPress={Keyboard.dismiss} style={[styles.hero, { paddingTop: insets.top + 16 }]}>
 							<View style={styles.topRow}>
 								<View style={styles.langs}>
 									{LANGS.map((l) => (
@@ -380,13 +380,13 @@ export default function LoginScreen() {
 const styles = StyleSheet.create({
 	glow: { position: 'absolute', top: -120, right: -100, width: 320, height: 320, borderRadius: 160, backgroundColor: 'rgba(253,200,0,0.18)' },
 	glow2: { position: 'absolute', top: 160, left: -140, width: 280, height: 280, borderRadius: 140, backgroundColor: 'rgba(47,111,235,0.14)' },
-	hero: { paddingHorizontal: 20, paddingBottom: 14 },
-	topRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 },
+	hero: { paddingHorizontal: 20, paddingBottom: 18 },
+	topRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 28 },
 	langs: { flexDirection: 'row', backgroundColor: 'rgba(255,255,255,0.08)', borderRadius: radius.pill, padding: 2 },
 	langBtn: { paddingHorizontal: 9, paddingVertical: 4, borderRadius: radius.pill },
 	langBtnActive: { backgroundColor: colors.gold },
 	browse: { flexDirection: 'row', alignItems: 'center', gap: 5, paddingHorizontal: 10, paddingVertical: 6, borderRadius: radius.pill, backgroundColor: 'rgba(255,255,255,0.08)', borderWidth: 1, borderColor: 'rgba(255,255,255,0.1)' },
-	logoWrap: { alignItems: 'center', marginTop: 8, marginBottom: 8 },
+	logoWrap: { alignItems: 'center', marginTop: 14, marginBottom: 12 },
 	heroArtWrap: { width: 145, height: 94, alignItems: 'center', justifyContent: 'center' },
 	heroArt: { width: '100%', height: '100%' },
 	card: { flex: 1, backgroundColor: colors.bg, borderTopLeftRadius: 28, borderTopRightRadius: 28, paddingHorizontal: 22, paddingTop: 18, justifyContent: 'center', ...shadow(3) },
