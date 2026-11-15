@@ -87,6 +87,7 @@ const S = {
 	teacherBadge: { uz: "O'qituvchi", ru: 'Учитель', en: 'Teacher' },
 	teacherSignup: { uz: "O'qituvchi sifatida ro'yxatdan o'tish", ru: 'Регистрация в качестве учителя', en: 'Register as a teacher' },
 	teacherQuestion: { uz: "O'qituvchimisiz?", ru: 'Вы учитель?', en: 'Are you a teacher?' },
+	teacherRegisterStudents: { uz: "O'quvchilarni yozish", ru: 'Записать учеников', en: 'Register Students' },
 
 	// ——— gates ———
 	tgGateTitle: { uz: 'Telegram botni faollashtiring', ru: 'Активируйте Telegram-бота', en: 'Activate Telegram Bot' },

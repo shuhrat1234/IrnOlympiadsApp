@@ -2,7 +2,7 @@ import React, { useEffect, useMemo, useState } from 'react';
 import { ActivityIndicator, Image, Linking, StyleSheet, View } from 'react-native';
 import { router } from 'expo-router';
 import * as Clipboard from 'expo-clipboard';
-import { AlertCircle, Check, CheckCircle2, Clock, Copy, CreditCard, ExternalLink, ImagePlus, MapPin, Navigation, Search, X } from 'lucide-react-native';
+import { AlertCircle, Check, CheckCircle2, Clock, Copy, CreditCard, ExternalLink, ImagePlus, MapPin, Navigation, Search, Truck, X } from 'lucide-react-native';
 import api, { fetchAllPages } from '../api/client';
 import E from '../api/endpoints';
 import { useAuth } from '../context/AuthContext';
@@ -19,7 +19,6 @@ import { cart, useCart } from '../utils/cart';
 // Same requisites as the website's CartDrawer.
 const PAYMENT_CARD_NUMBER = '5614 6821 1094 2531';
 const PAYMENT_CARD_HOLDER = 'Botirova Mohinur';
-const BTS_DELIVERY_FEE = 0;
 const MAX_POINTS = 40;
 
 const L = {
@@ -42,16 +41,15 @@ const L = {
 		ru: 'Срок доставки зависит от региона и обычно составляет от 2 до 5 рабочих дней. В праздничные и выходные дни срок доставки может увеличиться.',
 		en: 'Delivery time depends on the region and usually takes 2 to 5 business days. During holidays and weekends, delivery may take longer.',
 	},
-	deliveryFreeTitle: { uz: 'BTS orqali yetkazib berish — BEPUL', ru: 'Доставка через BTS — БЕСПЛАТНО', en: 'BTS delivery — FREE' },
-	deliveryFreeDesc: { uz: 'Biz kitoblar yetkazib berilishi uchun pul olmaymiz! BTS orqali yetkazib berish xarajatlarini platforma oʻz zimmasiga oladi.', ru: 'Мы не берем деньги за доставку книг! Все расходы по доставке через BTS берет на себя платформа.', en: 'We do not charge for delivery! All BTS shipping costs are covered by the platform.' },
-	deliveryFreeBadge: { uz: 'BEPUL', ru: 'БЕСПЛАТНО', en: 'FREE' },
-	payMethod: { uz: "Yetkazib berish to'lovi usuli", ru: 'Способ оплаты доставки BTS', en: 'Delivery payment method' },
-	prepaid: { uz: "BTS yetkazib berish", ru: 'Доставка через BTS', en: 'BTS delivery' },
-	prepaidDesc: { uz: "Yetkazib berish platforma tomonidan to'liq qoplanadi", ru: 'Все расходы по доставке через BTS берет на себя платформа', en: 'Delivery costs are covered by the platform' },
-	prepaidBadge: { uz: "BEPUL", ru: 'БЕСПЛАТНО', en: 'FREE' },
-	onDelivery: { uz: "Olganda / BTS orqali o'zim to'layman", ru: 'Оплачу доставку при получении / через BTS', en: 'Pay delivery yourself upon receipt / via BTS' },
-	onDeliveryDesc: { uz: "Yetkazib berish uchun to'lov posilkani BTS punktida olayotganda to'lanadi", ru: 'Оплата доставки при получении посылки в отделении BTS', en: 'Pay for delivery when picking up the parcel at BTS' },
-	onDeliveryBadge: { uz: "Olganda to'lanadi", ru: 'При получении', en: 'Pay on receipt' },
+	deliveryPaymentTitle: { uz: "Yetkazib berish to'lovi", ru: 'Оплата доставки', en: 'Delivery Payment' },
+	deliveryPaymentOnDelivery: { uz: 'BTS orqali yetkazib berish', ru: 'Доставка через BTS', en: 'BTS Delivery' },
+	deliveryPaymentOnDeliveryDesc: {
+		uz: "Yetkazib berish to'lovi saytda olinmaydi. Posilkani BTS punktida olayotganda BTS tariflari bo'yicha to'lanadi.",
+		ru: 'Оплата за доставку на сайте не взимается. Доставка оплачивается при получении посылки в отделении BTS по тарифам BTS.',
+		en: 'Delivery is not charged on the site. Shipping fee is paid upon parcel pickup at the BTS branch according to BTS rates.',
+	},
+	onDeliveryBadge: { uz: 'Olganda to\'lanadi (BTS)', ru: 'При получении (BTS)', en: 'Pay at BTS on pickup' },
+	payAtBts: { uz: "BTSda to'lanadi", ru: 'Оплата в BTS', en: 'Paid at BTS' },
 	payInfo: { uz: "Kitoblar uchun to'lov rekvizitlari", ru: 'Реквизиты для оплаты заказа', en: 'Payment details' },
 	cardHolder: { uz: 'Karta egasi', ru: 'Получатель', en: 'Cardholder' },
 	transfer: { uz: "O'tkazma summasi", ru: 'Сумма к переводу', en: 'Transfer amount' },
@@ -161,14 +159,12 @@ export default function CheckoutScreen() {
 	const { items, total } = useCart();
 	const [address, setAddress] = useState('');
 	const [btsPoint, setBtsPoint] = useState(null);
-	const [delivery, setDelivery] = useState('prepaid');
 	const [receipt, setReceipt] = useState(null);
 	const [error, setError] = useState('');
 	const [submitting, setSubmitting] = useState(false);
 	const [done, setDone] = useState(false);
 
-	const fee = delivery === 'prepaid' ? BTS_DELIVERY_FEE : 0;
-	const finalTotal = total + fee;
+	const finalTotal = total;
 
 	const attach = async () => {
 		try {
@@ -193,7 +189,7 @@ export default function CheckoutScreen() {
 			fd.append('items', JSON.stringify(items.map((i) => ({ book: i.book.id, amount: i.quantity }))));
 			fd.append('delivery_address', address.trim());
 			fd.append('bts_point', String(btsPoint));
-			fd.append('delivery_payment_method', delivery);
+			fd.append('delivery_payment_method', 'on_delivery');
 			fd.append('receipt_image', { uri: receipt.uri, name: receipt.name || 'receipt.jpg', type: receipt.mimeType || 'image/jpeg' });
 			await api.post(E.BOOK_ORDERS_CHECKOUT, fd);
 			cart.clear();
@@ -254,12 +250,19 @@ export default function CheckoutScreen() {
 				<T v="small" style={{ flex: 1, color: colors.ink2 }}>{tx(L.deliveryNotice)}</T>
 			</View>
 
-			<View style={styles.freeBanner}>
-				<View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 8 }}>
-					<T v="strong" color={colors.green} style={{ fontSize: 13, flex: 1 }}>{tx(L.deliveryFreeTitle)}</T>
-					<Pill label="0 UZS" color={colors.green} bg={colors.greenSoft} />
+			<View style={styles.deliveryBanner}>
+				<View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
+					<View style={styles.truckIcon}>
+						<Truck size={20} color={colors.amber} />
+					</View>
+					<View style={{ flex: 1 }}>
+						<View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 6, flexWrap: 'wrap' }}>
+							<T v="strong" style={{ fontSize: 13.5 }}>{tx(L.deliveryPaymentOnDelivery)}</T>
+							<Pill label={tx(L.onDeliveryBadge)} color={colors.amber} bg={colors.goldTint} />
+						</View>
+						<T v="small" color={colors.ink2} style={{ marginTop: 4, fontSize: 11.5, lineHeight: 16 }}>{tx(L.deliveryPaymentOnDeliveryDesc)}</T>
+					</View>
 				</View>
-				<T v="small" color={colors.ink2} style={{ marginTop: 4, fontSize: 11.5 }}>{tx(L.deliveryFreeDesc)}</T>
 			</View>
 
 			<Card style={{ marginTop: 16, backgroundColor: colors.navyDeep, borderColor: colors.navyDeep, gap: 6 }}>
@@ -292,8 +295,8 @@ export default function CheckoutScreen() {
 			<Card style={{ marginTop: 16, gap: 8 }}>
 				<View style={styles.line}><T v="small" style={{ flex: 1 }}>{tx(L.booksTotal)}</T><T v="strong">{formatMoney(total)} UZS</T></View>
 				<View style={styles.line}>
-					<T v="small" style={{ flex: 1 }}>{tx(L.deliveryFee)}</T>
-					<T v="strong" color={colors.green}>{tx(L.deliveryFreeBadge)} (0 UZS)</T>
+					<T v="small" style={{ flex: 1 }}>{tx(L.deliveryPaymentTitle)}</T>
+					<T v="strong" color={colors.amber}>{tx(L.payAtBts)}</T>
 				</View>
 				<View style={[styles.line, { paddingTop: 10, borderTopWidth: 1, borderTopColor: colors.line }]}><T v="strong" style={{ flex: 1 }}>{tx(L.total)}</T><T style={{ fontFamily: fonts.extrabold, fontSize: 20, color: colors.ink }}>{formatMoney(finalTotal)} UZS</T></View>
 			</Card>
@@ -315,5 +318,6 @@ const styles = StyleSheet.create({
 	cardNumber: { fontFamily: fonts.extrabold, fontSize: 22, color: colors.white, letterSpacing: 1 },
 	receipt: { flexDirection: 'row', alignItems: 'center', gap: 12, padding: 12, borderRadius: radius.lg, borderWidth: 1.5, borderStyle: 'dashed', borderColor: colors.lineStrong, backgroundColor: colors.white },
 	error: { flexDirection: 'row', alignItems: 'center', gap: 8, marginTop: 12, padding: 12, borderRadius: radius.md, backgroundColor: colors.redSoft },
-	freeBanner: { marginTop: 14, padding: 14, borderRadius: radius.lg, backgroundColor: colors.greenSoft, borderWidth: 1, borderColor: 'rgba(34, 197, 94, 0.2)' },
+	deliveryBanner: { marginTop: 14, padding: 14, borderRadius: radius.lg, backgroundColor: colors.goldTint, borderWidth: 1, borderColor: colors.goldSoft },
+	truckIcon: { width: 40, height: 40, borderRadius: 12, backgroundColor: colors.white, alignItems: 'center', justifyContent: 'center' },
 });

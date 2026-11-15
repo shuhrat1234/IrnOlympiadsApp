@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { ActivityIndicator, StyleSheet, View } from 'react-native';
 import * as Clipboard from 'expo-clipboard';
-import { Check, Clock, Copy, Eye, EyeOff, KeyRound, Lock, Phone, Search, Send, UserPlus, Users, Wallet, XCircle } from 'lucide-react-native';
+import { Check, CheckCircle2, Clock, Copy, Eye, EyeOff, KeyRound, Lock, Phone, Search, Send, UserPlus, Users, Wallet, XCircle } from 'lucide-react-native';
 import api from '../../api/client';
 import E from '../../api/endpoints';
 import { useAuth } from '../../context/AuthContext';
@@ -26,6 +26,10 @@ const L = {
 	inviteSearch: { uz: "Ism yoki telefon bo'yicha qidirish...", ru: 'Поиск по имени или телефону...', en: 'Search by name or phone...' },
 	invited: { uz: 'Taklif yuborildi', ru: 'Приглашение отправлено', en: 'Invite sent' },
 	alreadyLinked: { uz: "Sizning o'quvchingiz", ru: 'Уже ваш ученик', en: 'Already your student' },
+	allRegisteredBadge: { uz: 'Barcha olimpiadalarga yozilgan', ru: 'Записан на все олимпиады', en: 'Registered for all olympiads' },
+	alreadyRegisteredList: { uz: 'Allaqachon yozilgan olimpiadalar:', ru: 'Уже записан на олимпиады:', en: 'Already registered for:' },
+	allActiveRegistered: { uz: "Ushbu o'quvchi barcha faol olimpiadalarga allaqachon ro'yxatdan o'tgan", ru: 'Ученик уже зарегистрирован на все активные олимпиады', en: 'Student is already registered for all active olympiads' },
+	paid: { uz: "To'langan", ru: 'Оплачено', en: 'Paid' },
 	noResults: { uz: 'Topilmadi', ru: 'Не найдено', en: 'No results' },
 	noStudents: { uz: "Hali o'quvchi yo'q", ru: 'Пока нет учеников', en: 'No students yet' },
 	olympiads: { uz: 'olimpiada', ru: 'олимпиад', en: 'olympiads' },
@@ -301,7 +305,23 @@ export default function TeacherStudents() {
 							</Tap>
 						) : null}
 					</View>
-					<Button size="sm" icon={Send} title={tx(L.register)} onPress={() => setReg({ student: s, olympiadId: '' })} style={{ marginTop: 12 }} />
+					{(() => {
+						const sRegSet = new Set((s.registrations || []).map((r) => String(r.olympiad_id || r.olympiad?.id || r.olympiad)));
+						const activeOlys = (olympiads || []).filter((o) => o.is_active);
+						const unregActive = activeOlys.filter((o) => !sRegSet.has(String(o.id)));
+						const isAllReg = (s.registrations || []).length > 0 && (activeOlys.length === 0 || unregActive.length === 0);
+						if (isAllReg) {
+							return (
+								<View style={styles.allRegBadge}>
+									<CheckCircle2 size={13} color={colors.green} />
+									<T v="strong" color={colors.green} style={{ fontSize: 12 }}>{tx(L.allRegisteredBadge)}</T>
+								</View>
+							);
+						}
+						return (
+							<Button size="sm" icon={Send} title={tx(L.register)} onPress={() => setReg({ student: s, olympiadId: '' })} style={{ marginTop: 12 }} />
+						);
+					})()}
 				</Card>
 			))}
 
@@ -343,8 +363,48 @@ export default function TeacherStudents() {
 				{reg ? (
 					<View style={{ gap: 12 }}>
 						<T v="strong">{reg.student.last_name} {reg.student.first_name}</T>
-						<SelectField title={tx(L.selectOlympiad)} value={reg.olympiadId} placeholder={tx(L.selectOlympiad)} options={olympiads.filter((o) => o.is_active).map((o) => ({ value: String(o.id), label: pick(o, 'title') }))} onChange={(v) => setReg((r) => ({ ...r, olympiadId: v }))} />
-						<Button icon={Send} title={tx(L.register)} loading={registering} disabled={!reg.olympiadId} onPress={register} />
+
+						{(reg.student.registrations || []).length > 0 ? (
+							<View style={{ padding: 10, borderRadius: radius.md, backgroundColor: colors.cardMuted, gap: 6 }}>
+								<T v="label" color={colors.muted} style={{ fontSize: 10 }}>{tx(L.alreadyRegisteredList)}</T>
+								<View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 6 }}>
+									{reg.student.registrations.map((r) => (
+										<Pill
+											key={r.id}
+											icon={CheckCircle2}
+											label={`${r.olympiad_title || `Olimpiada #${r.olympiad_id}`} ${r.payment_status === 'paid' ? `(${tx(L.paid)})` : ''}`}
+											color={colors.green}
+											bg={colors.greenSoft}
+										/>
+									))}
+								</View>
+							</View>
+						) : null}
+
+						{(() => {
+							const sRegSet = new Set((reg.student.registrations || []).map((r) => String(r.olympiad_id || r.olympiad?.id || r.olympiad)));
+							const availOlys = (olympiads || []).filter((o) => o.is_active && !sRegSet.has(String(o.id)));
+							if (availOlys.length === 0) {
+								return (
+									<View style={styles.allRegBox}>
+										<CheckCircle2 size={16} color={colors.green} />
+										<T v="strong" color={colors.green} style={{ flex: 1, fontSize: 13 }}>{tx(L.allActiveRegistered)}</T>
+									</View>
+								);
+							}
+							return (
+								<>
+									<SelectField
+										title={tx(L.selectOlympiad)}
+										value={reg.olympiadId}
+										placeholder={tx(L.selectOlympiad)}
+										options={availOlys.map((o) => ({ value: String(o.id), label: pick(o, 'title') }))}
+										onChange={(v) => setReg((r) => ({ ...r, olympiadId: v }))}
+									/>
+									<Button icon={Send} title={tx(L.register)} loading={registering} disabled={!reg.olympiadId} onPress={register} />
+								</>
+							);
+						})()}
 					</View>
 				) : null}
 			</Sheet>
@@ -389,4 +449,6 @@ const styles = StyleSheet.create({
 	pass: { flexDirection: 'row', alignItems: 'center', gap: 5, paddingHorizontal: 10, height: 26, borderRadius: radius.pill, backgroundColor: colors.cardMuted },
 	creds: { alignSelf: 'stretch', alignItems: 'center', padding: 16, borderRadius: radius.lg, backgroundColor: colors.goldTint, gap: 4 },
 	result: { flexDirection: 'row', alignItems: 'center', gap: 10, padding: 12, borderRadius: radius.md, borderWidth: 1, borderColor: colors.line, backgroundColor: colors.white },
+	allRegBadge: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 6, height: 36, paddingHorizontal: 12, borderRadius: radius.md, backgroundColor: colors.greenSoft, borderWidth: 1, borderColor: colors.green, marginTop: 12 },
+	allRegBox: { flexDirection: 'row', alignItems: 'center', gap: 10, padding: 14, borderRadius: radius.md, backgroundColor: colors.greenSoft, borderWidth: 1, borderColor: colors.green },
 });

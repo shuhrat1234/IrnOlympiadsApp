@@ -60,6 +60,7 @@ export default function OlympiadDetailScreen() {
 	const closed = isRegistrationClosed(oly);
 	const fill = oly.max_participants > 0 ? Math.round(((oly.registered_count || 0) / oly.max_participants) * 100) : 0;
 	const { userReg, isPaid, isPendingPayment } = currentUser ? registrationStateFor(currentUser, userRegistrations, oly) : {};
+	const isTeacher = currentUser?.role === 'teacher';
 	const desc = pick(oly, 'description');
 	const hasSubs = oly.subs?.length > 0;
 	// Offline olympiads list one date per subject instead of a per-grade schedule (website).
@@ -149,6 +150,8 @@ export default function OlympiadDetailScreen() {
 							<AlertTriangle size={18} color={colors.red} />
 							<T v="strong" color={colors.red}>{t('noSeats')}</T>
 						</View>
+					) : isTeacher ? (
+						<Button title={t('teacherRegisterStudents')} icon={Users} iconRight={ArrowRight} onPress={() => router.push('/teacher')} />
 					) : isPendingPayment ? (
 						<View style={{ gap: 10 }}>
 							<View style={[styles.state, { backgroundColor: colors.goldTint }]}>

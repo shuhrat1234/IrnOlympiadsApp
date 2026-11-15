@@ -3,6 +3,7 @@ import { StyleSheet, View } from 'react-native';
 import { Image } from 'expo-image';
 import { router } from 'expo-router';
 import { AlertTriangle, ArrowRight, Building2, Calendar, CheckCircle2, Clock, CreditCard, Sparkles, Users, Wifi } from 'lucide-react-native';
+import { useAuth } from '../context/AuthContext';
 import { useLanguage } from '../context/LanguageContext';
 import { useOlympiad } from '../context/OlympiadContext';
 import { mediaUrl } from '../api/client';
@@ -14,6 +15,8 @@ import { formatDate, formatPrice, formatShortDate, formatTime, sortedSessions } 
 export default function OlympiadCard({ oly, userGrade, registered, pendingPayment, closed }) {
 	const { t, lang, pick } = useLanguage();
 	const { getRemainingSeats, isFull } = useOlympiad();
+	const { currentUser } = useAuth();
+	const isTeacher = currentUser?.role === 'teacher';
 	const online = (oly.type || oly.olympiad_type) === 'online';
 	const remaining = getRemainingSeats(oly);
 	const fill = oly.max_participants > 0 ? Math.round(((oly.registered_count || 0) / oly.max_participants) * 100) : 0;
@@ -33,9 +36,15 @@ export default function OlympiadCard({ oly, userGrade, registered, pendingPaymen
 		return { id: sub.id, title: pick(sub), when: when || (soon ? t('soon') : ''), soon };
 	});
 
-	// Same priority as the website card: completed → closed → full → pay → registered → register.
+	// Same priority as the website card: teacher → completed → closed → full → pay → registered → register.
 	const state = oly.is_completed ? 'completed' : closed ? 'closed' : isFull(oly) ? 'full' : pendingPayment ? 'pay' : registered ? 'registered' : 'register';
-	const cta = {
+	const cta = isTeacher ? {
+		icon: Users,
+		label: t('teacherRegisterStudents'),
+		color: colors.navyDeep,
+		bg: colors.goldTint,
+		arrow: true,
+	} : {
 		completed: { icon: CheckCircle2, label: t('completed'), color: colors.muted, bg: colors.cardMuted },
 		closed: { icon: AlertTriangle, label: t('noSeats'), color: colors.muted, bg: colors.cardMuted },
 		full: { label: t('noSeats'), color: colors.muted, bg: colors.cardMuted },
@@ -43,7 +52,7 @@ export default function OlympiadCard({ oly, userGrade, registered, pendingPaymen
 		registered: { icon: CheckCircle2, label: t('alreadyRegistered'), color: colors.green, bg: colors.greenSoft },
 		register: { label: t('registerBtn'), color: colors.navyDeep, bg: colors.goldTint, arrow: true },
 	}[state];
-	const open = () => router.push(state === 'registered' ? '/olympiads' : state === 'pay' ? `/payment/${oly.id}` : `/olympiad/${oly.id}`);
+	const open = () => router.push(isTeacher ? '/teacher' : state === 'registered' ? '/olympiads' : state === 'pay' ? `/payment/${oly.id}` : `/olympiad/${oly.id}`);
 
 	return (
 		<Card onPress={open} style={{ marginBottom: 14, overflow: 'hidden' }} padded={false}>
