@@ -196,7 +196,7 @@ export default function LoginScreen() {
 						onScrollBeginDrag={Keyboard.dismiss}
 					>
 						{/* Hero - tapping dismisses keyboard */}
-						<Pressable onPress={Keyboard.dismiss} style={[styles.hero, { paddingTop: insets.top + 8 }]}>
+						<Pressable onPress={Keyboard.dismiss} style={[styles.hero, { paddingTop: insets.top + 14 }]}>
 							<View style={styles.topRow}>
 								<View style={styles.langs}>
 									{LANGS.map((l) => (
@@ -211,15 +211,14 @@ export default function LoginScreen() {
 								</Pressable>
 							</View>
 
-							<Animated.View entering={FadeInDown.duration(650)} style={styles.logoWrap}>
+							<Animated.View entering={FadeInDown.duration(500)} style={styles.logoWrap}>
 								<View style={styles.heroArtWrap}>
-									<Image source={require('../../assets/illustrations/olympiad-hero.png')} style={styles.heroArt} resizeMode="contain" />
+									<Image source={require('../../assets/brand/irn-official-gold-logo.png')} style={styles.heroArt} resizeMode="contain" />
 								</View>
 							</Animated.View>
-							<Animated.View entering={FadeInDown.delay(120).duration(600)}>
-								<T v="label" color={colors.gold} style={{ textAlign: 'center', letterSpacing: 2, marginTop: 4, fontSize: 10 }}>IRN OLYMPIADS</T>
-								<T v="display" color="#fff" style={{ textAlign: 'center', marginTop: 3, fontSize: 21, lineHeight: 26 }}>{t('loginHero')}</T>
-								<T v="body" color="rgba(255,255,255,0.65)" numberOfLines={1} style={{ textAlign: 'center', marginTop: 3, paddingHorizontal: 16, fontSize: 12, lineHeight: 16 }}>{t('loginHeroSub')}</T>
+							<Animated.View entering={FadeInDown.delay(80).duration(450)}>
+								<T v="display" color="#fff" style={{ textAlign: 'center', marginTop: 4, fontSize: 22, lineHeight: 28 }}>{t('loginHero')}</T>
+								<T v="body" color="rgba(255,255,255,0.7)" numberOfLines={1} style={{ textAlign: 'center', marginTop: 4, paddingHorizontal: 16, fontSize: 13, lineHeight: 18 }}>{t('loginHeroSub')}</T>
 							</Animated.View>
 						</Pressable>
 
@@ -381,14 +380,14 @@ export default function LoginScreen() {
 const styles = StyleSheet.create({
 	glow: { position: 'absolute', top: -120, right: -100, width: 320, height: 320, borderRadius: 160, backgroundColor: 'rgba(253,200,0,0.18)' },
 	glow2: { position: 'absolute', top: 160, left: -140, width: 280, height: 280, borderRadius: 140, backgroundColor: 'rgba(47,111,235,0.14)' },
-	hero: { paddingHorizontal: 20, paddingBottom: 4 },
-	topRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
+	hero: { paddingHorizontal: 20, paddingBottom: 14 },
+	topRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 },
 	langs: { flexDirection: 'row', backgroundColor: 'rgba(255,255,255,0.08)', borderRadius: radius.pill, padding: 2 },
 	langBtn: { paddingHorizontal: 9, paddingVertical: 4, borderRadius: radius.pill },
 	langBtnActive: { backgroundColor: colors.gold },
 	browse: { flexDirection: 'row', alignItems: 'center', gap: 5, paddingHorizontal: 10, paddingVertical: 6, borderRadius: radius.pill, backgroundColor: 'rgba(255,255,255,0.08)', borderWidth: 1, borderColor: 'rgba(255,255,255,0.1)' },
-	logoWrap: { alignItems: 'center', marginTop: 6, marginBottom: 6 },
-	heroArtWrap: { width: 110, height: 88, alignItems: 'center', justifyContent: 'center' },
+	logoWrap: { alignItems: 'center', marginTop: 8, marginBottom: 8 },
+	heroArtWrap: { width: 145, height: 94, alignItems: 'center', justifyContent: 'center' },
 	heroArt: { width: '100%', height: '100%' },
 	card: { flex: 1, backgroundColor: colors.bg, borderTopLeftRadius: 28, borderTopRightRadius: 28, paddingHorizontal: 22, paddingTop: 18, justifyContent: 'center', ...shadow(3) },
 	backBtn: { width: 32, height: 32, borderRadius: 16, backgroundColor: colors.white, alignItems: 'center', justifyContent: 'center', ...shadow(1) },
