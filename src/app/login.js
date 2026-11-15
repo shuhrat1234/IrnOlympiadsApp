@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Image, Keyboard, KeyboardAvoidingView, Linking, Platform, Pressable, ScrollView, StyleSheet, TouchableWithoutFeedback, View } from 'react-native';
+import { Image, Keyboard, KeyboardAvoidingView, Linking, Platform, Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { router } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -141,12 +141,13 @@ export default function LoginScreen() {
 				<ScrollView
 					contentContainerStyle={{ flexGrow: 1 }}
 					keyboardShouldPersistTaps="handled"
-					keyboardDismissMode="on-drag"
+					keyboardDismissMode="interactive"
 					showsVerticalScrollIndicator={false}
-					bounces={false}
+					bounces={true}
+					alwaysBounceVertical={true}
+					onScrollBeginDrag={Keyboard.dismiss}
 				>
-					<TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
-						<View style={{ flex: 1 }}>
+					<Pressable onPress={Keyboard.dismiss} style={{ flex: 1 }}>
 					{/* Hero */}
 					<View style={[styles.hero, { paddingTop: insets.top + 12 }]}>
 						<View style={styles.topRow}>
@@ -274,8 +275,7 @@ export default function LoginScreen() {
 							</View>
 						)}
 					</Animated.View>
-						</View>
-					</TouchableWithoutFeedback>
+					</Pressable>
 				</ScrollView>
 			</KeyboardAvoidingView>
 

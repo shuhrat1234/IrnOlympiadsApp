@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
-import { RefreshControl, ScrollView, StyleSheet, View } from 'react-native';
+import { Keyboard, RefreshControl, ScrollView, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { router } from 'expo-router';
 import { ChevronLeft, Timer, AlertCircle } from 'lucide-react-native';
@@ -35,7 +35,10 @@ export const Screen = ({ children, onRefresh, header, contentStyle, tabBar = fal
 				contentContainerStyle={[styles.screenContent, { paddingTop: header ? 4 : insets.top + 12, paddingBottom: tabBar ? 120 : insets.bottom + 32 }, contentStyle]}
 				showsVerticalScrollIndicator={false}
 				keyboardShouldPersistTaps="handled"
-				keyboardDismissMode={keyboard ? 'interactive' : 'on-drag'}
+				keyboardDismissMode="interactive"
+				alwaysBounceVertical={true}
+				bounces={true}
+				onScrollBeginDrag={Keyboard.dismiss}
 				refreshControl={onRefresh ? <RefreshControl refreshing={refreshing} onRefresh={handleRefresh} tintColor={colors.goldDeep} colors={[colors.goldDeep]} /> : undefined}
 			>
 				{children}
