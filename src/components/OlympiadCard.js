@@ -8,6 +8,7 @@ import { useLanguage } from '../context/LanguageContext';
 import { useOlympiad } from '../context/OlympiadContext';
 import { mediaUrl } from '../api/client';
 import { Card, Pill, ProgressBar, T } from './ui';
+import OlympiadBanner from './OlympiadBanner';
 import { colors, fonts, radius } from '../theme';
 import { formatDate, formatPrice, formatShortDate, formatTime, getOlympiadBannerSource, sortedSessions } from '../utils/format';
 
@@ -56,15 +57,10 @@ export default function OlympiadCard({ oly, userGrade, registered, pendingPaymen
 
 	return (
 		<Card onPress={open} style={{ marginBottom: 14, overflow: 'hidden' }} padded={false}>
-			<View style={styles.bannerWrap}>
-				<Image
-					source={getOlympiadBannerSource(oly.banner_image, oly.id)}
-					style={styles.banner}
-					contentFit="contain"
-					cachePolicy="memory-disk"
-					transition={200}
-				/>
-			</View>
+			<OlympiadBanner
+				source={getOlympiadBannerSource(oly.banner_image, oly.id)}
+				borderRadius={0}
+			/>
 			<View style={{ backgroundColor: online ? '#FFFBF0' : '#F6F8FC', padding: 18, paddingBottom: 14 }}>
 				<View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start', gap: 10 }}>
 					<View style={[styles.typeIcon, { backgroundColor: online ? colors.gold : colors.navy }]}>
@@ -141,8 +137,6 @@ export default function OlympiadCard({ oly, userGrade, registered, pendingPaymen
 }
 
 const styles = StyleSheet.create({
-	bannerWrap: { width: '100%', aspectRatio: 16 / 9, backgroundColor: '#0B1527', overflow: 'hidden', alignItems: 'center', justifyContent: 'center' },
-	banner: { width: '100%', height: '100%' },
 	typeIcon: { width: 44, height: 44, borderRadius: 15, alignItems: 'center', justifyContent: 'center' },
 	price: { backgroundColor: colors.navyDeep, paddingHorizontal: 12, paddingVertical: 6, borderRadius: radius.pill },
 	priceText: { fontFamily: fonts.extrabold, fontSize: 13, color: colors.gold },

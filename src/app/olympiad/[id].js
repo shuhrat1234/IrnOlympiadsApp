@@ -13,6 +13,7 @@ import { Screen, StackHeader } from '../../components/layout';
 import { Button, Card, Dialog, EmptyState, Loader, Pill, ProgressBar, T } from '../../components/ui';
 import RegionGroupsSheet from '../../components/RegionGroupsSheet';
 import { PermissionSheet } from '../../components/DocumentSheets';
+import OlympiadBanner from '../../components/OlympiadBanner';
 import { colors, fonts, radius, shadow } from '../../theme';
 import { formatDate, formatPrice, formatShortDate, getOlympiadBannerSource, sortedSessions } from '../../utils/format';
 import { registrationStateFor } from '../../utils/olympiadLogic';
@@ -101,15 +102,11 @@ export default function OlympiadDetailScreen() {
 			{/* Hero */}
 			<Animated.View entering={FadeInDown.duration(450)}>
 				<View style={[styles.hero, { backgroundColor: online ? colors.gold : colors.navyDeep }]}>
-					<View style={styles.bannerWrap}>
-						<Image
-							source={getOlympiadBannerSource(oly.banner_image, oly.id)}
-							style={styles.banner}
-							contentFit="contain"
-							cachePolicy="memory-disk"
-							transition={200}
-						/>
-					</View>
+					<OlympiadBanner
+						source={getOlympiadBannerSource(oly.banner_image, oly.id)}
+						borderRadius={12}
+						style={{ marginBottom: 18 }}
+					/>
 					<View style={styles.heroGlow} />
 					<View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
 						<View style={[styles.heroIcon, { backgroundColor: online ? 'rgba(255,255,255,0.55)' : 'rgba(255,255,255,0.1)' }]}>
@@ -263,8 +260,6 @@ export default function OlympiadDetailScreen() {
 
 const styles = StyleSheet.create({
 	hero: { borderRadius: 30, padding: 22, overflow: 'hidden', ...shadow(2) },
-	bannerWrap: { width: '100%', aspectRatio: 16 / 9, borderRadius: 12, backgroundColor: '#07101E', overflow: 'hidden', marginBottom: 18, alignItems: 'center', justifyContent: 'center' },
-	banner: { width: '100%', height: '100%' },
 	heroGlow: { position: 'absolute', right: -60, bottom: -80, width: 220, height: 220, borderRadius: 110, backgroundColor: 'rgba(255,255,255,0.07)' },
 	heroIcon: { width: 48, height: 48, borderRadius: 17, alignItems: 'center', justifyContent: 'center' },
 	price: { fontFamily: fonts.extrabold, fontSize: 26, color: colors.ink, marginTop: 2 },
