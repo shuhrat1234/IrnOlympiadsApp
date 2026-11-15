@@ -2,7 +2,6 @@ import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { AppState, BackHandler, Image, Linking, Modal, Pressable, ScrollView, StyleSheet, View, useWindowDimensions } from 'react-native';
 import { router, useLocalSearchParams } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { LinearGradient } from 'expo-linear-gradient';
 import { useKeepAwake } from 'expo-keep-awake';
 import * as ScreenCapture from 'expo-screen-capture';
 import * as Haptics from 'expo-haptics';
@@ -15,7 +14,7 @@ import { useLanguage, LANGS } from '../../context/LanguageContext';
 import { useOlympiad } from '../../context/OlympiadContext';
 import { Button, Dialog, Loader, T, Tap } from '../../components/ui';
 import { Canvas } from '../../components/layout';
-import { colors, fonts, gradients, radius, shadow } from '../../theme';
+import { colors, fonts, radius, shadow } from '../../theme';
 import { formatClock } from '../../utils/format';
 import { LINKS } from '../../utils/constants';
 
@@ -394,9 +393,9 @@ const StatusScreen = ({ icon: Icon, tone = 'gold', title, message, children }) =
 		<Canvas>
 			<View style={[styles.center, { paddingTop: insets.top + 20, paddingBottom: insets.bottom + 20 }]}>
 				<Animated.View entering={ZoomIn.springify().damping(15)} style={styles.statusCard}>
-					<LinearGradient colors={tone === 'green' ? gradients.success : tone === 'red' ? gradients.danger : gradients.gold} style={styles.statusIcon}>
+					<View style={[styles.statusIcon, { backgroundColor: tone === 'green' ? colors.green : tone === 'red' ? colors.red : colors.gold }]}>
 						<Icon size={38} color={tone === 'gold' ? colors.navyDeep : '#fff'} strokeWidth={2.2} />
-					</LinearGradient>
+					</View>
 					<T v="h1" style={{ textAlign: 'center' }}>{title}</T>
 					{message ? <T v="body" style={{ textAlign: 'center', marginTop: 8 }}>{message}</T> : null}
 					{children}

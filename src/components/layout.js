@@ -1,19 +1,15 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { RefreshControl, ScrollView, StyleSheet, View } from 'react-native';
-import { LinearGradient } from 'expo-linear-gradient';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { router } from 'expo-router';
 import { ChevronLeft, Timer, AlertCircle } from 'lucide-react-native';
-import { colors, gradients, radius } from '../theme';
+import { colors, radius } from '../theme';
 import { IconButton, T } from './ui';
 import { formatClock } from '../utils/format';
 import { useLanguage } from '../context/LanguageContext';
 
 export const Canvas = ({ children, style }) => (
 	<View style={[{ flex: 1, backgroundColor: colors.bg }, style]}>
-		<LinearGradient colors={gradients.canvas} locations={[0, 0.55, 1]} style={[StyleSheet.absoluteFill, { height: 440 }]} />
-		<View pointerEvents="none" style={styles.ambientGold} />
-		<View pointerEvents="none" style={styles.ambientBlue} />
 		{children}
 	</View>
 );

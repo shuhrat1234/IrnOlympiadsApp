@@ -1,7 +1,6 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { Image, Linking, Modal, Pressable, StyleSheet, View } from 'react-native';
 import { router, useLocalSearchParams } from 'expo-router';
-import { LinearGradient } from 'expo-linear-gradient';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Animated, { FadeInDown } from 'react-native-reanimated';
 import Svg, { Circle } from 'react-native-svg';
@@ -13,7 +12,7 @@ import { useOlympiad } from '../../context/OlympiadContext';
 import { Screen, StackHeader } from '../../components/layout';
 import { Button, Card, EmptyState, Loader, Segmented, T } from '../../components/ui';
 import { CertificateSheet } from '../../components/DocumentSheets';
-import { colors, fonts, gradients, radius, shadow } from '../../theme';
+import { colors, fonts, radius, shadow } from '../../theme';
 import { formatDate } from '../../utils/format';
 import { LINKS } from '../../utils/constants';
 
@@ -129,7 +128,7 @@ export default function AnalysisScreen() {
 	return (
 		<Screen header={<StackHeader title={t('analysisTitle')} subtitle={data.sub_title || data.olympiad_title} />}>
 			<Animated.View entering={FadeInDown}>
-				<LinearGradient colors={gradients.navy} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={styles.hero}>
+				<View style={styles.hero}>
 					<View style={styles.glow} />
 					<ScoreRing score={data.score} />
 					<T v="h2" color="#fff" style={{ marginTop: 14, textAlign: 'center' }}>{score >= 70 ? t('congrats') : t('keepGoing')}</T>
@@ -151,7 +150,7 @@ export default function AnalysisScreen() {
 							<T v="small" color="rgba(255,255,255,0.6)">{t('total')}</T>
 						</View>
 					</View>
-				</LinearGradient>
+				</View>
 			</Animated.View>
 
 			{completed ? (
@@ -231,7 +230,7 @@ export default function AnalysisScreen() {
 }
 
 const styles = StyleSheet.create({
-	hero: { borderRadius: 32, padding: 24, alignItems: 'center', overflow: 'hidden', ...shadow(3) },
+	hero: { backgroundColor: colors.navyDeep, borderRadius: 32, padding: 24, alignItems: 'center', overflow: 'hidden', ...shadow(3) },
 	glow: { position: 'absolute', top: -80, width: 260, height: 260, borderRadius: 130, borderWidth: 30, borderColor: 'rgba(253,200,0,0.08)' },
 	statRow: { flexDirection: 'row', alignSelf: 'stretch', marginTop: 20, backgroundColor: 'rgba(255,255,255,0.07)', borderRadius: 20, paddingVertical: 14 },
 	stat: { flex: 1, alignItems: 'center', gap: 2 },

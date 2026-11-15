@@ -1,6 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { StyleSheet, View } from 'react-native';
-import { LinearGradient } from 'expo-linear-gradient';
 import { Award, BookOpenCheck, MapPin, Medal, Search, Trophy, UserCheck, Users, Wrench } from 'lucide-react-native';
 import api from '../../api/client';
 import E from '../../api/endpoints';
@@ -9,7 +8,7 @@ import { useLanguage } from '../../context/LanguageContext';
 import { Screen, LargeTitle } from '../../components/layout';
 import { Button, Card, EmptyState, Field, IconBadge, Pill, Segmented, SelectField, Skeleton, T } from '../../components/ui';
 import { ChoicePills } from '../../components/form';
-import { colors, fonts, gradients, radius, shadow } from '../../theme';
+import { colors, fonts, radius, shadow } from '../../theme';
 
 const L = {
 	title: { uz: "O'qituvchilar reytingi", ru: 'Рейтинг учителей', en: 'Teacher leaderboard' },
@@ -181,7 +180,7 @@ export default function TeacherRating() {
 			<LargeTitle title={tx(L.title)} subtitle={tx(L.subtitle)} />
 
 			{loading ? <Skeleton height={190} radiusSize={26} /> : (
-				<LinearGradient colors={gradients.navy} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={styles.hero}>
+				<View style={styles.hero}>
 					<T v="label" color={colors.gold} style={{ letterSpacing: 2 }}>{tx(L.myRank)}</T>
 					<View style={styles.heroRow}>
 						<View style={styles.rankBox}>
@@ -202,7 +201,7 @@ export default function TeacherRating() {
 					<View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 6, marginTop: 14 }}>
 						{metrics.map(([label, value]) => <Pill key={label} label={`${label}: ${value}`} color="#fff" bg="rgba(255,255,255,0.12)" />)}
 					</View>
-				</LinearGradient>
+				</View>
 			)}
 
 			<Segmented
@@ -266,7 +265,7 @@ export default function TeacherRating() {
 }
 
 const styles = StyleSheet.create({
-	hero: { padding: 18, borderRadius: 26, ...shadow(2) },
+	hero: { backgroundColor: colors.navyDeep, padding: 18, borderRadius: 26, ...shadow(2) },
 	heroRow: { flexDirection: 'row', marginTop: 12 },
 	rankBox: { flex: 1, gap: 2, paddingHorizontal: 4 },
 	rankDivider: { borderLeftWidth: 1, borderLeftColor: 'rgba(255,255,255,0.14)', paddingLeft: 12 },

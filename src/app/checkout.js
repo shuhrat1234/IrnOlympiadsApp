@@ -19,7 +19,7 @@ import { cart, useCart } from '../utils/cart';
 // Same requisites as the website's CartDrawer.
 const PAYMENT_CARD_NUMBER = '5614 6821 1094 2531';
 const PAYMENT_CARD_HOLDER = 'Botirova Mohinur';
-const BTS_DELIVERY_FEE = 50000;
+const BTS_DELIVERY_FEE = 0;
 const MAX_POINTS = 40;
 
 const L = {
@@ -42,10 +42,13 @@ const L = {
 		ru: 'Срок доставки зависит от региона и обычно составляет от 2 до 5 рабочих дней. В праздничные и выходные дни срок доставки может увеличиться.',
 		en: 'Delivery time depends on the region and usually takes 2 to 5 business days. During holidays and weekends, delivery may take longer.',
 	},
+	deliveryFreeTitle: { uz: 'BTS orqali yetkazib berish — BEPUL', ru: 'Доставка через BTS — БЕСПЛАТНО', en: 'BTS delivery — FREE' },
+	deliveryFreeDesc: { uz: 'Biz kitoblar yetkazib berilishi uchun pul olmaymiz! BTS orqali yetkazib berish xarajatlarini platforma oʻz zimmasiga oladi.', ru: 'Мы не берем деньги за доставку книг! Все расходы по доставке через BTS берет на себя платформа.', en: 'We do not charge for delivery! All BTS shipping costs are covered by the platform.' },
+	deliveryFreeBadge: { uz: 'BEPUL', ru: 'БЕСПЛАТНО', en: 'FREE' },
 	payMethod: { uz: "Yetkazib berish to'lovi usuli", ru: 'Способ оплаты доставки BTS', en: 'Delivery payment method' },
-	prepaid: { uz: "BTS yetkazib berishni hoziroq to'lash", ru: 'Оплатить доставку BTS сразу', en: 'Pay BTS delivery now' },
-	prepaidDesc: { uz: "Yetkazib berish summasi buyurtma bilan birga to'lanadi", ru: 'Стоимость доставки оплачивается вместе с заказом', en: 'Delivery is paid together with the order' },
-	prepaidBadge: { uz: "+50 000 so'm", ru: '+50 000 сум', en: '+50,000 UZS' },
+	prepaid: { uz: "BTS yetkazib berish", ru: 'Доставка через BTS', en: 'BTS delivery' },
+	prepaidDesc: { uz: "Yetkazib berish platforma tomonidan to'liq qoplanadi", ru: 'Все расходы по доставке через BTS берет на себя платформа', en: 'Delivery costs are covered by the platform' },
+	prepaidBadge: { uz: "BEPUL", ru: 'БЕСПЛАТНО', en: 'FREE' },
 	onDelivery: { uz: "Olganda / BTS orqali o'zim to'layman", ru: 'Оплачу доставку при получении / через BTS', en: 'Pay delivery yourself upon receipt / via BTS' },
 	onDeliveryDesc: { uz: "Yetkazib berish uchun to'lov posilkani BTS punktida olayotganda to'lanadi", ru: 'Оплата доставки при получении посылки в отделении BTS', en: 'Pay for delivery when picking up the parcel at BTS' },
 	onDeliveryBadge: { uz: "Olganda to'lanadi", ru: 'При получении', en: 'Pay on receipt' },
@@ -251,23 +254,12 @@ export default function CheckoutScreen() {
 				<T v="small" style={{ flex: 1, color: colors.ink2 }}>{tx(L.deliveryNotice)}</T>
 			</View>
 
-			<T v="h3" style={{ marginTop: 18, marginBottom: 10 }}>{tx(L.payMethod)}</T>
-			<View style={{ gap: 8 }}>
-				{[['prepaid', L.prepaid, L.prepaidDesc, L.prepaidBadge], ['on_delivery', L.onDelivery, L.onDeliveryDesc, null]].map(([value, title, desc, badge]) => {
-					const on = delivery === value;
-					return (
-						<Tap key={value} onPress={() => setDelivery(value)} scale={0.99} style={[styles.option, on && styles.optionOn]}>
-							<View style={[styles.radio, on && { borderColor: colors.goldDeep }]}>{on ? <View style={styles.radioDot} /> : null}</View>
-							<View style={{ flex: 1, gap: 3 }}>
-								<View style={{ flexDirection: 'row', flexWrap: 'wrap', alignItems: 'center', gap: 6 }}>
-									<T v="strong" style={{ fontSize: 14, flexShrink: 1 }}>{tx(title)}</T>
-									{badge ? <Pill label={tx(badge)} color={colors.amber} bg={colors.goldTint} /> : null}
-								</View>
-								<T v="small" style={{ fontSize: 12 }}>{tx(desc)}</T>
-							</View>
-						</Tap>
-					);
-				})}
+			<View style={styles.freeBanner}>
+				<View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 8 }}>
+					<T v="strong" color={colors.green} style={{ fontSize: 13, flex: 1 }}>{tx(L.deliveryFreeTitle)}</T>
+					<Pill label="0 UZS" color={colors.green} bg={colors.greenSoft} />
+				</View>
+				<T v="small" color={colors.ink2} style={{ marginTop: 4, fontSize: 11.5 }}>{tx(L.deliveryFreeDesc)}</T>
 			</View>
 
 			<Card style={{ marginTop: 16, backgroundColor: colors.navyDeep, borderColor: colors.navyDeep, gap: 6 }}>
@@ -299,7 +291,10 @@ export default function CheckoutScreen() {
 
 			<Card style={{ marginTop: 16, gap: 8 }}>
 				<View style={styles.line}><T v="small" style={{ flex: 1 }}>{tx(L.booksTotal)}</T><T v="strong">{formatMoney(total)} UZS</T></View>
-				<View style={styles.line}><T v="small" style={{ flex: 1 }}>{tx(L.deliveryFee)}</T><T v="strong" color={fee ? colors.ink : colors.amber}>{fee ? `+${formatMoney(fee)} UZS` : tx(L.onDeliveryBadge)}</T></View>
+				<View style={styles.line}>
+					<T v="small" style={{ flex: 1 }}>{tx(L.deliveryFee)}</T>
+					<T v="strong" color={colors.green}>{tx(L.deliveryFreeBadge)} (0 UZS)</T>
+				</View>
 				<View style={[styles.line, { paddingTop: 10, borderTopWidth: 1, borderTopColor: colors.line }]}><T v="strong" style={{ flex: 1 }}>{tx(L.total)}</T><T style={{ fontFamily: fonts.extrabold, fontSize: 20, color: colors.ink }}>{formatMoney(finalTotal)} UZS</T></View>
 			</Card>
 			<Button title={tx(L.submit)} icon={Check} loading={submitting} onPress={submit} style={{ marginTop: 14 }} />
@@ -320,4 +315,5 @@ const styles = StyleSheet.create({
 	cardNumber: { fontFamily: fonts.extrabold, fontSize: 22, color: colors.white, letterSpacing: 1 },
 	receipt: { flexDirection: 'row', alignItems: 'center', gap: 12, padding: 12, borderRadius: radius.lg, borderWidth: 1.5, borderStyle: 'dashed', borderColor: colors.lineStrong, backgroundColor: colors.white },
 	error: { flexDirection: 'row', alignItems: 'center', gap: 8, marginTop: 12, padding: 12, borderRadius: radius.md, backgroundColor: colors.redSoft },
+	freeBanner: { marginTop: 14, padding: 14, borderRadius: radius.lg, backgroundColor: colors.greenSoft, borderWidth: 1, borderColor: 'rgba(34, 197, 94, 0.2)' },
 });

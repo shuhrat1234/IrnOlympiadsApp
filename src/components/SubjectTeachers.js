@@ -166,10 +166,15 @@ export default function SubjectTeachers({ variant = 'banner', style }) {
 	};
 
 	// A teacher who linked the student themselves stays "pending" until the student answers.
-	const respond = async (s, action) => {
+	const respond = async (s, action, requestId, teacherId) => {
 		setResponding(`${s}-${action}`);
 		try {
-			const res = await api.post(E.STUDENT_CONFIRM_SUBJECT_TEACHER, { subject: s, action });
+			const res = await api.post(E.STUDENT_CONFIRM_SUBJECT_TEACHER, {
+				subject: s,
+				action,
+				request_id: requestId,
+				teacher_id: teacherId,
+			});
 			if (res.data?.success === false) toast.error(res.data.message || errorMessage(null));
 			await refresh();
 		} catch (err) {
@@ -274,8 +279,8 @@ export default function SubjectTeachers({ variant = 'banner', style }) {
 						{pending ? (
 							<View style={styles.confirm}>
 								<T v="small" style={{ flex: 1 }}>{tx(L.isYours)}</T>
-								<Button size="sm" variant="success" icon={Check} title={tx(L.yes)} loading={responding === `${s}-confirm`} disabled={!!responding} onPress={() => respond(s, 'confirm')} />
-								<Button size="sm" variant="light" icon={XCircle} title={tx(L.no)} loading={responding === `${s}-reject`} disabled={!!responding} onPress={() => respond(s, 'reject')} />
+								<Button size="sm" variant="success" icon={Check} title={tx(L.yes)} loading={responding === `${s}-confirm`} disabled={!!responding} onPress={() => respond(s, 'confirm', st.teacher?.request_id, st.teacher?.id)} />
+								<Button size="sm" variant="light" icon={XCircle} title={tx(L.no)} loading={responding === `${s}-reject`} disabled={!!responding} onPress={() => respond(s, 'reject', st.teacher?.request_id, st.teacher?.id)} />
 							</View>
 						) : null}
 					</Card>

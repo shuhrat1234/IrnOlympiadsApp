@@ -8,10 +8,8 @@ export const ticketStatus = (status, t) =>
 		resolved: { label: t('ticketResolved'), color: colors.muted, bg: colors.cardMuted },
 	})[status] || { label: status, color: colors.blue, bg: colors.blueSoft };
 
-// Returns { uri, name, mimeType } or null. Throws 'denied' when access is refused.
+// Returns { uri, name, mimeType } or null.
 export const pickImage = async () => {
-	const perm = await ImagePicker.requestMediaLibraryPermissionsAsync();
-	if (!perm.granted) throw new Error('denied');
 	const res = await ImagePicker.launchImageLibraryAsync({ mediaTypes: ['images'], quality: 0.7 });
 	if (res.canceled || !res.assets?.length) return null;
 	const a = res.assets[0];

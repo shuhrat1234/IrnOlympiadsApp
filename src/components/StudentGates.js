@@ -1,12 +1,11 @@
 import React, { useEffect, useState } from 'react';
 import { AppState, Linking, Modal, ScrollView, StyleSheet, View, KeyboardAvoidingView, Platform } from 'react-native';
 import { usePathname } from 'expo-router';
-import { LinearGradient } from 'expo-linear-gradient';
 import Animated, { ZoomIn } from 'react-native-reanimated';
 import { GraduationCap, Languages, LogOut, RefreshCw, Send } from 'lucide-react-native';
 import { useAuth } from '../context/AuthContext';
 import { useLanguage } from '../context/LanguageContext';
-import { colors, gradients, shadow } from '../theme';
+import { colors, shadow } from '../theme';
 import { Button, Field, T, Tap } from './ui';
 import { GRADES, LINKS } from '../utils/constants';
 import { gradeLabel } from '../utils/format';
@@ -24,10 +23,13 @@ const suggestNextGrade = (g) => {
 // True while one of the blocking gates below is on screen — other auto-opening
 // sheets (e.g. the "Who is your teacher?" prompt) wait for it, since iOS can't stack modals reliably.
 export const hasStudentGate = (user) =>
-	user?.role === 'participant' && (!user.telegram_chat_id || !!user.needs_grade_confirmation || ['first_name', 'last_name', 'middle_name'].some((k) => user[k] && CYRILLIC.test(user[k])));
+	(user?.role === 'teacher' && !user.telegram_chat_id) ||
+	(user?.role === 'participant' && (!!user.needs_grade_confirmation || ['first_name', 'last_name', 'middle_name'].some((k) => user[k] && CYRILLIC.test(user[k]))));
 
-// Full-screen blockers from the website's DashboardLayout, shown one at a time:
-// 1) Telegram bot not linked  2) new school year → confirm grade  3) Cyrillic name.
+// Full-screen blockers from the website's DashboardLayout:
+// 1) Teachers require Telegram bot linking + channel
+// 2) New school year → confirm grade
+// 3) Cyrillic name → Latin name correction
 export default function StudentGates() {
 	const { currentUser, fetchMe, updateProfile, logout } = useAuth();
 	const { t } = useLanguage();
@@ -39,10 +41,10 @@ export default function StudentGates() {
 	const [nameError, setNameError] = useState(false);
 	const [savingName, setSavingName] = useState(false);
 
-	const needsTelegram = currentUser?.role === 'participant' && !currentUser?.telegram_chat_id;
-	const needsGrade = !needsTelegram && currentUser?.needs_grade_confirmation;
+	const needsTelegram = currentUser?.role === 'teacher' && !currentUser?.telegram_chat_id;
+	const needsGrade = currentUser?.role === 'participant' && currentUser?.needs_grade_confirmation;
 	const hasCyrillic = ['first_name', 'last_name', 'middle_name'].some((k) => currentUser?.[k] && CYRILLIC.test(currentUser[k]));
-	const needsLatin = !needsTelegram && !needsGrade && hasCyrillic;
+	const needsLatin = currentUser?.role === 'participant' && !needsGrade && hasCyrillic;
 
 	// Coming back from Telegram → re-check automatically.
 	useEffect(() => {
@@ -87,17 +89,18 @@ export default function StudentGates() {
 					<ScrollView contentContainerStyle={{ padding: 26, alignItems: 'center' }} keyboardShouldPersistTaps="handled" showsVerticalScrollIndicator={false}>
 						{needsTelegram ? (
 							<>
-								<LinearGradient colors={['#37BBFE', '#007DBB']} style={styles.icon}>
+								<View style={[styles.icon, { backgroundColor: '#0088CC' }]}>
 									<Send size={32} color="#fff" strokeWidth={2.2} />
-								</LinearGradient>
+								</View>
 								<T v="h2" style={styles.center}>{t('tgGateTitle')}</T>
 								<T v="body" style={[styles.center, { marginTop: 8 }]}>{t('tgGateText')}</T>
 								<View style={styles.actions}>
-									<Button title={t('launchBot')} icon={Send} onPress={() => Linking.openURL(`${LINKS.bot}?start=${currentUser.participant_id || currentUser.id}`)} />
+									<Button title={`📢 1. ${t('joinChannel') || "Kanalga a'zo bo'lish"}`} onPress={() => Linking.openURL(LINKS.channel)} />
+									<Button title={`🤖 2. ${t('launchBot')}`} icon={Send} variant="light" onPress={() => Linking.openURL(`${LINKS.bot}?start=${currentUser.participant_id || currentUser.id}`)} />
 									<Button
-										title={t('checkStatus')}
+										title={`✅ 3. ${t('checkStatus')}`}
 										icon={RefreshCw}
-										variant="light"
+										variant="dark"
 										loading={checking}
 										onPress={async () => {
 											setChecking(true);
@@ -109,9 +112,9 @@ export default function StudentGates() {
 							</>
 						) : needsGrade ? (
 							<>
-								<LinearGradient colors={gradients.gold} style={styles.icon}>
+								<View style={[styles.icon, { backgroundColor: colors.gold }]}>
 									<GraduationCap size={34} color={colors.navyDeep} strokeWidth={2.2} />
-								</LinearGradient>
+								</View>
 								<T v="h2" style={styles.center}>{t('gradeGateTitle')}</T>
 								<T v="body" style={[styles.center, { marginTop: 8 }]}>{t('gradeGateText', { g: gradeLabel(currentUser.grade, t) })}</T>
 								<View style={styles.grades}>
@@ -130,9 +133,9 @@ export default function StudentGates() {
 							</>
 						) : (
 							<>
-								<LinearGradient colors={gradients.navy} style={styles.icon}>
+								<View style={[styles.icon, { backgroundColor: colors.navyDeep }]}>
 									<Languages size={32} color={colors.gold} strokeWidth={2.2} />
-								</LinearGradient>
+								</View>
 								<T v="h2" style={styles.center}>{t('latinGateTitle')}</T>
 								<T v="body" style={[styles.center, { marginTop: 8 }]}>{t('latinGateText')}</T>
 								<View style={{ alignSelf: 'stretch', gap: 10, marginTop: 18 }}>

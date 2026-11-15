@@ -1,11 +1,10 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { ActivityIndicator, Modal, Pressable, ScrollView, StyleSheet, Text, TextInput, View, KeyboardAvoidingView, Platform } from 'react-native';
-import { LinearGradient } from 'expo-linear-gradient';
 import * as Haptics from 'expo-haptics';
 import Animated, { FadeIn, FadeOut, SlideInDown, SlideOutDown, useAnimatedStyle, useSharedValue, withRepeat, withTiming, withSpring, ZoomIn } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Eye, EyeOff, X, Check } from 'lucide-react-native';
-import { colors, fonts, gradients, radius, shadow, goldGlow } from '../theme';
+import { colors, fonts, radius, shadow, goldGlow } from '../theme';
 
 // ——— Typography ———
 export const T = ({ v = 'body', color, style, children, ...rest }) => {
@@ -59,10 +58,10 @@ export const Button = ({ title, onPress, variant = 'primary', icon: Icon, iconRi
 	const h = size === 'sm' ? 40 : size === 'md' ? 48 : 56;
 	const fs = size === 'sm' ? 13 : 15;
 	const palette = {
-		primary: { fg: colors.navyDeep, gradient: gradients.gold },
-		dark: { fg: colors.white, gradient: gradients.navy },
-		success: { fg: colors.white, gradient: gradients.success },
-		danger: { fg: colors.white, gradient: gradients.danger },
+		primary: { fg: colors.navyDeep, bg: colors.gold },
+		dark: { fg: colors.white, bg: colors.navyDeep },
+		success: { fg: colors.white, bg: colors.green },
+		danger: { fg: colors.white, bg: colors.red },
 		light: { fg: colors.ink, bg: colors.white, border: colors.line },
 		soft: { fg: colors.amber, bg: colors.goldTint, border: colors.goldSoft },
 		ghost: { fg: colors.muted, bg: 'transparent' },
@@ -82,13 +81,7 @@ export const Button = ({ title, onPress, variant = 'primary', icon: Icon, iconRi
 	);
 	return (
 		<Tap onPress={onPress} disabled={isDisabled} style={[{ opacity: isDisabled ? 0.55 : 1, borderRadius: radius.pill }, variant === 'primary' && !isDisabled && goldGlow, style]}>
-			{palette.gradient ? (
-				<LinearGradient colors={palette.gradient} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={styles.btnShape}>
-					{content}
-				</LinearGradient>
-			) : (
-				<View style={[styles.btnShape, { backgroundColor: palette.bg, borderWidth: palette.border ? 1.5 : 0, borderColor: palette.border }]}>{content}</View>
-			)}
+			<View style={[styles.btnShape, { backgroundColor: palette.bg, borderWidth: palette.border ? 1.5 : 0, borderColor: palette.border }]}>{content}</View>
 		</Tap>
 	);
 };
@@ -314,9 +307,9 @@ export const SelectField = ({ label, icon: Icon, value, options, onChange, place
 // ——— States ———
 export const EmptyState = ({ icon: Icon, title, text, action }) => (
 	<Animated.View entering={FadeIn.duration(300)} style={styles.empty}>
-		<LinearGradient colors={gradients.goldSoft} style={styles.emptyIcon}>
+		<View style={[styles.emptyIcon, { backgroundColor: colors.goldTint }]}>
 			<Icon size={34} color={colors.amber} strokeWidth={2} />
-		</LinearGradient>
+		</View>
 		<T v="h3" style={{ textAlign: 'center', fontSize: 17 }}>{title}</T>
 		{text ? <T v="small" style={{ textAlign: 'center', marginTop: 6, maxWidth: 280 }}>{text}</T> : null}
 		{action ? <View style={{ marginTop: 20, alignSelf: 'stretch' }}>{action}</View> : null}
@@ -359,9 +352,9 @@ export const ProgressBar = ({ value = 0, color = colors.gold, track = colors.bgD
 );
 
 export const Avatar = ({ initials, size = 56, dark }) => (
-	<LinearGradient colors={dark ? gradients.navy : gradients.gold} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={{ width: size, height: size, borderRadius: size / 2.6, alignItems: 'center', justifyContent: 'center' }}>
+	<View style={{ width: size, height: size, borderRadius: size / 2.6, backgroundColor: dark ? colors.navyDeep : colors.gold, alignItems: 'center', justifyContent: 'center' }}>
 		<Text style={{ fontFamily: fonts.extrabold, fontSize: size * 0.36, color: dark ? colors.gold : colors.navyDeep }}>{initials || '?'}</Text>
-	</LinearGradient>
+	</View>
 );
 
 const styles = StyleSheet.create({

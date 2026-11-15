@@ -15,7 +15,7 @@ import GroupPaySheet from '../../components/GroupPaySheet';
 
 import { colors, fonts, radius } from '../../theme';
 import { GRADES } from '../../utils/constants';
-import { initialsOf, phoneMask } from '../../utils/format';
+import { cleanUzPhone, cyrillicToLatin, initialsOf, phoneMask } from '../../utils/format';
 
 const L = {
 	title: { uz: "Mening o'quvchilarim", ru: 'Мои ученики', en: 'My students' },
@@ -170,7 +170,6 @@ export default function TeacherStudents() {
 			await api.post(E.TEACHER_LINK_REQUEST_INVITE_STUDENT, { student: s.id });
 			toast.success(tx(L.invited));
 			setResults((p) => p.map((x) => (x.id === s.id ? { ...x, invited: true } : x)));
-			fetchStudents();
 		} catch (err) {
 			toast.error(err.response?.data?.error || tx(L.error));
 		}
@@ -325,9 +324,9 @@ export default function TeacherStudents() {
 					</View>
 				) : (
 					<View style={{ gap: 12, paddingBottom: 10 }}>
-						<Field label={`${tx(L.firstName)} *`} value={add.first_name} error={addErrors.first_name} onChangeText={(v) => setA({ first_name: v })} />
-						<Field label={`${tx(L.lastName)} *`} value={add.last_name} error={addErrors.last_name} onChangeText={(v) => setA({ last_name: v })} />
-						<Field label={`${tx(L.middleName)} *`} value={add.middle_name} error={addErrors.middle_name} onChangeText={(v) => setA({ middle_name: v })} />
+						<Field label={`${tx(L.firstName)} *`} value={add.first_name} error={addErrors.first_name} onChangeText={(v) => setA({ first_name: cyrillicToLatin(v) })} />
+						<Field label={`${tx(L.lastName)} *`} value={add.last_name} error={addErrors.last_name} onChangeText={(v) => setA({ last_name: cyrillicToLatin(v) })} />
+						<Field label={`${tx(L.middleName)} *`} value={add.middle_name} error={addErrors.middle_name} onChangeText={(v) => setA({ middle_name: cyrillicToLatin(v) })} />
 						<DateTimeField mode="date" label={`${tx(L.birthDate)} *`} value={add.birth_date} error={addErrors.birth_date} onChange={(v) => setA({ birth_date: toDay(v) })} />
 						<SelectField label={`${tx(L.region)} *`} title={tx(L.region)} value={add.region} placeholder={tx(L.selectRegion)} error={addErrors.region} options={regions.map((r) => ({ value: String(r.id), label: pick(r, 'name') }))} onChange={(v) => setA({ region: v })} />
 						<Field label={`${tx(L.school)} *`} value={add.school} error={addErrors.school} onChangeText={(v) => setA({ school: v })} />

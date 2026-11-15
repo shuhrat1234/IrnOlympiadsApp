@@ -199,6 +199,7 @@ export const AuthProvider = ({ children }) => {
 					middle_name: form.middleName,
 					phone: form.phone,
 					region: form.regionId,
+					subject_roles: form.subject_roles || form.subjects || ['math'],
 				});
 				const d = res.data;
 				const access = d.access || d.tokens?.access || d.token;

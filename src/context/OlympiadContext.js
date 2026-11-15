@@ -144,14 +144,28 @@ export const OlympiadProvider = ({ children }) => {
 		[fetchUserRegistrations, fetchMe]
 	);
 
-	const getPaymentLink = useCallback(async (provider, regId) => {
+	const getPaymentLink = useCallback(async (provider, regId, returnUrl = null) => {
 		try {
-			const res = await api.get(provider === 'click' ? E.CLICK_GET_LINK(regId) : E.PAYME_GET_LINK(regId));
+			let endpoint;
+			if (provider === 'click') endpoint = E.CLICK_GET_LINK(regId);
+			else if (provider === 'alif') endpoint = E.ALIF_GET_LINK(regId);
+			else if (provider === 'xazna') endpoint = E.XAZNA_GET_LINK(regId);
+			else endpoint = E.PAYME_GET_LINK(regId);
+			const params = returnUrl ? { return_url: returnUrl } : {};
+			const res = await api.get(endpoint, { params });
 			return res.data?.link || null;
 		} catch {
 			return null;
 		}
 	}, []);
+
+	const getAlifLink = useCallback(async (regId, returnUrl = null) => {
+		return getPaymentLink('alif', regId, returnUrl);
+	}, [getPaymentLink]);
+
+	const getXaznaLink = useCallback(async (regId, returnUrl = null) => {
+		return getPaymentLink('xazna', regId, returnUrl);
+	}, [getPaymentLink]);
 
 	const fetchExamQuestions = useCallback(async (sessionId) => {
 		try {
@@ -212,13 +226,15 @@ export const OlympiadProvider = ({ children }) => {
 			registerForOlympiad,
 			cancelRegistration,
 			getPaymentLink,
+			getAlifLink,
+			getXaznaLink,
 			fetchExamQuestions,
 			submitExamResult,
 			getRemainingSeats,
 			isFull,
 			isRegistrationClosed,
 		}),
-		[olympiads, isLoaded, isFetching, userRegistrations, fetchOlympiads, fetchOlympiadById, fetchUserRegistrations, getOlympiad, registerForOlympiad, cancelRegistration, getPaymentLink, fetchExamQuestions, submitExamResult, getRemainingSeats, isFull, isRegistrationClosed]
+		[olympiads, isLoaded, isFetching, userRegistrations, fetchOlympiads, fetchOlympiadById, fetchUserRegistrations, getOlympiad, registerForOlympiad, cancelRegistration, getPaymentLink, getAlifLink, getXaznaLink, fetchExamQuestions, submitExamResult, getRemainingSeats, isFull, isRegistrationClosed]
 	);
 
 	return <OlympiadContext.Provider value={value}>{children}</OlympiadContext.Provider>;

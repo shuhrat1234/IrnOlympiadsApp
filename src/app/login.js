@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import { Image, KeyboardAvoidingView, Linking, Platform, Pressable, ScrollView, StyleSheet, View } from 'react-native';
+import { Image, Keyboard, KeyboardAvoidingView, Linking, Platform, Pressable, ScrollView, StyleSheet, TouchableWithoutFeedback, View } from 'react-native';
 import { router } from 'expo-router';
-import { LinearGradient } from 'expo-linear-gradient';
 import { StatusBar } from 'expo-status-bar';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Animated, { FadeInDown, FadeInUp } from 'react-native-reanimated';
@@ -10,8 +9,9 @@ import { useAuth, homeRouteFor } from '../context/AuthContext';
 import { useLanguage, LANGS } from '../context/LanguageContext';
 import { useToast } from '../context/ToastContext';
 import { Button, Dialog, Field, Segmented, Sheet, T, Tap } from '../components/ui';
-import { colors, fonts, gradients, radius, shadow } from '../theme';
+import { colors, fonts, radius, shadow } from '../theme';
 import { LINKS } from '../utils/constants';
+import { cleanUzPhone } from '../utils/format';
 
 // Web kept these in sessionStorage — module memory is the app-session equivalent.
 const attempts = { failed: 0, lockUntil: 0 };
@@ -45,8 +45,7 @@ export default function LoginScreen() {
 	}, [lockout]);
 
 	const onPhoneChange = (value) => {
-		let v = value.startsWith('+998') ? value : '+998';
-		v = `+998${v.slice(4).replace(/\D/g, '').slice(0, 9)}`;
+		const v = cleanUzPhone(value);
 		setPhone(v);
 		setPhoneError(v.length === 13 && !PHONE_RE.test(v) ? t('phoneInvalid') : '');
 	};
@@ -135,18 +134,19 @@ export default function LoginScreen() {
 	return (
 		<View style={{ flex: 1, backgroundColor: colors.navyDeep }}>
 			<StatusBar style="light" />
-			<LinearGradient colors={gradients.navy} style={StyleSheet.absoluteFill} />
 			<View style={styles.glow} />
 			<View style={styles.glow2} />
 
 			<KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined} style={{ flex: 1 }}>
 				<ScrollView
 					contentContainerStyle={{ flexGrow: 1 }}
-					keyboardShouldPersistTaps="always"
-					keyboardDismissMode="none"
+					keyboardShouldPersistTaps="handled"
+					keyboardDismissMode="on-drag"
 					showsVerticalScrollIndicator={false}
 					bounces={false}
 				>
+					<TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
+						<View style={{ flex: 1 }}>
 					{/* Hero */}
 					<View style={[styles.hero, { paddingTop: insets.top + 12 }]}>
 						<View style={styles.topRow}>
@@ -165,12 +165,11 @@ export default function LoginScreen() {
 
 						<Animated.View entering={FadeInDown.duration(650)} style={styles.logoWrap}>
 							<View style={styles.heroArtWrap}>
-								<Image source={require('../../assets/illustrations/olympiad-hero.png')} style={styles.heroArt} resizeMode="cover" />
-								<LinearGradient colors={['transparent', colors.navyDeep]} locations={[0.72, 1]} style={styles.heroFade} />
+								<Image source={require('../../assets/illustrations/olympiad-hero.png')} style={styles.heroArt} resizeMode="contain" />
 							</View>
 						</Animated.View>
 						<Animated.View entering={FadeInDown.delay(120).duration(600)}>
-							<T v="label" color={colors.gold} style={{ textAlign: 'center', letterSpacing: 3 }}>IRN OLYMPIADS</T>
+							<T v="label" color={colors.gold} style={{ textAlign: 'center', letterSpacing: 3, marginTop: 8 }}>IRN OLYMPIADS</T>
 							<T v="display" color="#fff" style={{ textAlign: 'center', marginTop: 10, fontSize: 30 }}>{t('loginHero')}</T>
 							<T v="body" color="rgba(255,255,255,0.65)" style={{ textAlign: 'center', marginTop: 8, paddingHorizontal: 20 }}>{t('loginHeroSub')}</T>
 						</Animated.View>
@@ -241,9 +240,9 @@ export default function LoginScreen() {
 									]}
 								/>
 								{mode === 'phone' ? (
-									<Field icon={Phone} value={phone} onChangeText={onPhoneChange} keyboardType="phone-pad" placeholder="+998XXXXXXXXX" error={phoneError} textContentType="telephoneNumber" autoComplete="tel" />
+									<Field icon={Phone} value={phone} onChangeText={onPhoneChange} keyboardType="phone-pad" placeholder="+998XXXXXXXXX" error={phoneError} textContentType="telephoneNumber" autoComplete="tel" returnKeyType="done" onSubmitEditing={Keyboard.dismiss} />
 								) : (
-									<Field icon={User} value={participantId} onChangeText={setParticipantId} placeholder="USR-XXXXX" autoCapitalize="characters" autoCorrect={false} />
+									<Field icon={User} value={participantId} onChangeText={setParticipantId} placeholder="USR-XXXXX" autoCapitalize="characters" autoCorrect={false} returnKeyType="next" />
 								)}
 								<Field icon={Lock} value={password} onChangeText={setPassword} placeholder={t('passwordPlaceholder')} secure autoCapitalize="none" autoCorrect={false} textContentType="password" returnKeyType="go" onSubmitEditing={submit} />
 								<Pressable onPress={() => setShowRecovery(true)} hitSlop={8} style={{ alignSelf: 'flex-end' }}>
@@ -263,23 +262,28 @@ export default function LoginScreen() {
 										<T v="strong" color={colors.amber} style={{ fontSize: 13.5 }}>{t('register')}</T>
 									</Pressable>
 								</View>
-								<View style={[styles.registerRow, { marginTop: 0 }]}>
-									<T v="small">{t('teacherQuestion')}</T>
-									<Pressable onPress={() => router.push('/register-teacher')} hitSlop={8}>
-										<T v="strong" color={colors.amber} style={{ fontSize: 13.5 }}>{t('teacherSignup')}</T>
-									</Pressable>
-								</View>
+								<Pressable
+									onPress={() => router.push('/register-teacher')}
+									style={styles.teacherBanner}
+									accessibilityRole="button"
+								>
+									<GraduationCap size={16} color={colors.goldDeep} />
+									<T v="strong" numberOfLines={1} style={{ fontSize: 12.5, color: colors.goldDeep, flexShrink: 1 }}>{t('teacherSignup')}</T>
+									<ArrowRight size={14} color={colors.goldDeep} />
+								</Pressable>
 							</View>
 						)}
 					</Animated.View>
+						</View>
+					</TouchableWithoutFeedback>
 				</ScrollView>
 			</KeyboardAvoidingView>
 
 			<Sheet visible={showRecovery} onClose={() => setShowRecovery(false)} title={t('recoverTitle')}>
 				<View style={{ alignItems: 'center', gap: 14, paddingBottom: 6 }}>
-					<LinearGradient colors={['#37BBFE', '#007DBB']} style={styles.tgIcon}>
+					<View style={[styles.tgIcon, { backgroundColor: '#0088CC' }]}>
 						<Send size={30} color="#fff" />
-					</LinearGradient>
+					</View>
 					<T v="body" style={{ textAlign: 'center' }}>{t('recoverText')}</T>
 					<Button title={t('openBot')} icon={Send} style={{ alignSelf: 'stretch', marginTop: 6 }} onPress={() => { setShowRecovery(false); Linking.openURL(LINKS.bot); }} />
 				</View>
@@ -310,10 +314,9 @@ const styles = StyleSheet.create({
 	langBtn: { paddingHorizontal: 11, paddingVertical: 7, borderRadius: radius.pill },
 	langBtnActive: { backgroundColor: colors.gold },
 	browse: { flexDirection: 'row', alignItems: 'center', gap: 6, paddingHorizontal: 13, paddingVertical: 9, borderRadius: radius.pill, backgroundColor: 'rgba(255,255,255,0.08)', borderWidth: 1, borderColor: 'rgba(255,255,255,0.1)' },
-	logoWrap: { alignItems: 'center', marginTop: 12, marginBottom: -4 },
-	heroArtWrap: { width: 190, height: 174, overflow: 'hidden', borderRadius: 48, shadowColor: colors.gold, shadowOpacity: 0.24, shadowRadius: 30, shadowOffset: { width: 0, height: 10 }, elevation: 10 },
+	logoWrap: { alignItems: 'center', marginTop: 14, marginBottom: 16 },
+	heroArtWrap: { width: 190, height: 180, alignItems: 'center', justifyContent: 'center' },
 	heroArt: { width: '100%', height: '100%' },
-	heroFade: { ...StyleSheet.absoluteFillObject },
 	card: { flex: 1, backgroundColor: colors.bg, borderTopLeftRadius: 36, borderTopRightRadius: 36, paddingHorizontal: 22, paddingTop: 28, ...shadow(3) },
 	backBtn: { width: 38, height: 38, borderRadius: 19, backgroundColor: colors.white, alignItems: 'center', justifyContent: 'center', ...shadow(1) },
 	errorBox: { flexDirection: 'row', alignItems: 'center', gap: 10, padding: 12, backgroundColor: colors.redSoft, borderRadius: radius.md, marginBottom: 14 },
@@ -321,5 +324,6 @@ const styles = StyleSheet.create({
 	account: { flexDirection: 'row', alignItems: 'center', gap: 12, padding: 14, borderRadius: radius.lg, backgroundColor: colors.white, borderWidth: 1, borderColor: colors.line },
 	accIcon: { width: 42, height: 42, borderRadius: 14, backgroundColor: colors.goldTint, alignItems: 'center', justifyContent: 'center' },
 	registerRow: { flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'center', alignItems: 'center', gap: 6, marginTop: 6 },
+	teacherBanner: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8, height: 42, borderRadius: radius.md, backgroundColor: colors.goldTint, borderWidth: 1, borderColor: colors.goldSoft, marginTop: 12, paddingHorizontal: 12 },
 	tgIcon: { width: 70, height: 70, borderRadius: 24, alignItems: 'center', justifyContent: 'center' },
 });

@@ -84,4 +84,131 @@ export const sortedSessions = (sub) =>
 		.filter((s) => s.start_datetime && valid(s.start_datetime))
 		.sort((a, b) => (parseInt(a.grade, 10) || 0) - (parseInt(b.grade, 10) || 0));
 
-export const phoneMask = (value) => `+998${(value.startsWith('+998') ? value : '+998').slice(4).replace(/\D/g, '').slice(0, 9)}`;
+export const phoneMask = (value) => cleanUzPhone(value);
+
+export function cleanUzPhone(raw) {
+	if (!raw || typeof raw !== 'string' || raw.trim() === '' || raw === '+') return '+998';
+
+	let local = '';
+	if (raw.startsWith('+998')) {
+		let after = raw.slice(4).replace(/\D/g, '');
+		if (after.length > 9 && after.startsWith('998')) {
+			after = after.slice(3);
+		}
+		local = after;
+	} else {
+		const all = raw.replace(/\D/g, '');
+		if (all.startsWith('998') && all.length > 9) {
+			local = all.slice(3);
+		} else if (all === '998' || all === '99' || all === '9') {
+			local = '';
+		} else {
+			local = all;
+		}
+	}
+
+	return '+998' + local.slice(0, 9);
+}
+
+const CYRILLIC_PATTERN = /[а-яА-ЯёЁўЎғҒқҚҳҲ]/;
+const CYRILLIC_VOWELS = new Set('аеёиоуыэюяАЕЁИОУЫЭЮЯaeiouyAEIOUYўЎ');
+const MAPPING_MULTI = {
+	'ў': "o'", 'Ў': "O'",
+	'ғ': "g'", 'Ғ': "G'",
+	'ч': 'ch', 'Ч': 'Ch',
+	'ш': 'sh', 'Ш': 'Sh',
+	'щ': 'shch', 'Щ': 'Shch',
+	'ё': 'yo', 'Ё': 'Yo',
+	'ю': 'yu', 'Ю': 'Yu',
+	'я': 'ya', 'Я': 'Ya',
+	'ц': 'ts', 'Ц': 'Ts',
+};
+const MAPPING_SINGLE = {
+	'а': 'a', 'А': 'A',
+	'б': 'b', 'Б': 'B',
+	'в': 'v', 'В': 'V',
+	'г': 'g', 'Г': 'G',
+	'д': 'd', 'Д': 'D',
+	'ж': 'j', 'Ж': 'J',
+	'з': 'z', 'З': 'Z',
+	'и': 'i', 'И': 'I',
+	'й': 'y', 'Й': 'Y',
+	'к': 'k', 'К': 'K',
+	'қ': 'q', 'Қ': 'Q',
+	'л': 'l', 'Л': 'L',
+	'м': 'm', 'М': 'M',
+	'н': 'n', 'Н': 'N',
+	'о': 'o', 'О': 'O',
+	'п': 'p', 'П': 'P',
+	'р': 'r', 'Р': 'R',
+	'с': 's', 'С': 'S',
+	'т': 't', 'Т': 'T',
+	'у': 'u', 'У': 'U',
+	'ф': 'f', 'Ф': 'F',
+	'х': 'x', 'Х': 'X',
+	'ҳ': 'h', 'Ҳ': 'H',
+	'ы': 'i', 'Ы': 'I',
+	'э': 'e', 'Э': 'E',
+	'ъ': "'", 'Ъ': "'",
+	'ь': '', 'Ь': '',
+};
+
+export function cyrillicToLatin(text) {
+	if (!text || typeof text !== 'string') return text || '';
+	if (!CYRILLIC_PATTERN.test(text)) return text;
+
+	const result = [];
+	const n = text.length;
+
+	for (let i = 0; i < n; i++) {
+		const char = text[i];
+		const prevChar = i > 0 ? text[i - 1] : ' ';
+		const nextChar = i + 1 < n ? text[i + 1] : ' ';
+
+		const isUpper = char === char.toUpperCase() && char !== char.toLowerCase();
+		const isNextUpper = nextChar === nextChar.toUpperCase() && nextChar !== nextChar.toLowerCase();
+		const isPrevUpper = prevChar === prevChar.toUpperCase() && prevChar !== prevChar.toLowerCase();
+
+		if (char === 'е' || char === 'Е') {
+			const isWordStart =
+				i === 0 ||
+				' \t\n\r-,.:;"\'()[]{}«»/\\№'.includes(prevChar) ||
+				CYRILLIC_VOWELS.has(prevChar) ||
+				"ъьЪЬ'`".includes(prevChar);
+
+			if (isWordStart) {
+				if (isUpper) {
+					result.push(isNextUpper ? 'YE' : 'Ye');
+				} else {
+					result.push('ye');
+				}
+			} else {
+				result.push(isUpper ? 'E' : 'e');
+			}
+			continue;
+		}
+
+		if (char in MAPPING_MULTI) {
+			let lat = MAPPING_MULTI[char];
+			if (isUpper) {
+				if (isNextUpper || (i > 0 && isPrevUpper)) {
+					lat = lat.toUpperCase();
+				} else {
+					lat = lat.charAt(0).toUpperCase() + lat.slice(1);
+				}
+			}
+			result.push(lat);
+			continue;
+		}
+
+		if (char in MAPPING_SINGLE) {
+			result.push(MAPPING_SINGLE[char]);
+			continue;
+		}
+
+		result.push(char);
+	}
+
+	return result.join('');
+}
+

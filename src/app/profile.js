@@ -103,7 +103,8 @@ export default function ProfileScreen() {
 			await api.post(action === 'accept' ? E.TEACHER_LINK_REQUEST_ACCEPT(invite.id) : E.TEACHER_LINK_REQUEST_REJECT(invite.id));
 			setInvite(null);
 			toast.success(action === 'accept' ? t('accepted') : t('rejected'));
-			if (action === 'accept') fetchMe();
+			await fetchMe();
+			api.get(E.TEACHER_LINK_REQUEST_STUDENT_STATUS).then((r) => setSentRequest(r.data)).catch(() => {});
 		} catch (err) {
 			toast.error(errorMessage(err, t('error')));
 		}
@@ -198,7 +199,7 @@ export default function ProfileScreen() {
 					</View>
 				</Card>
 			) : null}
-			{currentUser.teacher_info ? (
+			{currentUser.teacher_info && (!invite || Number(currentUser.teacher_info.id) !== Number(invite.teacher)) ? (
 				<Card style={styles.teacher}>
 					<IconBadge icon={ShieldCheck} color={colors.green} bg={colors.greenSoft} />
 					<View style={{ flex: 1 }}>

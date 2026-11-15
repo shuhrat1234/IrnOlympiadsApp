@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 import { router } from 'expo-router';
-import { LinearGradient } from 'expo-linear-gradient';
 import * as Clipboard from 'expo-clipboard';
 import { ChevronRight, Copy, GraduationCap, LifeBuoy, LogOut, Phone } from 'lucide-react-native';
 import { useAuth } from '../../context/AuthContext';
@@ -10,7 +9,7 @@ import { useSupport } from '../../context/SupportContext';
 import { useToast } from '../../context/ToastContext';
 import { Screen, LargeTitle } from '../../components/layout';
 import { Card, Dialog, IconBadge, Segmented, T, Tap } from '../../components/ui';
-import { colors, fonts, gradients, radius, shadow } from '../../theme';
+import { colors, fonts, radius, shadow } from '../../theme';
 import { initialsOf } from '../../utils/format';
 
 export default function TeacherMore() {
@@ -24,7 +23,7 @@ export default function TeacherMore() {
 	return (
 		<Screen tabBar>
 			<LargeTitle title={tx({ uz: "O'qituvchi paneli", ru: 'Панель учителя', en: 'Teacher panel' })} />
-			<LinearGradient colors={gradients.navy} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={styles.hero}>
+			<View style={styles.hero}>
 				<View style={styles.avatar}><T style={{ fontFamily: fonts.extrabold, fontSize: 20, color: colors.navyDeep }}>{initialsOf(currentUser) || 'T'}</T></View>
 				<View style={{ flex: 1, gap: 4 }}>
 					<T v="h3" color="#fff" numberOfLines={1}>{currentUser.last_name} {currentUser.first_name}</T>
@@ -40,7 +39,7 @@ export default function TeacherMore() {
 						<Copy size={11} color={colors.white} />
 					</Tap>
 				) : null}
-			</LinearGradient>
+			</View>
 
 			<Tap onPress={() => router.push('/support')} style={styles.row}>
 				<IconBadge icon={LifeBuoy} color={colors.green} bg={colors.greenSoft} size={44} />
@@ -79,7 +78,7 @@ export default function TeacherMore() {
 }
 
 const styles = StyleSheet.create({
-	hero: { flexDirection: 'row', alignItems: 'center', gap: 14, padding: 18, borderRadius: 26, marginBottom: 18, ...shadow(2) },
+	hero: { backgroundColor: colors.navyDeep, flexDirection: 'row', alignItems: 'center', gap: 14, padding: 18, borderRadius: 26, marginBottom: 18, ...shadow(2) },
 	avatar: { width: 54, height: 54, borderRadius: 19, backgroundColor: colors.gold, alignItems: 'center', justifyContent: 'center' },
 	idPill: { flexDirection: 'row', alignItems: 'center', gap: 4, paddingHorizontal: 8, height: 24, borderRadius: radius.pill, backgroundColor: 'rgba(255,255,255,0.14)', alignSelf: 'flex-start' },
 	row: { flexDirection: 'row', alignItems: 'center', gap: 12, padding: 14, borderRadius: radius.lg, backgroundColor: colors.white, borderWidth: 1, borderColor: colors.line, ...shadow(1) },

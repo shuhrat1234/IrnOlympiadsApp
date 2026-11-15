@@ -39,12 +39,12 @@ export const colors = {
 };
 
 export const gradients = {
-	gold: ['#FFD83A', '#FDC800', '#F2A900'],
-	goldSoft: ['#FFF8DC', '#FFEDAD'],
-	navy: ['#1D3A6E', '#12264A', '#0C1A36'],
-	canvas: ['#FFF6DA', '#FBFAF7', '#FBFAF7'],
-	success: ['#2BC56B', '#12A150'],
-	danger: ['#FF6B6F', '#E5484D'],
+	gold: [colors.gold, colors.gold],
+	goldSoft: [colors.goldTint, colors.goldTint],
+	navy: [colors.navyDeep, colors.navyDeep],
+	canvas: [colors.bg, colors.bg],
+	success: [colors.green, colors.green],
+	danger: [colors.red, colors.red],
 };
 
 export const fonts = {

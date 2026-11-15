@@ -2,7 +2,6 @@ import React, { useEffect, useMemo, useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 import { router, useLocalSearchParams } from 'expo-router';
 import * as Clipboard from 'expo-clipboard';
-import { LinearGradient } from 'expo-linear-gradient';
 import Animated, { FadeInRight, ZoomIn } from 'react-native-reanimated';
 import { ArrowLeft, ArrowRight, Calendar, CheckCircle2, ChevronRight, Copy, Eye, EyeOff, FileText, GraduationCap, Lock, MapPin, Phone, School, User, X } from 'lucide-react-native';
 import { useAuth } from '../../context/AuthContext';
@@ -14,16 +13,15 @@ import { Button, Card, Field, Loader, SelectField, T, Tap } from '../../componen
 import TeacherSearch from '../../components/TeacherSearch';
 import RegionGroupsSheet from '../../components/RegionGroupsSheet';
 import { PermissionSheet } from '../../components/DocumentSheets';
-import { colors, fonts, gradients, radius } from '../../theme';
+import { colors, fonts, radius } from '../../theme';
 import { GRADES } from '../../utils/constants';
+import { cleanUzPhone, cyrillicToLatin } from '../../utils/format';
 
 const PHONE_RE = /^\+998\d{9}$/;
-const LATIN = /[^a-zA-Z'’ʻ\-\s]/g;
+const LATIN_CLEAN = /[^a-zA-Z'’ʻ\-\s]/g;
+const toLatinName = (v) => cyrillicToLatin(v).replace(LATIN_CLEAN, '');
 
-const phoneMask = (value) => {
-	const v = value.startsWith('+998') ? value : '+998';
-	return `+998${v.slice(4).replace(/\D/g, '').slice(0, 9)}`;
-};
+const phoneMask = (value) => cleanUzPhone(value);
 
 const dateMask = (value) => {
 	const d = value.replace(/\D/g, '').slice(0, 8);
@@ -141,7 +139,7 @@ export default function RegisterScreen() {
 		return (
 			<Screen header={<StackHeader onBack={() => router.replace('/')} />}>
 				<Animated.View entering={ZoomIn.springify().damping(14)} style={{ alignItems: 'center' }}>
-					<LinearGradient colors={gradients.success} style={styles.doneIcon}><CheckCircle2 size={44} color="#fff" /></LinearGradient>
+					<View style={styles.doneIcon}><CheckCircle2 size={44} color="#fff" /></View>
 					<T v="display" style={{ marginTop: 16 }}>{t('regDone')}</T>
 					<T v="body" style={{ textAlign: 'center', marginTop: 6 }}>{t('regDoneMsg')}</T>
 				</Animated.View>
@@ -190,9 +188,9 @@ export default function RegisterScreen() {
 			<Animated.View key={step} entering={FadeInRight.springify().damping(20)} style={{ gap: 14, marginTop: 18 }}>
 				{step === 0 ? (
 					<>
-						<Field label={t('lastName')} icon={User} value={form.lastName} onChangeText={(v) => set('lastName', v.replace(LATIN, ''))} error={errors.lastName} hint={t('latinOnly')} autoCapitalize="words" autoCorrect={false} />
-						<Field label={t('firstName')} icon={User} value={form.firstName} onChangeText={(v) => set('firstName', v.replace(LATIN, ''))} error={errors.firstName} autoCapitalize="words" autoCorrect={false} />
-						<Field label={t('middleName')} icon={User} value={form.middleName} onChangeText={(v) => set('middleName', v.replace(LATIN, ''))} error={errors.middleName} autoCapitalize="words" autoCorrect={false} />
+						<Field label={t('lastName')} icon={User} value={form.lastName} onChangeText={(v) => set('lastName', toLatinName(v))} error={errors.lastName} hint={t('latinOnly')} autoCapitalize="words" autoCorrect={false} />
+						<Field label={t('firstName')} icon={User} value={form.firstName} onChangeText={(v) => set('firstName', toLatinName(v))} error={errors.firstName} autoCapitalize="words" autoCorrect={false} />
+						<Field label={t('middleName')} icon={User} value={form.middleName} onChangeText={(v) => set('middleName', toLatinName(v))} error={errors.middleName} autoCapitalize="words" autoCorrect={false} />
 						<Field label={t('birthDate')} icon={Calendar} value={form.birthDate} onChangeText={(v) => set('birthDate', dateMask(v))} placeholder="DD.MM.YYYY" keyboardType="number-pad" error={errors.birthDate} />
 					</>
 				) : step === 1 ? (
@@ -240,7 +238,7 @@ export default function RegisterScreen() {
 const styles = StyleSheet.create({
 	stepper: { flexDirection: 'row', gap: 8, marginTop: 4 },
 	stepBar: { height: 5, borderRadius: 3, backgroundColor: colors.bgDeep },
-	doneIcon: { width: 92, height: 92, borderRadius: 32, alignItems: 'center', justifyContent: 'center', marginTop: 8 },
+	doneIcon: { width: 92, height: 92, borderRadius: 32, backgroundColor: colors.green, alignItems: 'center', justifyContent: 'center', marginTop: 8 },
 	cred: { flexDirection: 'row', alignItems: 'center', gap: 8, padding: 14, borderRadius: radius.lg, backgroundColor: colors.cardMuted, borderWidth: 1, borderColor: colors.line },
 	credBtn: { width: 38, height: 38, borderRadius: 19, backgroundColor: colors.white, alignItems: 'center', justifyContent: 'center', borderWidth: 1, borderColor: colors.line },
 	teacher: { flexDirection: 'row', alignItems: 'center', gap: 10, padding: 14, borderRadius: radius.lg, backgroundColor: colors.greenSoft },

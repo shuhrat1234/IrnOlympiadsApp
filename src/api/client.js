@@ -1,9 +1,14 @@
 import axios from 'axios';
+import { Platform } from 'react-native';
 import { tokens } from './storage';
 
-export const API_URL = process.env.EXPO_PUBLIC_API_URL || 'https://x8k2m9f3.irnolympiad.uz/api/';
-export const MEDIA_BASE = API_URL.replace(/\/api\/?$/, '');
+const REMOTE_API = 'https://x8k2m9f3.irnolympiad.uz/api/';
+const isLocalWeb = Platform.OS === 'web' && typeof window !== 'undefined' && (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1');
+
+export const API_URL = isLocalWeb ? '/api/' : (process.env.EXPO_PUBLIC_API_URL || REMOTE_API);
+export const MEDIA_BASE = 'https://x8k2m9f3.irnolympiad.uz';
 export const SITE_URL = 'https://irnolympiad.uz';
+export const WS_URL = 'wss://x8k2m9f3.irnolympiad.uz';
 
 // Same rule as the website: always https, relative paths resolve against the API host.
 export const mediaUrl = (path) => {
@@ -35,7 +40,7 @@ api.interceptors.request.use((config) => {
 		config.headers.Authorization = `Bearer ${tokens.access}`;
 	}
 	if (config.data instanceof FormData) {
-		config.headers['Content-Type'] = 'multipart/form-data';
+		delete config.headers['Content-Type'];
 	}
 	return config;
 });

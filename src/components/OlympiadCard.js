@@ -1,7 +1,7 @@
 import React from 'react';
-import { Image, StyleSheet, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
+import { Image } from 'expo-image';
 import { router } from 'expo-router';
-import { LinearGradient } from 'expo-linear-gradient';
 import { AlertTriangle, ArrowRight, Building2, Calendar, CheckCircle2, Clock, CreditCard, Sparkles, Users, Wifi } from 'lucide-react-native';
 import { useLanguage } from '../context/LanguageContext';
 import { useOlympiad } from '../context/OlympiadContext';
@@ -47,8 +47,18 @@ export default function OlympiadCard({ oly, userGrade, registered, pendingPaymen
 
 	return (
 		<Card onPress={open} style={{ marginBottom: 14, overflow: 'hidden' }} padded={false}>
-			{oly.banner_image ? <Image source={{ uri: mediaUrl(oly.banner_image) }} style={styles.banner} resizeMode="cover" /> : null}
-			<LinearGradient colors={online ? ['#FFF7D9', '#FFFFFF'] : ['#EEF2FA', '#FFFFFF']} style={{ padding: 18, paddingBottom: 14 }}>
+			{oly.banner_image ? (
+				<View style={styles.bannerWrap}>
+					<Image
+						source={{ uri: mediaUrl(oly.banner_image) }}
+						style={styles.banner}
+						contentFit="contain"
+						cachePolicy="memory-disk"
+						transition={200}
+					/>
+				</View>
+			) : null}
+			<View style={{ backgroundColor: online ? '#FFFBF0' : '#F6F8FC', padding: 18, paddingBottom: 14 }}>
 				<View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start', gap: 10 }}>
 					<View style={[styles.typeIcon, { backgroundColor: online ? colors.gold : colors.navy }]}>
 						{online ? <Wifi size={20} color={colors.navyDeep} strokeWidth={2.4} /> : <Building2 size={20} color={colors.gold} strokeWidth={2.2} />}
@@ -61,7 +71,7 @@ export default function OlympiadCard({ oly, userGrade, registered, pendingPaymen
 				</View>
 				<T v="h3" style={{ marginTop: 14, fontSize: 17 }} numberOfLines={2}>{pick(oly)}</T>
 				{desc ? <T v="small" numberOfLines={2} style={{ marginTop: 6 }}>{desc}</T> : null}
-			</LinearGradient>
+			</View>
 
 			<View style={{ paddingHorizontal: 18, paddingBottom: 18, gap: 12 }}>
 				{scheduleRows.length ? (
@@ -124,7 +134,8 @@ export default function OlympiadCard({ oly, userGrade, registered, pendingPaymen
 }
 
 const styles = StyleSheet.create({
-	banner: { width: '100%', height: 130, backgroundColor: colors.cardMuted },
+	bannerWrap: { width: '100%', height: 140, backgroundColor: '#0B1527', overflow: 'hidden', alignItems: 'center', justifyContent: 'center' },
+	banner: { width: '100%', height: '100%' },
 	typeIcon: { width: 44, height: 44, borderRadius: 15, alignItems: 'center', justifyContent: 'center' },
 	price: { backgroundColor: colors.navyDeep, paddingHorizontal: 12, paddingVertical: 6, borderRadius: radius.pill },
 	priceText: { fontFamily: fonts.extrabold, fontSize: 13, color: colors.gold },

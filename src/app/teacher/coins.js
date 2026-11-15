@@ -1,7 +1,6 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { ActivityIndicator, StyleSheet, View } from 'react-native';
 import { router, useFocusEffect } from 'expo-router';
-import { LinearGradient } from 'expo-linear-gradient';
 import { AlertTriangle, Award, CheckCircle2, Clock, FileQuestion, History, Medal, Megaphone, MinusCircle, RotateCcw, Search, Share2, ShieldCheck, Sliders, Trophy, UserSearch, Users, Wrench } from 'lucide-react-native';
 import api, { errorMessage } from '../../api/client';
 import E from '../../api/endpoints';
@@ -11,7 +10,7 @@ import { useToast } from '../../context/ToastContext';
 import { Screen, LargeTitle } from '../../components/layout';
 import { Button, Card, Field, IconBadge, Pill, Segmented, Sheet, Skeleton, T, Tap } from '../../components/ui';
 import { ChoicePills, TextArea } from '../../components/form';
-import { colors, fonts, gradients, radius } from '../../theme';
+import { colors, fonts, radius } from '../../theme';
 import { shareFile } from '../../utils/files';
 
 const L = {
@@ -371,12 +370,12 @@ export default function TeacherCoins() {
 				</Card>
 			) : loading ? <Skeleton height={160} radiusSize={26} /> : coins ? (
 				<>
-					<LinearGradient colors={gradients.navy} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={styles.hero}>
+					<View style={styles.hero}>
 						<View style={styles.heroIcon}><Award size={26} color={colors.navyDeep} /></View>
 						<T v="label" color="rgba(255,255,255,0.6)" style={{ marginTop: 12 }}>{tx(L.total)}</T>
 						<T style={styles.total}>{coins.total_coins || 0}</T>
 						{coins.manual_adjustment ? <Pill label={`${tx(L.manual)}: ${coins.manual_adjustment > 0 ? '+' : ''}${coins.manual_adjustment}`} color={colors.navyDeep} bg={colors.gold} /> : null}
-					</LinearGradient>
+					</View>
 					<View style={styles.grid}>
 						{stats.map(([k, v, c, emoji]) => (
 							<Card key={k.en} style={styles.stat}>
@@ -486,7 +485,7 @@ const styles = StyleSheet.create({
 	counterValue: { fontFamily: fonts.extrabold, fontSize: 30, lineHeight: 36, marginTop: 8 },
 	exportBtn: { width: 38, height: 38, borderRadius: 19, backgroundColor: colors.white, borderWidth: 1, borderColor: colors.line, alignItems: 'center', justifyContent: 'center' },
 	label: { marginBottom: 8, marginLeft: 4 },
-	hero: { alignItems: 'center', padding: 22, borderRadius: 26, marginBottom: 12 },
+	hero: { backgroundColor: colors.navyDeep, alignItems: 'center', padding: 22, borderRadius: 26, marginBottom: 12 },
 	heroIcon: { width: 56, height: 56, borderRadius: 20, backgroundColor: colors.gold, alignItems: 'center', justifyContent: 'center' },
 	total: { fontFamily: fonts.extrabold, fontSize: 44, color: colors.white, marginBottom: 8 },
 	grid: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },

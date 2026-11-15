@@ -24,6 +24,8 @@ const E = {
 
     PAYME_GET_LINK: (regId) => `payments/payme/get-link/${regId}/`,
     CLICK_GET_LINK: (regId) => `payments/click/get-link/${regId}/`,
+    ALIF_GET_LINK: (regId) => `payments/alif/get-link/${regId}/`,
+    XAZNA_GET_LINK: (regId) => `payments/xazna/get-link/${regId}/`,
     // Teacher pays for several students with one Click/Payme invoice
     GROUP_PAYMENT_CREATE: 'payments/group/create/',
     GROUP_PAYMENT_STATUS: (id) => `payments/group/${id}/status/`,

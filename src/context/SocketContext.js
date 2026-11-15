@@ -1,6 +1,6 @@
 import React, { createContext, useCallback, useContext, useEffect, useRef, useState } from 'react';
 import { AppState } from 'react-native';
-import { API_URL } from '../api/client';
+import { API_URL, WS_URL } from '../api/client';
 import { tokens } from '../api/storage';
 import { useAuth } from './AuthContext';
 import { useLanguage } from './LanguageContext';
@@ -29,8 +29,13 @@ export const SocketProvider = ({ children }) => {
 	handlers.current = { t, pick, toast, fetchMe };
 
 	const baseUrl = useCallback(() => {
-		const url = new URL(API_URL);
-		return `${url.protocol === 'https:' ? 'wss:' : 'ws:'}//${url.host}`;
+		try {
+			if (typeof API_URL === 'string' && API_URL.startsWith('http')) {
+				const url = new URL(API_URL);
+				return `${url.protocol === 'https:' ? 'wss:' : 'ws:'}//${url.host}`;
+			}
+		} catch {}
+		return WS_URL || 'wss://x8k2m9f3.irnolympiad.uz';
 	}, []);
 
 	const disconnect = useCallback(() => {

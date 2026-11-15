@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Image, StyleSheet, Text, View } from 'react-native';
 import * as SplashScreen from 'expo-splash-screen';
-import { LinearGradient } from 'expo-linear-gradient';
 import Animated, { Easing, runOnJS, useAnimatedStyle, useSharedValue, withDelay, withRepeat, withSequence, withTiming } from 'react-native-reanimated';
 
 const BG = '#09090C';
@@ -45,9 +44,7 @@ export default function BootLoader({ done, onFinish }) {
 			</View>
 			<View style={styles.bottom}>
 				<View style={styles.track}>
-					<Animated.View style={[styles.fill, barStyle]}>
-						<LinearGradient colors={['#FFB800', '#FFD84D', '#FDC800']} start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }} style={StyleSheet.absoluteFill} />
-					</Animated.View>
+					<Animated.View style={[styles.fill, barStyle, { backgroundColor: '#FDC800' }]} />
 				</View>
 				<Text style={styles.loading}>{`Loading${'.'.repeat(dots)}`}<Text style={{ color: 'transparent' }}>{'.'.repeat(3 - dots)}</Text></Text>
 			</View>

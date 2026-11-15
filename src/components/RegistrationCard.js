@@ -134,6 +134,7 @@ export default function RegistrationCard({ reg, oly, onAction, onPermission, onC
 						else if (session.is_completed) badge = <Pill label={t('completed')} color={colors.muted} bg={colors.cardMuted} />;
 						else if (session.is_started) badge = <Pill icon={Zap} label={t('active')} color={colors.green} bg={colors.greenSoft} />;
 						else badge = <Pill label={t('waiting')} color={colors.muted} bg={colors.cardMuted} />;
+						const subShowCert = paid && canShowCertificate(currentUser, oly, reg, session);
 						return (
 							<View key={sub.id} style={styles.sub}>
 								<View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
@@ -142,12 +143,12 @@ export default function RegistrationCard({ reg, oly, onAction, onPermission, onC
 								</View>
 								{startable ? (
 									<Button size="md" icon={Play} title={t('startExam')} style={{ marginTop: 10 }} onPress={() => onAction({ title: t('confirmStartTitle'), msg: t('confirmStartMsg'), route: `/exam/${session.id}`, icon: Play, start: true })} />
-								) : (done && online) || showCert ? (
-								<View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginTop: 10 }}>
+								) : (done && online) || subShowCert ? (
+									<View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginTop: 10 }}>
 										{done && online ? (
 											<Button style={{ flex: 1 }} size="sm" variant="dark" icon={BarChart3} title={t('viewResult')} onPress={() => onAction({ title: t('viewResult'), msg: '', route: { pathname: `/analysis/${oly.id}`, params: { session: session.id } }, direct: true })} />
 										) : null}
-										{showCert ? <Button style={{ flex: 1 }} size="sm" variant="soft" icon={Award} title={t('certificate')} onPress={() => onCertificate(reg, oly, sub, result)} /> : null}
+										{subShowCert ? <Button style={{ flex: 1 }} size="sm" variant="soft" icon={Award} title={t('certificate')} onPress={() => onCertificate(reg, oly, sub, result)} /> : null}
 									</View>
 								) : null}
 							</View>

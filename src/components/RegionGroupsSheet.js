@@ -1,6 +1,5 @@
 import React from 'react';
 import { Linking, View } from 'react-native';
-import { LinearGradient } from 'expo-linear-gradient';
 import { ChevronRight, MapPin, Send } from 'lucide-react-native';
 import { useLanguage } from '../context/LanguageContext';
 import { Sheet, T, Tap } from './ui';
@@ -15,9 +14,9 @@ export default function RegionGroupsSheet({ visible, onClose, userRegion }) {
 	return (
 		<Sheet visible={visible} onClose={onClose} title={matched.length ? t('regionGroupTitle') : t('regionGroupsTitle')} scroll>
 			<View style={{ alignItems: 'center', marginBottom: 16 }}>
-				<LinearGradient colors={['#37BBFE', '#007DBB']} style={{ width: 64, height: 64, borderRadius: 22, alignItems: 'center', justifyContent: 'center' }}>
+				<View style={{ width: 64, height: 64, borderRadius: 22, backgroundColor: '#0088CC', alignItems: 'center', justifyContent: 'center' }}>
 					<Send size={28} color="#fff" />
-				</LinearGradient>
+				</View>
 				<T v="body" style={{ textAlign: 'center', marginTop: 12 }}>{t('regionGroupText')}</T>
 			</View>
 			<View style={{ gap: 10 }}>

@@ -15,6 +15,9 @@ export const ASSETS = {
 	irnLogo: require('../../assets/brand/irn-logo.jpg'),
 	certEnglish: require('../../assets/brand/cert-mustaqillik-english.jpg'),
 	certMath: require('../../assets/brand/cert-mustaqillik-math.jpg'),
+	permNextGen: require('../../assets/brand/permission-nextgen.jpg'),
+	permRepublic: require('../../assets/brand/permission-republic.jpg'),
+	permXpert: require('../../assets/brand/permission-xpert.jpg'),
 };
 
 const dataUriCache = {};
@@ -112,31 +115,78 @@ export const permissionSubtitle = (oly, lang) => {
 
 export const permissionPdf = async ({ reg, oly, user, lang }) => {
 	const olyTitle = oly?.[`title_${lang}`] || oly?.title_en || oly?.title_ru || oly?.title_uz || 'IRN Olympiad';
+	const titleStr = `${oly?.category || ''} ${oly?.title_uz || ''} ${oly?.title_ru || ''} ${oly?.title_en || ''} ${olyTitle}`.toLowerCase();
+	const isNextGen = titleStr.includes('nextgen') || Boolean(oly?.is_nextgen);
+	const isXpert = !isNextGen && (titleStr.includes('xpert') || titleStr.includes('stem') || (reg?.unique_participant_id && String(reg.unique_participant_id).toUpperCase().startsWith('XSTEM')));
+
+	const W = isNextGen ? 724 : 768;
+	const H = 1024;
+	const bgAsset = isNextGen ? ASSETS.permNextGen : isXpert ? ASSETS.permXpert : ASSETS.permRepublic;
+	const bg = await assetDataUri(bgAsset);
+
 	const subject = getEnglishSubject(oly?.title_en || oly?.title_ru || oly?.title_uz);
-	const logo = await assetDataUri(ASSETS.irnLogo);
-	const verify = `https://irnolympiad.uz/verify?id=${reg?.unique_participant_id}&student=${user?.first_name}+${user?.last_name}&user=${user?.username || user?.id}&olympiad=${olyTitle}&status=${reg?.payment_status || 'pending'}`;
-	const qr = await qrSvg(verify, '#000000');
+	const fullName = `${user?.first_name || ''} ${user?.last_name || ''}`.trim() || reg?.student_name || 'Participant';
+	const gradeText = user?.grade ? `${user.grade}-sinf` : reg?.grade ? `${reg.grade}-sinf` : '—';
+	const schoolText = user?.school || reg?.school || '—';
+	const userIdText = user?.participant_id || user?.username || user?.id || '—';
+	const idNumberText = reg?.unique_participant_id || reg?.participant_id || '—';
 	const pay = permissionState(reg, oly);
-	const body = `${waves}
-<div class="wrap">
-	<div><img class="logo" src="${logo}" /><h1>PERMISSION</h1><div class="sub">${esc(permissionSubtitle(oly, lang))}</div></div>
-	<div>
-		<div class="tag">Information:</div>
-		<div class="row"><b>Name-Surname:</b><span>${esc(user?.first_name)} ${esc(user?.last_name)}</span></div>
-		<div class="grid">
-			<div class="fields">
-				<div class="row"><b>Grade:</b><span>${esc(user?.grade)}</span></div>
-				<div class="row"><b>Subject:</b><span>${esc(subject)}</span></div>
-				<div class="row"><b>User ID:</b><span class="mono">${esc(user?.username || user?.id)}</span></div>
-				<div class="row"><b>ID Number:</b><span class="mono" style="color:#d97706">${esc(reg?.unique_participant_id)}</span></div>
-				<div class="row"><b>Payment Status:</b><span style="color:${pay.color}">${pay.label}</span></div>
-			</div>
-			<div class="qr"><div>${qr}</div></div>
-		</div>
-	</div>
-	<div class="foot">${pay.isPaid ? `This student can participate in <b>${esc(olyTitle)}</b>.` : '<b style="color:#d97706">Payment is pending. This student CANNOT participate until the registration fee is confirmed.</b>'}</div>
-</div>`;
-	return sharePdf(page(595, 842, body, permissionCss), { width: 595, height: 842, fileName: `Permission_${reg?.unique_participant_id || 'IRN'}` });
+
+	const verify = `https://irnolympiad.uz/verify?id=${encodeURIComponent(idNumberText)}&student=${encodeURIComponent(fullName)}&user=${encodeURIComponent(userIdText)}&olympiad=${encodeURIComponent(olyTitle)}&status=${reg?.payment_status || 'pending'}`;
+	const qr = await qrSvg(verify, '#000000');
+
+	let pos;
+	if (isNextGen) {
+		pos = {
+			name: { left: 238, top: 447, font: 18 },
+			grade: { left: 238, top: 486, font: 18 },
+			school: { left: 238, top: 525, font: 16 },
+			subject: { left: 238, top: 566, font: 17 },
+			user: { left: 238, top: 605, font: 18 },
+			id: { left: 238, top: 644, font: 18 },
+			status: { left: 238, top: 683, font: 18 },
+			qr: { left: 501, top: 547, size: 128 },
+		};
+	} else if (isXpert) {
+		pos = {
+			name: { left: 232, top: 522, font: 18 },
+			grade: { left: 232, top: 552, font: 18 },
+			school: { left: 232, top: 582, font: 16 },
+			subject: { left: 232, top: 611, font: 17 },
+			user: { left: 232, top: 640, font: 18 },
+			id: { left: 232, top: 669, font: 18 },
+			status: { left: 232, top: 697, font: 18 },
+			qr: { left: 540, top: 572, size: 140 },
+		};
+	} else {
+		pos = {
+			name: { left: 210, top: 537, font: 18 },
+			grade: { left: 210, top: 570, font: 18 },
+			school: { left: 210, top: 603, font: 16 },
+			subject: { left: 210, top: 636, font: 17 },
+			user: { left: 210, top: 669, font: 18 },
+			id: { left: 210, top: 702, font: 18 },
+			status: { left: 210, top: 735, font: 18 },
+			qr: { left: 540, top: 578, size: 148 },
+		};
+	}
+
+	const itemStyle = (p, color = '#0f172a') =>
+		`position:absolute;left:${p.left}px;top:${p.top}px;font-size:${p.font}px;font-weight:700;color:${color};line-height:1;background:#fff;padding:0 4px 1px 2px;white-space:nowrap;`;
+
+	const body = `
+<img src="${bg}" style="position:absolute;inset:0;width:${W}px;height:${H}px;display:block;" />
+<div style="${itemStyle(pos.name)}">${esc(fullName)}</div>
+<div style="${itemStyle(pos.grade)}">${esc(gradeText)}</div>
+<div style="${itemStyle(pos.school)}">${esc(schoolText)}</div>
+<div style="${itemStyle(pos.subject)}">${esc(subject)}</div>
+<div style="${itemStyle(pos.user)};font-family:Menlo,monospace;">${esc(userIdText)}</div>
+<div style="${itemStyle(pos.id, '#d97706')};font-family:Menlo,monospace;">${esc(idNumberText)}</div>
+<div style="${itemStyle(pos.status, pay.color)};font-weight:900;">${esc(pay.label.toUpperCase())}</div>
+<div style="position:absolute;left:${pos.qr.left}px;top:${pos.qr.top}px;width:${pos.qr.size}px;height:${pos.qr.size}px;background:#fff;display:flex;align-items:center;justify-content:center;">${qr}</div>
+`;
+
+	return sharePdf(page(W, H, body), { width: W, height: H, fileName: `Permission_${idNumberText || 'IRN'}` });
 };
 
 const FINAL_LABELS = {

@@ -1,5 +1,6 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
-import { Image, Linking, ScrollView, StyleSheet, View } from 'react-native';
+import { Linking, ScrollView, StyleSheet, View } from 'react-native';
+import { Image } from 'expo-image';
 import { router } from 'expo-router';
 import { BookOpen, Download, Minus, Package, Plus, Search, ShoppingBag, Trash2, Truck } from 'lucide-react-native';
 import api, { mediaUrl } from '../api/client';
@@ -49,7 +50,7 @@ const Cover = ({ book, title, height }) => {
 			</View>
 		);
 	}
-	return <Image source={{ uri: src }} style={[styles.cover, { height }]} resizeMode="cover" onError={() => setFailed(true)} />;
+	return <Image source={{ uri: src }} style={[styles.cover, { height }]} contentFit="cover" cachePolicy="memory-disk" transition={200} onError={() => setFailed(true)} />;
 };
 
 // Website /books: catalog with search and free/paid filter, book details, and a cart

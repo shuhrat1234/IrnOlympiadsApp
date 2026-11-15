@@ -1,12 +1,12 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { ActivityIndicator, Image, StyleSheet, Text, View, useWindowDimensions } from 'react-native';
 import { SvgXml } from 'react-native-svg';
-import { Download, FileText, QrCode } from 'lucide-react-native';
+import { Download } from 'lucide-react-native';
 import { useLanguage } from '../context/LanguageContext';
 import { useToast } from '../context/ToastContext';
-import { Button, Sheet, T } from './ui';
-import { colors, fonts, radius } from '../theme';
-import { certificatePdf, certificateSize, mustaqillikLayout, permissionPdf, permissionState, permissionSubtitle, qrSvg, resolveCertificate, templateSize } from '../utils/documents';
+import { Button, Sheet } from './ui';
+import { colors, fonts } from '../theme';
+import { ASSETS, certificatePdf, certificateSize, mustaqillikLayout, permissionPdf, permissionState, qrSvg, resolveCertificate, templateSize } from '../utils/documents';
 import { getEnglishSubject } from '../utils/format';
 
 // Live preview of the certificate (same resolver as the PDF), scaled to the sheet width.
@@ -112,64 +112,129 @@ export const CertificateSheet = ({ visible, onClose, data, user }) => {
 	);
 };
 
+// Branded visual preview of the Permission slip (1:1 with web's PermissionModal)
+const PermissionPreview = ({ reg, oly, user }) => {
+	const { pick } = useLanguage();
+	const { width: screenW } = useWindowDimensions();
+	const [qr, setQr] = useState(null);
+
+	const olyTitle = pick(oly) || 'IRN Olympiad';
+	const titleStr = `${oly?.category || ''} ${oly?.title_uz || ''} ${oly?.title_ru || ''} ${oly?.title_en || ''} ${olyTitle}`.toLowerCase();
+	const isNextGen = titleStr.includes('nextgen') || Boolean(oly?.is_nextgen);
+	const isXpert = !isNextGen && (titleStr.includes('xpert') || titleStr.includes('stem') || (reg?.unique_participant_id && String(reg.unique_participant_id).toUpperCase().startsWith('XSTEM')));
+
+	const W = isNextGen ? 724 : 768;
+	const H = 1024;
+	const bgAsset = isNextGen ? ASSETS.permNextGen : isXpert ? ASSETS.permXpert : ASSETS.permRepublic;
+
+	const boxW = Math.min(screenW - 40, 420);
+	const s = boxW / W;
+	const boxH = H * s;
+
+	const subject = getEnglishSubject(oly?.title_en || oly?.title_ru || oly?.title_uz);
+	const fullName = `${user?.first_name || ''} ${user?.last_name || ''}`.trim() || reg?.student_name || 'Participant';
+	const gradeText = user?.grade ? `${user.grade}-sinf` : reg?.grade ? `${reg.grade}-sinf` : '—';
+	const schoolText = user?.school || reg?.school || '—';
+	const userIdText = user?.participant_id || user?.username || user?.id || '—';
+	const idNumberText = reg?.unique_participant_id || reg?.participant_id || '—';
+	const pay = permissionState(reg, oly);
+
+	const verify = `https://irnolympiad.uz/verify?id=${encodeURIComponent(idNumberText)}&student=${encodeURIComponent(fullName)}&user=${encodeURIComponent(userIdText)}&olympiad=${encodeURIComponent(olyTitle)}&status=${reg?.payment_status || 'pending'}`;
+
+	useEffect(() => {
+		let alive = true;
+		qrSvg(verify, '#000000').then((x) => alive && setQr(x)).catch(() => {});
+		return () => { alive = false; };
+	}, [verify]);
+
+	let pos;
+	if (isNextGen) {
+		pos = {
+			name: { left: 238, top: 447, font: 18 },
+			grade: { left: 238, top: 486, font: 18 },
+			school: { left: 238, top: 525, font: 16 },
+			subject: { left: 238, top: 566, font: 17 },
+			user: { left: 238, top: 605, font: 18 },
+			id: { left: 238, top: 644, font: 18 },
+			status: { left: 238, top: 683, font: 18 },
+			qr: { left: 501, top: 547, size: 128 },
+		};
+	} else if (isXpert) {
+		pos = {
+			name: { left: 232, top: 522, font: 18 },
+			grade: { left: 232, top: 552, font: 18 },
+			school: { left: 232, top: 582, font: 16 },
+			subject: { left: 232, top: 611, font: 17 },
+			user: { left: 232, top: 640, font: 18 },
+			id: { left: 232, top: 669, font: 18 },
+			status: { left: 232, top: 697, font: 18 },
+			qr: { left: 540, top: 572, size: 140 },
+		};
+	} else {
+		pos = {
+			name: { left: 210, top: 537, font: 18 },
+			grade: { left: 210, top: 570, font: 18 },
+			school: { left: 210, top: 603, font: 16 },
+			subject: { left: 210, top: 636, font: 17 },
+			user: { left: 210, top: 669, font: 18 },
+			id: { left: 210, top: 702, font: 18 },
+			status: { left: 210, top: 735, font: 18 },
+			qr: { left: 540, top: 578, size: 148 },
+		};
+	}
+
+	const renderItem = (p, text, color = '#0f172a', mono = false, weight = '700') => (
+		<View key={p.top} style={{ position: 'absolute', left: p.left * s, top: p.top * s, backgroundColor: '#ffffff', paddingHorizontal: 2 * s, paddingVertical: 1 * s, borderRadius: 2 }}>
+			<Text numberOfLines={1} style={{ fontSize: Math.max(9, p.font * s), fontWeight: weight, color, fontFamily: mono ? 'Menlo' : undefined }}>{text}</Text>
+		</View>
+	);
+
+	return (
+		<View style={[styles.frame, { width: boxW, height: boxH, alignSelf: 'center' }]}>
+			<Image source={bgAsset} style={{ width: boxW, height: boxH }} resizeMode="stretch" />
+			{renderItem(pos.name, fullName, '#0f172a')}
+			{renderItem(pos.grade, gradeText, '#0f172a')}
+			{renderItem(pos.school, schoolText, '#0f172a')}
+			{renderItem(pos.subject, subject, '#0f172a')}
+			{renderItem(pos.user, userIdText, '#0f172a', true)}
+			{renderItem(pos.id, idNumberText, colors.amber, true, '800')}
+			{renderItem(pos.status, pay.label.toUpperCase(), pay.color, false, '900')}
+			<View style={{ position: 'absolute', left: pos.qr.left * s, top: pos.qr.top * s, width: pos.qr.size * s, height: pos.qr.size * s, backgroundColor: '#fff', alignItems: 'center', justifyContent: 'center', borderRadius: 4, borderWidth: 1, borderColor: 'rgba(0,0,0,0.06)' }}>
+				{qr ? <SvgXml xml={qr} width={pos.qr.size * s * 0.9} height={pos.qr.size * s * 0.9} /> : null}
+			</View>
+		</View>
+	);
+};
+
 // Permission letter preview card (A4 PDF generated on demand).
 export const PermissionSheet = ({ visible, onClose, reg, oly, user }) => {
-	const { t, lang, pick } = useLanguage();
+	const { t, lang } = useLanguage();
 	const toast = useToast();
 	const [busy, setBusy] = useState(false);
 	if (!reg || !oly) return null;
 	const pay = permissionState(reg, oly);
-	const rows = [
-		['Name-Surname', `${user?.first_name || ''} ${user?.last_name || ''}`],
-		['Grade', user?.grade],
-		['Subject', getEnglishSubject(oly.title_en || oly.title_ru || oly.title_uz)],
-		['User ID', user?.username || user?.id],
-		['ID Number', reg.unique_participant_id],
-	];
+
 	return (
 		<Sheet visible={visible} onClose={onClose} title={t('permission')}>
-			<View style={styles.letter}>
-				<View style={styles.letterBand} />
-				<Image source={require('../../assets/brand/irn-logo.jpg')} style={{ width: 110, height: 76, alignSelf: 'center' }} resizeMode="contain" />
-				<T v="h2" style={{ textAlign: 'center', letterSpacing: 3, marginTop: 6 }}>PERMISSION</T>
-				<T v="label" style={{ textAlign: 'center', marginTop: 4 }} numberOfLines={2}>{permissionSubtitle(oly, lang)}</T>
-				<View style={{ marginTop: 16, gap: 10 }}>
-					{rows.map(([k, v]) => (
-						<View key={k} style={styles.letterRow}>
-							<T v="strong" style={{ fontSize: 13.5 }}>{k}:</T>
-							<T v="strong" numberOfLines={1} style={[styles.letterVal, k === 'ID Number' && { color: colors.amber }]}>{v}</T>
-						</View>
-					))}
-					<View style={styles.letterRow}>
-						<T v="strong" style={{ fontSize: 13.5 }}>Payment Status:</T>
-						<T v="strong" style={[styles.letterVal, { color: pay.color }]}>{pay.label}</T>
-					</View>
-				</View>
-				<T v="small" style={{ marginTop: 14, fontSize: 12, color: pay.isPaid ? colors.muted : colors.amber }}>
-					{pay.isPaid ? `This student can participate in ${pick(oly)}.` : 'Payment is pending. This student CANNOT participate until the registration fee is confirmed.'}
-				</T>
-				<View style={[styles.letterFoot, { marginTop: 10 }]}>
-					<QrCode size={16} color={colors.muted} />
-					<T v="small" style={{ flex: 1, fontSize: 12 }}>QR · irnolympiad.uz/verify</T>
-				</View>
+			<View style={{ gap: 16 }}>
+				<PermissionPreview reg={reg} oly={oly} user={user} />
+				<Button
+					title={pay.isPaid ? t('downloadPDF') : t('paymentNotConfirmed')}
+					icon={Download}
+					loading={busy}
+					disabled={!pay.isPaid}
+					variant={pay.isPaid ? 'primary' : 'light'}
+					onPress={async () => {
+						setBusy(true);
+						try {
+							await permissionPdf({ reg, oly, user, lang });
+						} catch {
+							toast.error(t('error'));
+						}
+						setBusy(false);
+					}}
+				/>
 			</View>
-			<Button
-				title={pay.isPaid ? t('downloadPDF') : t('paymentNotConfirmed')}
-				icon={FileText}
-				loading={busy}
-				disabled={!pay.isPaid}
-				variant={pay.isPaid ? 'primary' : 'light'}
-				style={{ marginTop: 18 }}
-				onPress={async () => {
-					setBusy(true);
-					try {
-						await permissionPdf({ reg, oly, user, lang });
-					} catch {
-						toast.error(t('error'));
-					}
-					setBusy(false);
-				}}
-			/>
 		</Sheet>
 	);
 };
@@ -177,10 +242,5 @@ export const PermissionSheet = ({ visible, onClose, reg, oly, user }) => {
 const styles = StyleSheet.create({
 	frame: { borderRadius: 14, overflow: 'hidden', backgroundColor: colors.white, borderWidth: 1, borderColor: colors.line },
 	qrBox: { backgroundColor: '#fff', padding: 3, borderRadius: 5, alignItems: 'center', borderWidth: 1, borderColor: 'rgba(22,48,92,0.15)' },
-	letter: { backgroundColor: colors.white, borderRadius: radius.xl, padding: 20, paddingTop: 26, borderWidth: 1, borderColor: colors.line, overflow: 'hidden' },
-	letterBand: { position: 'absolute', left: 0, right: 0, bottom: 0, height: 8, backgroundColor: colors.gold },
-	letterRow: { flexDirection: 'row', alignItems: 'baseline', gap: 8 },
-	letterVal: { flex: 1, fontSize: 14, borderBottomWidth: 1, borderStyle: 'dashed', borderColor: colors.lineStrong, paddingBottom: 3 },
-	letterFoot: { flexDirection: 'row', alignItems: 'center', gap: 8, marginTop: 18, paddingTop: 12, borderTopWidth: 1, borderTopColor: colors.line },
 });
 

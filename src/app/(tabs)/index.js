@@ -1,7 +1,6 @@
 import React, { useCallback, useMemo, useState } from 'react';
 import { Image, ScrollView, StyleSheet, View } from 'react-native';
 import { router } from 'expo-router';
-import { LinearGradient } from 'expo-linear-gradient';
 import * as Clipboard from 'expo-clipboard';
 import Animated, { FadeInDown } from 'react-native-reanimated';
 import { Award, Bell, BookOpen, Check, ChevronRight, Clock, Copy, CreditCard, Download, History, LifeBuoy, MapPin, Package, Play, Search, Shield, Star, Trophy, Zap, CheckCircle2, GraduationCap } from 'lucide-react-native';
@@ -12,7 +11,7 @@ import { useSupport } from '../../context/SupportContext';
 import { useToast } from '../../context/ToastContext';
 import { Screen, PaymentCountdown } from '../../components/layout';
 import { Avatar, Button, Card, Dialog, IconBadge, IconButton, Pill, SectionTitle, T, Tap } from '../../components/ui';
-import { colors, fonts, gradients, radius, shadow } from '../../theme';
+import { colors, fonts, radius, shadow } from '../../theme';
 import { formatDate, gradeLabel, initialsOf } from '../../utils/format';
 import { canStartExam, olyIdOf, userSessionFor } from '../../utils/olympiadLogic';
 import { finalPermissionPdf } from '../../utils/documents';
@@ -88,7 +87,7 @@ export default function HomeScreen() {
 
 			{/* Student pass */}
 			<Animated.View entering={FadeInDown.duration(500)}>
-				<LinearGradient colors={gradients.navy} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={styles.pass}>
+				<View style={styles.pass}>
 					<View style={styles.passGlow} />
 					<View style={styles.passRing} />
 					<View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
@@ -115,7 +114,7 @@ export default function HomeScreen() {
 							</View>
 						))}
 					</View>
-				</LinearGradient>
+				</View>
 			</Animated.View>
 
 			{/* Subject teachers promo (math / english) */}
@@ -128,7 +127,6 @@ export default function HomeScreen() {
 					{liveNow.map((item, i) => (
 						<Animated.View key={item.key} entering={FadeInDown.delay(80 * i)}>
 							<Tap onPress={() => setConfirm(item.route)} style={styles.live}>
-								<LinearGradient colors={gradients.gold} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={StyleSheet.absoluteFill} />
 								<View style={styles.livePulse}><Zap size={20} color={colors.navyDeep} fill={colors.navyDeep} /></View>
 								<View style={{ flex: 1 }}>
 									<T v="strong" color={colors.navyDeep} numberOfLines={1}>{item.sub ? pick(item.sub) : pick(item.oly)}</T>
@@ -221,7 +219,7 @@ export default function HomeScreen() {
 						const Icon = ACH_ICONS[ach.icon] || Award;
 						return (
 							<View key={ach.id} style={styles.ach}>
-								<LinearGradient colors={gradients.gold} style={styles.achIcon}><Icon size={22} color={colors.navyDeep} /></LinearGradient>
+								<View style={styles.achIcon}><Icon size={22} color={colors.navyDeep} /></View>
 								<T v="strong" numberOfLines={2} style={{ fontSize: 13.5, marginTop: 10 }}>{pick(ach)}</T>
 								<T v="small" style={{ fontSize: 11.5, marginTop: 4 }}>{t('earned')}: {formatDate(ach.earned_at, lang, { time: false })}</T>
 							</View>
@@ -253,7 +251,7 @@ export default function HomeScreen() {
 
 const styles = StyleSheet.create({
 	topRow: { flexDirection: 'row', alignItems: 'center', gap: 12, marginBottom: 18 },
-	pass: { borderRadius: 30, padding: 22, overflow: 'hidden', gap: 14, ...shadow(3) },
+	pass: { backgroundColor: colors.navyDeep, borderRadius: 30, padding: 22, overflow: 'hidden', gap: 14, ...shadow(3) },
 	passGlow: { position: 'absolute', top: -90, right: -70, width: 240, height: 240, borderRadius: 120, borderWidth: 30, borderColor: 'rgba(253,200,0,0.09)' },
 	passRing: { position: 'absolute', bottom: -60, left: -40, width: 160, height: 160, borderRadius: 80, borderWidth: 18, borderColor: 'rgba(255,255,255,0.04)' },
 	idChip: { flexDirection: 'row', alignItems: 'center', gap: 10, alignSelf: 'flex-start' },
@@ -261,7 +259,7 @@ const styles = StyleSheet.create({
 	stat: { flex: 1, alignItems: 'center', gap: 2 },
 	statDivider: { borderLeftWidth: 1, borderLeftColor: 'rgba(255,255,255,0.1)' },
 	statValue: { fontFamily: fonts.extrabold, fontSize: 22, color: '#fff' },
-	live: { flexDirection: 'row', alignItems: 'center', gap: 12, padding: 14, borderRadius: 24, overflow: 'hidden', marginBottom: 10, ...shadow(2) },
+	live: { flexDirection: 'row', alignItems: 'center', gap: 12, padding: 14, borderRadius: 24, overflow: 'hidden', marginBottom: 10, backgroundColor: colors.gold, ...shadow(2) },
 	livePulse: { width: 44, height: 44, borderRadius: 16, backgroundColor: 'rgba(255,255,255,0.55)', alignItems: 'center', justifyContent: 'center' },
 	liveBtn: { width: 42, height: 42, borderRadius: 21, backgroundColor: colors.navyDeep, alignItems: 'center', justifyContent: 'center' },
 	grid: { flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-between', rowGap: 12 },
@@ -269,6 +267,6 @@ const styles = StyleSheet.create({
 	qBadge: { minWidth: 22, height: 22, borderRadius: 11, backgroundColor: colors.red, alignItems: 'center', justifyContent: 'center', paddingHorizontal: 6 },
 	qBadgeText: { color: '#fff', fontFamily: fonts.extrabold, fontSize: 11 },
 	ach: { width: 150, backgroundColor: colors.white, borderRadius: 24, padding: 16, borderWidth: 1, borderColor: colors.line, ...shadow(1) },
-	achIcon: { width: 46, height: 46, borderRadius: 16, alignItems: 'center', justifyContent: 'center' },
+	achIcon: { width: 46, height: 46, borderRadius: 16, backgroundColor: colors.gold, alignItems: 'center', justifyContent: 'center' },
 	achEmpty: { width: 56, height: 56, borderRadius: 20, backgroundColor: colors.cardMuted, alignItems: 'center', justifyContent: 'center' },
 });
