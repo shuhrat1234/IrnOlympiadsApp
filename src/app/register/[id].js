@@ -4,7 +4,7 @@ import { Image } from 'expo-image';
 import { router, useLocalSearchParams } from 'expo-router';
 import * as Clipboard from 'expo-clipboard';
 import Animated, { FadeIn, FadeInRight, ZoomIn } from 'react-native-reanimated';
-import { ArrowLeft, ArrowRight, Calendar, CheckCircle2, ChevronRight, Copy, Eye, EyeOff, FileText, GraduationCap, Lock, MapPin, Phone, School, User, X } from 'lucide-react-native';
+import { ArrowLeft, ArrowRight, Calendar, CheckCircle2, ChevronRight, Copy, Eye, EyeOff, FileText, GraduationCap, Info, Lock, MapPin, Phone, School, User, X } from 'lucide-react-native';
 import { useAuth } from '../../context/AuthContext';
 import { useLanguage } from '../../context/LanguageContext';
 import { useOlympiad } from '../../context/OlympiadContext';
@@ -184,55 +184,161 @@ export default function RegisterScreen() {
 				style={{ marginBottom: 16 }}
 			/>
 
-			{/* Stepper */}
-			<View style={styles.stepper}>
-				{steps.map((label, i) => (
-					<View key={label} style={{ flex: 1, gap: 6 }}>
-						<View style={[styles.stepBar, i <= step && { backgroundColor: colors.gold }]} />
-						<T v="small" style={{ fontSize: 11.5, fontFamily: i === step ? fonts.extrabold : fonts.semibold, color: i <= step ? colors.ink : colors.faint }}>{`${i + 1}. ${label}`}</T>
+			{/* Stepper Card */}
+			<View style={styles.stepperCard}>
+				<View style={styles.stepperBars}>
+					{steps.map((label, i) => (
+						<View
+							key={label}
+							style={[styles.stepBar, i <= step ? styles.stepBarActive : styles.stepBarInactive]}
+						/>
+					))}
+				</View>
+				<View style={styles.stepInfoRow}>
+					<View style={styles.stepBadge}>
+						<T v="strong" style={{ fontSize: 11, color: colors.navyDeep }}>
+							{t('stepCount', { step: step + 1 })}
+						</T>
 					</View>
-				))}
+					<T v="strong" style={{ fontSize: 13, color: colors.ink }}>
+						{steps[step]}
+					</T>
+				</View>
 			</View>
 
-			<Animated.View key={step} entering={FadeIn.duration(200)} style={{ gap: 14, marginTop: 18 }}>
-				{step === 0 ? (
-					<>
-						<Field label={t('lastName')} icon={User} value={form.lastName} onChangeText={(v) => set('lastName', toLatinName(v))} error={errors.lastName} hint={t('latinOnly')} autoCapitalize="words" autoCorrect={false} />
-						<Field label={t('firstName')} icon={User} value={form.firstName} onChangeText={(v) => set('firstName', toLatinName(v))} error={errors.firstName} autoCapitalize="words" autoCorrect={false} />
-						<Field label={t('middleName')} icon={User} value={form.middleName} onChangeText={(v) => set('middleName', toLatinName(v))} error={errors.middleName} autoCapitalize="words" autoCorrect={false} />
-						<Field label={t('birthDate')} icon={Calendar} value={form.birthDate} onChangeText={(v) => set('birthDate', dateMask(v))} placeholder="DD.MM.YYYY" keyboardType="number-pad" error={errors.birthDate} />
-					</>
-				) : step === 1 ? (
-					<>
-						<SelectField label={t('region')} icon={MapPin} value={form.regionId} onChange={(v) => set('regionId', v)} placeholder={t('selectRegion')} error={errors.regionId} options={availableRegions.map((r) => ({ value: r.id, label: pick(r, 'name') }))} />
-						<Field label={t('school')} icon={School} value={form.school} onChangeText={(v) => set('school', v)} placeholder={t('schoolPlaceholder')} error={errors.school} />
-						<SelectField label={t('grade')} icon={GraduationCap} value={form.grade} onChange={(v) => set('grade', v)} placeholder={t('selectGrade')} error={errors.grade} options={availableGrades.map((g) => ({ value: g, label: g === 'KG' ? t('kindergarten') : `${g}${t('gradeSuffix')}` }))} />
-						<View>
-							<T v="label" style={{ marginBottom: 8, marginLeft: 4 }}>{t('teacherSearchLabel')} · {t('optional')}</T>
-							{form.teacherId ? (
-								<View style={styles.teacher}>
-									<CheckCircle2 size={18} color={colors.green} />
-									<View style={{ flex: 1 }}>
-										<T v="small">{t('teacherSelected')}</T>
-										<T v="strong">{form.teacher_name}</T>
-									</View>
-									<Tap onPress={() => setForm((p) => ({ ...p, teacherId: null, teacher_name: '', teacher_phone: '+998' }))} style={styles.credBtn}><X size={16} color={colors.ink2} /></Tap>
-								</View>
-							) : (
-								<TeacherSearch actionLabel={t('confirm')} onSelect={(tch) => setForm((p) => ({ ...p, teacherId: tch.id, teacher_name: tch.full_name, teacher_phone: tch.phone || p.teacher_phone }))} />
-							)}
+			<Animated.View key={step} entering={FadeIn.duration(200)} style={{ marginTop: 14 }}>
+				<Card style={styles.formCard}>
+					{step === 0 ? (
+						<View style={{ gap: 13 }}>
+							<View style={styles.latinNotice}>
+								<Info size={14} color={colors.amber} />
+								<T v="small" style={{ color: colors.ink, fontSize: 11.5, flex: 1, fontFamily: fonts.medium }}>
+									{t('latinNotice')}
+								</T>
+							</View>
+							<Field
+								label={t('lastName')}
+								icon={User}
+								value={form.lastName}
+								onChangeText={(v) => set('lastName', toLatinName(v))}
+								placeholder={t('lastNamePlaceholder')}
+								error={errors.lastName}
+								autoCapitalize="words"
+								autoCorrect={false}
+							/>
+							<Field
+								label={t('firstName')}
+								icon={User}
+								value={form.firstName}
+								onChangeText={(v) => set('firstName', toLatinName(v))}
+								placeholder={t('firstNamePlaceholder')}
+								error={errors.firstName}
+								autoCapitalize="words"
+								autoCorrect={false}
+							/>
+							<Field
+								label={t('middleName')}
+								icon={User}
+								value={form.middleName}
+								onChangeText={(v) => set('middleName', toLatinName(v))}
+								placeholder={t('middleNamePlaceholder')}
+								error={errors.middleName}
+								autoCapitalize="words"
+								autoCorrect={false}
+							/>
+							<Field
+								label={t('birthDate')}
+								icon={Calendar}
+								value={form.birthDate}
+								onChangeText={(v) => set('birthDate', dateMask(v))}
+								placeholder={t('birthDatePlaceholder')}
+								keyboardType="number-pad"
+								error={errors.birthDate}
+							/>
 						</View>
-					</>
-				) : (
-					<>
-						<Field label={t('phone')} icon={Phone} value={form.phone} onChangeText={(v) => set('phone', phoneMask(v))} keyboardType="phone-pad" error={errors.phone} />
-						<Field label={t('password')} icon={Lock} value={form.password} onChangeText={(v) => set('password', v)} secure error={errors.password} autoCapitalize="none" textContentType="newPassword" />
-						<Field label={t('confirmPassword')} icon={Lock} value={form.confirmPassword} onChangeText={(v) => set('confirmPassword', v)} secure error={errors.confirmPassword} autoCapitalize="none" textContentType="newPassword" />
-					</>
-				)}
+					) : step === 1 ? (
+						<View style={{ gap: 13 }}>
+							<SelectField
+								label={t('region')}
+								icon={MapPin}
+								value={form.regionId}
+								onChange={(v) => set('regionId', v)}
+								placeholder={t('selectRegion')}
+								error={errors.regionId}
+								options={availableRegions.map((r) => ({ value: r.id, label: pick(r, 'name') }))}
+							/>
+							<Field
+								label={t('school')}
+								icon={School}
+								value={form.school}
+								onChangeText={(v) => set('school', v)}
+								placeholder={t('schoolPlaceholder')}
+								error={errors.school}
+							/>
+							<SelectField
+								label={t('grade')}
+								icon={GraduationCap}
+								value={form.grade}
+								onChange={(v) => set('grade', v)}
+								placeholder={t('selectGrade')}
+								error={errors.grade}
+								options={availableGrades.map((g) => ({ value: g, label: g === 'KG' ? t('kindergarten') : `${g}${t('gradeSuffix')}` }))}
+							/>
+							<View>
+								<T v="label" style={{ marginBottom: 7, marginLeft: 2, color: colors.ink2 }}>{t('teacherSearchLabel')} · {t('optional')}</T>
+								{form.teacherId ? (
+									<View style={styles.teacher}>
+										<CheckCircle2 size={18} color={colors.green} />
+										<View style={{ flex: 1 }}>
+											<T v="small">{t('teacherSelected')}</T>
+											<T v="strong">{form.teacher_name}</T>
+										</View>
+										<Tap onPress={() => setForm((p) => ({ ...p, teacherId: null, teacher_name: '', teacher_phone: '+998' }))} style={styles.credBtn}><X size={16} color={colors.ink2} /></Tap>
+									</View>
+								) : (
+									<TeacherSearch actionLabel={t('confirm')} onSelect={(tch) => setForm((p) => ({ ...p, teacherId: tch.id, teacher_name: tch.full_name, teacher_phone: tch.phone || p.teacher_phone }))} />
+								)}
+							</View>
+						</View>
+					) : (
+						<View style={{ gap: 13 }}>
+							<Field
+								label={t('phone')}
+								icon={Phone}
+								value={form.phone}
+								onChangeText={(v) => set('phone', phoneMask(v))}
+								placeholder={t('phonePlaceholder')}
+								keyboardType="phone-pad"
+								error={errors.phone}
+							/>
+							<Field
+								label={t('password')}
+								icon={Lock}
+								value={form.password}
+								onChangeText={(v) => set('password', v)}
+								placeholder={t('passwordPlaceholder')}
+								secure
+								error={errors.password}
+								autoCapitalize="none"
+								textContentType="newPassword"
+							/>
+							<Field
+								label={t('confirmPassword')}
+								icon={Lock}
+								value={form.confirmPassword}
+								onChangeText={(v) => set('confirmPassword', v)}
+								placeholder={t('confirmPasswordPlaceholder')}
+								secure
+								error={errors.confirmPassword}
+								autoCapitalize="none"
+								textContentType="newPassword"
+							/>
+						</View>
+					)}
+				</Card>
 			</Animated.View>
 
-			<View style={{ flexDirection: 'row', gap: 10, marginTop: 24 }}>
+			<View style={{ flexDirection: 'row', gap: 10, marginTop: 20 }}>
 				{step > 0 ? <Button title={t('prev')} icon={ArrowLeft} variant="light" size="md" style={{ flex: 1 }} onPress={() => setStep((s) => s - 1)} /> : null}
 				{step < 2 ? (
 					<Button title={t('next')} iconRight={ArrowRight} size="md" style={{ flex: 1.4 }} onPress={() => validateStep(step) && setStep((s) => s + 1)} />
@@ -245,8 +351,58 @@ export default function RegisterScreen() {
 }
 
 const styles = StyleSheet.create({
-	stepper: { flexDirection: 'row', gap: 8, marginTop: 4 },
-	stepBar: { height: 5, borderRadius: 3, backgroundColor: colors.bgDeep },
+	stepperCard: {
+		backgroundColor: colors.white,
+		borderRadius: 16,
+		padding: 14,
+		borderWidth: 1.2,
+		borderColor: '#E2E8F0',
+		gap: 10,
+	},
+	stepperBars: {
+		flexDirection: 'row',
+		gap: 6,
+	},
+	stepBar: {
+		flex: 1,
+		height: 4,
+		borderRadius: 2,
+	},
+	stepBarActive: {
+		backgroundColor: colors.gold,
+	},
+	stepBarInactive: {
+		backgroundColor: '#E2E8F0',
+	},
+	stepInfoRow: {
+		flexDirection: 'row',
+		alignItems: 'center',
+		gap: 8,
+	},
+	stepBadge: {
+		paddingHorizontal: 8,
+		paddingVertical: 2.5,
+		borderRadius: 6,
+		backgroundColor: colors.goldTint,
+	},
+	formCard: {
+		padding: 18,
+		borderRadius: 20,
+		backgroundColor: colors.white,
+		borderWidth: 1.2,
+		borderColor: '#E2E8F0',
+	},
+	latinNotice: {
+		flexDirection: 'row',
+		alignItems: 'center',
+		gap: 8,
+		paddingHorizontal: 12,
+		paddingVertical: 9,
+		backgroundColor: colors.goldTint,
+		borderRadius: 10,
+		borderWidth: 1,
+		borderColor: colors.goldSoft,
+	},
 	doneIcon: { width: 92, height: 92, borderRadius: 32, backgroundColor: colors.green, alignItems: 'center', justifyContent: 'center', marginTop: 8 },
 	cred: { flexDirection: 'row', alignItems: 'center', gap: 8, padding: 14, borderRadius: radius.lg, backgroundColor: colors.cardMuted, borderWidth: 1, borderColor: colors.line },
 	credBtn: { width: 38, height: 38, borderRadius: 19, backgroundColor: colors.white, alignItems: 'center', justifyContent: 'center', borderWidth: 1, borderColor: colors.line },

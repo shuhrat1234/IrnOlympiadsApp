@@ -131,13 +131,13 @@ export const SectionTitle = ({ title, action, onAction, style }) => (
 );
 
 // ——— Inputs ———
-export const Field = ({ label, icon: Icon, error, secure, right, style, inputStyle, hint, ...props }) => {
+export const Field = ({ label, icon: Icon, error, secure, right, style, inputStyle, hint, placeholderTextColor = '#94A3B8', ...props }) => {
 	const [focused, setFocused] = useState(false);
 	const [hidden, setHidden] = useState(true);
 	const inputRef = useRef(null);
 	return (
 		<View style={style}>
-			{label ? <T v="label" style={{ marginBottom: 8, marginLeft: 4 }}>{label}</T> : null}
+			{label ? <T v="label" style={{ marginBottom: 7, marginLeft: 2, color: colors.ink2 }}>{label}</T> : null}
 			<View
 				style={[styles.field, focused && styles.fieldFocused, error && styles.fieldError]}
 				onTouchEnd={() => inputRef.current?.focus()}
@@ -145,7 +145,7 @@ export const Field = ({ label, icon: Icon, error, secure, right, style, inputSty
 				{Icon ? <Icon size={18} color={focused ? colors.amber : colors.faint} strokeWidth={2.2} /> : null}
 				<TextInput
 					ref={inputRef}
-					placeholderTextColor={colors.faint}
+					placeholderTextColor={placeholderTextColor}
 					style={[styles.input, inputStyle]}
 					secureTextEntry={secure && hidden}
 					showSoftInputOnFocus
@@ -366,10 +366,10 @@ const styles = StyleSheet.create({
 	dot: { width: 6, height: 6, borderRadius: 3 },
 	badgeDot: { position: 'absolute', top: -2, right: -2, minWidth: 18, height: 18, paddingHorizontal: 4, borderRadius: 9, backgroundColor: colors.red, alignItems: 'center', justifyContent: 'center', borderWidth: 2, borderColor: colors.white },
 	badgeDotText: { color: colors.white, fontFamily: fonts.extrabold, fontSize: 9 },
-	field: { flexDirection: 'row', alignItems: 'center', gap: 10, backgroundColor: colors.white, borderRadius: 18, borderWidth: 1.5, borderColor: colors.line, paddingHorizontal: 16, minHeight: 56 },
-	fieldFocused: { borderColor: colors.goldDeep, backgroundColor: '#FFFEF9', ...shadow(1) },
+	field: { flexDirection: 'row', alignItems: 'center', gap: 11, backgroundColor: colors.white, borderRadius: 14, borderWidth: 1.2, borderColor: '#E2E8F0', paddingHorizontal: 15, minHeight: 52 },
+	fieldFocused: { borderColor: colors.amber, backgroundColor: '#FFFFFF', ...shadow(1) },
 	fieldError: { borderColor: colors.red, backgroundColor: '#FFF8F8' },
-	input: { flex: 1, fontFamily: fonts.semibold, fontSize: 15.5, color: colors.ink, paddingVertical: 14 },
+	input: { flex: 1, fontFamily: fonts.semibold, fontSize: 15, color: colors.ink, paddingVertical: 12 },
 	segment: { flexDirection: 'row', backgroundColor: colors.bgDeep, borderRadius: radius.pill, padding: 4, borderWidth: 1, borderColor: 'rgba(230,224,211,0.75)' },
 	segmentItem: { flex: 1, flexDirection: 'row', gap: 6, alignItems: 'center', justifyContent: 'center', paddingVertical: 10, paddingHorizontal: 8, borderRadius: radius.pill },
 	segmentActive: { backgroundColor: colors.white, ...shadow(1) },
