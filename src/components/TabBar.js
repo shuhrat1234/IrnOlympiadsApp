@@ -1,6 +1,7 @@
 import React from 'react';
 import { Platform, Pressable, StyleSheet, Text, View } from 'react-native';
 import { BlurView } from 'expo-blur';
+import { router } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import * as Haptics from 'expo-haptics';
 import Animated, { useAnimatedStyle, withSpring } from 'react-native-reanimated';
@@ -32,8 +33,9 @@ const TabItem = ({ route, focused, onPress, label, badge, icon: Icon = Home }) =
 };
 
 // items: { [routeName]: { icon, label, badge } } — routes missing from items are hidden.
-export const TabBar = ({ state, navigation, items }) => {
+export const TabBar = ({ state, navigation, items = {} }) => {
 	const insets = useSafeAreaInsets();
+	if (!state?.routes) return null;
 
 	return (
 		<View style={[styles.wrap, { bottom: Math.max(insets.bottom, 12) }]} pointerEvents="box-none">
@@ -53,9 +55,16 @@ export const TabBar = ({ state, navigation, items }) => {
 							label={item.label}
 							badge={item.badge}
 							onPress={() => {
-								const event = navigation.emit({ type: 'tabPress', target: route.key, canPreventDefault: true });
-								if (!focused && !event.defaultPrevented) {
-									navigation.navigate(route.name);
+								try {
+									Haptics.selectionAsync?.().catch(() => {});
+								} catch (_) {}
+								const event = navigation?.emit ? navigation.emit({ type: 'tabPress', target: route.key, canPreventDefault: true }) : null;
+								if (!focused && !event?.defaultPrevented) {
+									if (navigation?.navigate) {
+										navigation.navigate(route.name);
+									} else {
+										router.push(`/(tabs)/${route.name === 'index' ? '' : route.name}`);
+									}
 								}
 							}}
 						/>
