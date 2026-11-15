@@ -181,7 +181,7 @@ export default function RegisterScreen() {
 				<Image
 					source={getOlympiadBannerSource(oly.banner_image, oly.id)}
 					style={styles.olyBannerImg}
-					contentFit="cover"
+					contentFit="contain"
 					cachePolicy="memory-disk"
 					transition={200}
 				/>
@@ -254,6 +254,6 @@ const styles = StyleSheet.create({
 	cred: { flexDirection: 'row', alignItems: 'center', gap: 8, padding: 14, borderRadius: radius.lg, backgroundColor: colors.cardMuted, borderWidth: 1, borderColor: colors.line },
 	credBtn: { width: 38, height: 38, borderRadius: 19, backgroundColor: colors.white, alignItems: 'center', justifyContent: 'center', borderWidth: 1, borderColor: colors.line },
 	teacher: { flexDirection: 'row', alignItems: 'center', gap: 10, padding: 14, borderRadius: radius.lg, backgroundColor: colors.greenSoft },
-	olyBannerWrap: { width: '100%', height: 130, borderRadius: 16, overflow: 'hidden', backgroundColor: colors.navyDeep, marginBottom: 16 },
+	olyBannerWrap: { width: '100%', aspectRatio: 16 / 9, borderRadius: 12, overflow: 'hidden', backgroundColor: colors.navyDeep, marginBottom: 16, alignItems: 'center', justifyContent: 'center' },
 	olyBannerImg: { width: '100%', height: '100%' },
 });

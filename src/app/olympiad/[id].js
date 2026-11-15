@@ -105,7 +105,7 @@ export default function OlympiadDetailScreen() {
 						<Image
 							source={getOlympiadBannerSource(oly.banner_image, oly.id)}
 							style={styles.banner}
-							contentFit="cover"
+							contentFit="contain"
 							cachePolicy="memory-disk"
 							transition={200}
 						/>
@@ -263,7 +263,7 @@ export default function OlympiadDetailScreen() {
 
 const styles = StyleSheet.create({
 	hero: { borderRadius: 30, padding: 22, overflow: 'hidden', ...shadow(2) },
-	bannerWrap: { width: '100%', height: 160, borderRadius: 20, backgroundColor: '#0B1527', overflow: 'hidden', marginBottom: 18, alignItems: 'center', justifyContent: 'center' },
+	bannerWrap: { width: '100%', aspectRatio: 16 / 9, borderRadius: 12, backgroundColor: '#07101E', overflow: 'hidden', marginBottom: 18, alignItems: 'center', justifyContent: 'center' },
 	banner: { width: '100%', height: '100%' },
 	heroGlow: { position: 'absolute', right: -60, bottom: -80, width: 220, height: 220, borderRadius: 110, backgroundColor: 'rgba(255,255,255,0.07)' },
 	heroIcon: { width: 48, height: 48, borderRadius: 17, alignItems: 'center', justifyContent: 'center' },

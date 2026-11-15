@@ -60,7 +60,7 @@ export default function OlympiadCard({ oly, userGrade, registered, pendingPaymen
 				<Image
 					source={getOlympiadBannerSource(oly.banner_image, oly.id)}
 					style={styles.banner}
-					contentFit="cover"
+					contentFit="contain"
 					cachePolicy="memory-disk"
 					transition={200}
 				/>
@@ -141,7 +141,7 @@ export default function OlympiadCard({ oly, userGrade, registered, pendingPaymen
 }
 
 const styles = StyleSheet.create({
-	bannerWrap: { width: '100%', height: 140, backgroundColor: '#0B1527', overflow: 'hidden', alignItems: 'center', justifyContent: 'center' },
+	bannerWrap: { width: '100%', aspectRatio: 16 / 9, backgroundColor: '#0B1527', overflow: 'hidden', alignItems: 'center', justifyContent: 'center' },
 	banner: { width: '100%', height: '100%' },
 	typeIcon: { width: 44, height: 44, borderRadius: 15, alignItems: 'center', justifyContent: 'center' },
 	price: { backgroundColor: colors.navyDeep, paddingHorizontal: 12, paddingVertical: 6, borderRadius: radius.pill },
