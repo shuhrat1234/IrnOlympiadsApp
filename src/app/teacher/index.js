@@ -39,17 +39,25 @@ const L = {
 	error: { uz: 'Xatolik yuz berdi', ru: 'Произошла ошибка', en: 'Something went wrong' },
 	required: { uz: 'Majburiy maydon', ru: 'Обязательное поле', en: 'Required field' },
 	firstName: { uz: 'Ism', ru: 'Имя', en: 'First name' },
+	firstNamePlaceholder: { uz: 'Ism', ru: 'Имя', en: 'First name' },
 	lastName: { uz: 'Familiya', ru: 'Фамилия', en: 'Last name' },
+	lastNamePlaceholder: { uz: 'Familiya', ru: 'Фамилия', en: 'Last name' },
 	middleName: { uz: 'Otasining ismi', ru: 'Отчество', en: 'Middle name' },
+	middleNamePlaceholder: { uz: 'Otasining ismi', ru: 'Отчество', en: 'Middle name' },
 	birthDate: { uz: "Tug'ilgan sana", ru: 'Дата рождения', en: 'Birth date' },
+	birthDatePlaceholder: { uz: 'Sanani tanlang', ru: 'Выберите дату', en: 'Select date' },
 	region: { uz: 'Viloyat', ru: 'Регион', en: 'Region' },
 	selectRegion: { uz: 'Viloyatni tanlang', ru: 'Выберите регион', en: 'Select region' },
 	school: { uz: 'Maktab', ru: 'Школа', en: 'School' },
+	schoolPlaceholder: { uz: 'Maktab nomi yoki raqami', ru: 'Номер или название школы', en: 'School name' },
 	grade: { uz: 'Sinf', ru: 'Класс', en: 'Grade' },
 	selectGrade: { uz: 'Sinfni tanlang', ru: 'Выберите класс', en: 'Select grade' },
 	phone: { uz: 'Telefon', ru: 'Телефон', en: 'Phone' },
+	phonePlaceholder: { uz: '+998 90 123 45 67', ru: '+998 90 123 45 67', en: '+998 90 123 45 67' },
 	password: { uz: 'Parol', ru: 'Пароль', en: 'Password' },
+	passwordPlaceholder: { uz: 'Kamida 6 belgi', ru: 'Мин. 6 символов', en: 'Min. 6 chars' },
 	confirmPassword: { uz: 'Parolni tasdiqlang', ru: 'Подтвердите пароль', en: 'Confirm password' },
+	confirmPasswordPlaceholder: { uz: 'Parolni tasdiqlang', ru: 'Повторите пароль', en: 'Confirm password' },
 	passMismatch: { uz: 'Parollar mos kelmadi', ru: 'Пароли не совпадают', en: 'Passwords mismatch' },
 	passTooShort: { uz: 'Kamida 6 belgi', ru: 'Мин. 6 символов', en: 'Min 6 chars' },
 	submit: { uz: "Qo'shish", ru: 'Добавить', en: 'Add' },
@@ -244,9 +252,9 @@ export default function TeacherStudents() {
 	return (
 		<Screen tabBar onRefresh={() => Promise.all([fetchStudents(), fetchRequests()])} keyboard>
 			<LargeTitle title={tx(L.title)} subtitle={tx(L.subtitle)} />
-			<View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 10, marginBottom: 16 }}>
-				<Button style={{ flex: 1 }} size="md" icon={UserPlus} title={tx(L.addStudent)} onPress={() => { setCreds(null); setAddErrors({}); setAddOpen(true); }} />
-				<Button style={{ flex: 1 }} size="md" variant="dark" icon={Search} title={tx(L.invite)} onPress={() => { setQuery(''); setResults([]); setInviteOpen(true); }} />
+			<View style={{ gap: 10, marginBottom: 16 }}>
+				<Button size="md" icon={UserPlus} title={tx(L.addStudent)} onPress={() => { setCreds(null); setAddErrors({}); setAddOpen(true); }} />
+				<Button size="md" variant="dark" icon={Search} title={tx(L.invite)} onPress={() => { setQuery(''); setResults([]); setInviteOpen(true); }} />
 			</View>
 
 			{requests.length ? (
@@ -344,16 +352,16 @@ export default function TeacherStudents() {
 					</View>
 				) : (
 					<View style={{ gap: 12, paddingBottom: 10 }}>
-						<Field label={`${tx(L.firstName)} *`} value={add.first_name} error={addErrors.first_name} onChangeText={(v) => setA({ first_name: cyrillicToLatin(v) })} />
-						<Field label={`${tx(L.lastName)} *`} value={add.last_name} error={addErrors.last_name} onChangeText={(v) => setA({ last_name: cyrillicToLatin(v) })} />
-						<Field label={`${tx(L.middleName)} *`} value={add.middle_name} error={addErrors.middle_name} onChangeText={(v) => setA({ middle_name: cyrillicToLatin(v) })} />
-						<DateTimeField mode="date" label={`${tx(L.birthDate)} *`} value={add.birth_date} error={addErrors.birth_date} onChange={(v) => setA({ birth_date: toDay(v) })} />
+						<Field label={`${tx(L.firstName)} *`} placeholder={tx(L.firstNamePlaceholder)} value={add.first_name} error={addErrors.first_name} onChangeText={(v) => setA({ first_name: cyrillicToLatin(v) })} />
+						<Field label={`${tx(L.lastName)} *`} placeholder={tx(L.lastNamePlaceholder)} value={add.last_name} error={addErrors.last_name} onChangeText={(v) => setA({ last_name: cyrillicToLatin(v) })} />
+						<Field label={`${tx(L.middleName)} *`} placeholder={tx(L.middleNamePlaceholder)} value={add.middle_name} error={addErrors.middle_name} onChangeText={(v) => setA({ middle_name: cyrillicToLatin(v) })} />
+						<DateTimeField mode="date" label={`${tx(L.birthDate)} *`} placeholder={tx(L.birthDatePlaceholder)} value={add.birth_date} error={addErrors.birth_date} onChange={(v) => setA({ birth_date: toDay(v) })} />
 						<SelectField label={`${tx(L.region)} *`} title={tx(L.region)} value={add.region} placeholder={tx(L.selectRegion)} error={addErrors.region} options={regions.map((r) => ({ value: String(r.id), label: pick(r, 'name') }))} onChange={(v) => setA({ region: v })} />
-						<Field label={`${tx(L.school)} *`} value={add.school} error={addErrors.school} onChangeText={(v) => setA({ school: v })} />
+						<Field label={`${tx(L.school)} *`} placeholder={tx(L.schoolPlaceholder)} value={add.school} error={addErrors.school} onChangeText={(v) => setA({ school: v })} />
 						<SelectField label={`${tx(L.grade)} *`} title={tx(L.grade)} value={add.grade} placeholder={tx(L.selectGrade)} error={addErrors.grade} options={GRADES.map((g) => ({ value: g, label: g }))} onChange={(v) => setA({ grade: v })} />
-						<Field label={`${tx(L.phone)} *`} icon={Phone} value={add.phone} error={addErrors.phone} keyboardType="phone-pad" onChangeText={(v) => setA({ phone: phoneMask(v) })} />
-						<Field label={`${tx(L.password)} *`} icon={Lock} secure autoCapitalize="none" value={add.password} error={addErrors.password} onChangeText={(v) => setA({ password: v })} />
-						<Field label={`${tx(L.confirmPassword)} *`} icon={Lock} secure autoCapitalize="none" value={add.confirmPassword} error={addErrors.confirmPassword} onChangeText={(v) => setA({ confirmPassword: v })} />
+						<Field label={`${tx(L.phone)} *`} icon={Phone} placeholder={tx(L.phonePlaceholder)} value={add.phone} error={addErrors.phone} keyboardType="phone-pad" onChangeText={(v) => setA({ phone: phoneMask(v) })} />
+						<Field label={`${tx(L.password)} *`} icon={Lock} placeholder={tx(L.passwordPlaceholder)} secure autoCapitalize="none" value={add.password} error={addErrors.password} onChangeText={(v) => setA({ password: v })} />
+						<Field label={`${tx(L.confirmPassword)} *`} icon={Lock} placeholder={tx(L.confirmPasswordPlaceholder)} secure autoCapitalize="none" value={add.confirmPassword} error={addErrors.confirmPassword} onChangeText={(v) => setA({ confirmPassword: v })} />
 						<Button icon={UserPlus} title={tx(L.submit)} loading={adding} onPress={addStudent} />
 					</View>
 				)}

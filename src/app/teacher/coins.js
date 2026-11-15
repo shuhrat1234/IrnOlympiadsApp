@@ -314,14 +314,14 @@ export default function TeacherCoins() {
 				{deducted.length ? <Tap onPress={exportCsv} hitSlop={8} style={styles.exportBtn} accessibilityLabel={tx(L.export)}><Share2 size={16} color={colors.ink2} /></Tap> : null}
 			</View>
 			<View style={{ gap: 8, marginBottom: 12 }}>
-				<View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
-					<T v="label" style={{ fontSize: 11, color: colors.muted, width: 44 }}>{tx(L.subject)}:</T>
+				<View style={{ flexDirection: 'row', alignItems: 'flex-start', gap: 8 }}>
+					<T v="label" numberOfLines={1} style={{ fontSize: 11, color: colors.muted, minWidth: 72, paddingTop: 8 }}>{tx(L.subject)}:</T>
 					<View style={{ flex: 1 }}>
 						<ChoicePills value={dedSubject} onChange={setDedSubject} options={[{ value: 'all', label: tx(L.fAll) }, { value: 'math', label: `📐 ${tx(L.mathShort)}` }, { value: 'english', label: `🇬🇧 ${tx(L.engShort)}` }]} />
 					</View>
 				</View>
-				<View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
-					<T v="label" style={{ fontSize: 11, color: colors.muted, width: 44 }}>{tx({ uz: 'Holat', ru: 'Статус', en: 'Status' })}:</T>
+				<View style={{ flexDirection: 'row', alignItems: 'flex-start', gap: 8 }}>
+					<T v="label" numberOfLines={1} style={{ fontSize: 11, color: colors.muted, minWidth: 72, paddingTop: 8 }}>{tx({ uz: 'Holat', ru: 'Статус', en: 'Status' })}:</T>
 					<View style={{ flex: 1 }}>
 						<ChoicePills value={dedStatus} onChange={setDedStatus} options={[{ value: 'all', label: tx(L.fAll) }, { value: 'pending', label: tx(L.fPending) }, { value: 'deducted', label: tx(L.fDeducted) }, { value: 'restored', label: tx(L.fRestored) }]} />
 					</View>

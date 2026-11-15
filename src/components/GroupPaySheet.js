@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { AppState, Image, Linking, StyleSheet, View } from 'react-native';
-import { Check, CheckCircle2, ExternalLink, RefreshCw, Wallet } from 'lucide-react-native';
+import { ActivityIndicator, AppState, Image, Linking, StyleSheet, View } from 'react-native';
+import { SvgXml } from 'react-native-svg';
+import { Check, CheckCircle2, ChevronRight, ExternalLink, RefreshCw, Send, Wallet } from 'lucide-react-native';
 import api, { errorMessage } from '../api/client';
 import E from '../api/endpoints';
 import { useLanguage } from '../context/LanguageContext';
@@ -9,6 +10,8 @@ import { useToast } from '../context/ToastContext';
 import { Button, EmptyState, Pill, Sheet, T, Tap } from './ui';
 import { colors, fonts, radius } from '../theme';
 import { formatMoney } from '../utils/format';
+import { ALIF_SVG, XAZNA_SVG } from '../utils/brandSvgs';
+import { LINKS } from '../utils/constants';
 
 const L = {
 	title: { uz: "O'quvchilar uchun to'lov", ru: 'Оплата за учеников', en: 'Pay for students' },
@@ -230,15 +233,73 @@ export default function GroupPaySheet({ visible, onClose, students, preselected,
 					</View>
 
 					<T v="label" style={{ marginTop: 2 }}>{tx(L.method)}</T>
-					<View style={{ flexDirection: 'row', gap: 10 }}>
-						{[['payme', require('../../assets/brand/payme.png'), 'Payme'], ['click', require('../../assets/brand/click.png'), 'CLICK']].map(([method, logo, name]) => (
-							<Tap key={method} onPress={() => create(method)} disabled={!!creating || !breakdown.length} containerStyle={{ flex: 1 }} style={[styles.method, (!!creating || !breakdown.length) && { opacity: 0.5 }]}>
-								<Image source={logo} style={{ width: 34, height: 34, borderRadius: 9 }} resizeMode="contain" />
-								<T v="strong" style={{ fontSize: 14 }}>{creating === method ? '…' : name}</T>
-							</Tap>
-						))}
+					<View style={{ gap: 8 }}>
+						{[
+							{
+								id: 'payme',
+								name: 'Payme',
+								subtitle: tx({ uz: "Ilova orqali to'lash", ru: 'Оплата через приложение', en: 'Pay via app' }),
+								logo: require('../../assets/brand/payme.png'),
+							},
+							{
+								id: 'click',
+								name: 'CLICK',
+								subtitle: tx({ uz: "Click orqali to'lash", ru: 'Оплата через Click', en: 'Pay via Click' }),
+								logo: require('../../assets/brand/click.png'),
+							},
+							{
+								id: 'alif',
+								name: 'Alif Pay',
+								subtitle: 'Uzcard, Humo, Alif Mobi',
+								svg: ALIF_SVG,
+							},
+							{
+								id: 'xazna',
+								name: 'Xazna',
+								subtitle: tx({ uz: 'Xalq Banki, Uzcard, Humo', ru: 'Халк Банк, Uzcard, Humo', en: 'Xalq Banki, Uzcard, Humo' }),
+								svg: XAZNA_SVG,
+							},
+							{
+								id: 'telegram',
+								name: 'Telegram',
+								subtitle: tx({ uz: "To'lov koordinatori orqali", ru: 'Через координатора оплаты', en: 'Via payment coordinator' }),
+								icon: Send,
+								tint: '#0088CC',
+								action: () => Linking.openURL(LINKS.coordinator).catch(() => {}),
+							},
+						].map((m) => {
+							const disabled = m.id !== 'telegram' && (!!creating || !breakdown.length);
+							const isLoading = creating === m.id;
+							return (
+								<Tap
+									key={m.id}
+									onPress={() => (m.action ? m.action() : create(m.id))}
+									disabled={disabled}
+									style={[styles.methodRow, disabled && { opacity: 0.5 }]}
+								>
+									<View style={[styles.methodIconBox, m.tint && { backgroundColor: m.tint }]}>
+										{m.svg ? (
+											<SvgXml xml={m.svg} width={58} height={24} />
+										) : m.logo ? (
+											<Image source={m.logo} style={{ width: 44, height: 26 }} resizeMode="contain" />
+										) : (
+											<Send size={18} color="#fff" />
+										)}
+									</View>
+									<View style={{ flex: 1 }}>
+										<T v="strong" style={{ fontSize: 14 }}>{m.name}</T>
+										<T v="small" style={{ fontSize: 11.5 }}>{m.subtitle}</T>
+									</View>
+									{isLoading ? (
+										<ActivityIndicator size="small" color={colors.goldDeep} />
+									) : (
+										<ChevronRight size={18} color={colors.faint} />
+									)}
+								</Tap>
+							);
+						})}
 					</View>
-					<T v="small" style={{ fontSize: 12, textAlign: 'center' }}>{tx(L.autoAccess)}</T>
+					<T v="small" style={{ fontSize: 12, textAlign: 'center', marginTop: 4 }}>{tx(L.autoAccess)}</T>
 				</View>
 			)}
 		</Sheet>
@@ -259,5 +320,6 @@ const styles = StyleSheet.create({
 	sumRow: { flexDirection: 'row', alignItems: 'center', gap: 10 },
 	sumTotal: { paddingTop: 10, borderTopWidth: 1, borderTopColor: colors.line },
 	totalValue: { fontFamily: fonts.extrabold, fontSize: 18, color: colors.ink },
-	method: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 10, height: 58, borderRadius: radius.lg, borderWidth: 1.5, borderColor: colors.line, backgroundColor: colors.white },
+	methodRow: { flexDirection: 'row', alignItems: 'center', gap: 12, padding: 12, borderRadius: radius.lg, borderWidth: 1.2, borderColor: colors.line, backgroundColor: colors.white },
+	methodIconBox: { width: 66, height: 42, borderRadius: radius.md, backgroundColor: colors.cardMuted, alignItems: 'center', justifyContent: 'center' },
 });
