@@ -212,10 +212,10 @@ export default function TeacherCoins() {
 
 	const bd = balances?.breakdown || {};
 	const counters = [
-		{ key: 'confirmed', icon: ShieldCheck, tone: [colors.green, colors.greenSoft], value: balances?.confirmed_coins || coins?.total_coins || 0, math: bd.math?.confirmed ?? balances?.math_confirmed_coins, eng: bd.english?.confirmed ?? balances?.english_confirmed_coins },
-		{ key: 'pending', icon: Clock, tone: [colors.amber, colors.goldTint], value: balances?.pending_coins ?? 0, math: bd.math?.pending, eng: bd.english?.pending },
-		{ key: 'deducted', icon: MinusCircle, tone: [colors.red, colors.redSoft], value: balances?.deducted_coins ?? 0, math: bd.math?.deducted, eng: bd.english?.deducted },
-		{ key: 'restored', icon: RotateCcw, tone: [colors.blue, colors.blueSoft], value: balances?.restored_coins ?? 0, math: bd.math?.restored, eng: bd.english?.restored },
+		{ key: 'confirmed', icon: ShieldCheck, tone: ['#047857', '#F0FDF4', '#BBF7D0'], value: balances?.confirmed_coins || coins?.total_coins || 0, math: bd.math?.confirmed ?? balances?.math_confirmed_coins, eng: bd.english?.confirmed ?? balances?.english_confirmed_coins },
+		{ key: 'pending', icon: Clock, tone: ['#B45309', '#FFFBEB', '#FDE68A'], value: balances?.pending_coins ?? 0, math: bd.math?.pending, eng: bd.english?.pending },
+		{ key: 'deducted', icon: MinusCircle, tone: ['#BE123C', '#FFF1F2', '#FECDD3'], value: balances?.deducted_coins ?? 0, math: bd.math?.deducted, eng: bd.english?.deducted },
+		{ key: 'restored', icon: RotateCcw, tone: ['#0369A1', '#F0F9FF', '#BAE6FD'], value: balances?.restored_coins ?? 0, math: bd.math?.restored, eng: bd.english?.restored },
 	];
 	const ss = balances?.students_stats || {};
 	const studentStats = [
@@ -268,11 +268,11 @@ export default function TeacherCoins() {
 			{/* Official announcement about the coin system update */}
 			<Card style={styles.news}>
 				<View style={{ flexDirection: 'row', gap: 10, alignItems: 'center' }}>
-					<IconBadge icon={Megaphone} size={38} color={colors.blue} bg={colors.white} />
-					<T v="strong" style={{ flex: 1, fontSize: 14 }}>{tx(L.newsTitle)}</T>
+					<IconBadge icon={Megaphone} size={36} color={colors.blue} bg={colors.white} />
+					<T v="strong" style={{ flex: 1, fontSize: 13.5, color: colors.navyDeep }}>{tx(L.newsTitle)}</T>
 				</View>
-				<T v="small" style={{ marginTop: 8, color: colors.ink2 }} numberOfLines={newsOpen ? undefined : 3}>{tx(L.newsText)}</T>
-				<Tap onPress={() => setNewsOpen((v) => !v)} hitSlop={8} style={{ marginTop: 6 }}><T v="strong" color={colors.blue} style={{ fontSize: 13 }}>{tx(newsOpen ? L.less : L.more)}</T></Tap>
+				<T v="small" style={{ marginTop: 8, color: '#1E3A8A', lineHeight: 18 }} numberOfLines={newsOpen ? undefined : 3}>{tx(L.newsText)}</T>
+				<Tap onPress={() => setNewsOpen((v) => !v)} hitSlop={8} style={{ marginTop: 6 }}><T v="strong" color={colors.blue} style={{ fontSize: 12.5 }}>{tx(newsOpen ? L.less : L.more)}</T></Tap>
 			</Card>
 
 			{/* Four transparent counters */}
@@ -284,23 +284,25 @@ export default function TeacherCoins() {
 			</View>
 			<View style={styles.grid}>
 				{counters.map((c) => (
-					<Card key={c.key} style={styles.counter}>
-						<View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
-							<IconBadge icon={c.icon} size={34} color={c.tone[0]} bg={c.tone[1]} />
-							<T v="label" style={{ flex: 1, fontSize: 10 }} numberOfLines={2}>{tx(L[c.key])}</T>
+					<View key={c.key} style={[styles.counter, { backgroundColor: c.tone[1], borderColor: c.tone[2] }]}>
+						<View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 6 }}>
+							<T v="label" style={{ flex: 1, fontSize: 10, color: c.tone[0], textTransform: 'uppercase', letterSpacing: 0.5 }} numberOfLines={1}>{tx(L[c.key])}</T>
+							<IconBadge icon={c.icon} size={28} color={c.tone[0]} bg="rgba(255,255,255,0.7)" />
 						</View>
-						{loading ? <Skeleton height={30} width={60} style={{ marginTop: 10 }} /> : <T style={[styles.counterValue, { color: c.tone[0] }]}>{c.value}</T>}
-						<T v="small" style={{ fontSize: 11.5 }} numberOfLines={1}>{tx(L[`${c.key}Sub`])}</T>
-						<T v="small" style={{ fontSize: 11.5, marginTop: 6, color: colors.ink2 }}>📐 {tx(L.mathShort)}: {c.math ?? 0}  ·  🇬🇧 {tx(L.engShort)}: {c.eng ?? 0}</T>
-					</Card>
+						{loading ? <Skeleton height={28} width={50} style={{ marginTop: 8 }} /> : <T style={[styles.counterValue, { color: c.tone[0] }]}>{c.value}</T>}
+						<T v="small" style={{ fontSize: 11, color: c.tone[0], opacity: 0.85 }} numberOfLines={1}>{tx(L[`${c.key}Sub`])}</T>
+						<View style={[styles.counterDivider, { borderTopColor: c.tone[2] }]}>
+							<T v="small" style={{ fontSize: 10.5, color: c.tone[0] }}>📐 {tx(L.mathShort)}: {c.math ?? 0}  ·  🇬🇧 {tx(L.engShort)}: {c.eng ?? 0}</T>
+						</View>
+					</View>
 				))}
 			</View>
 			<View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 6, marginTop: 10 }}>
 				{studentStats.map(([label, value, color, bg]) => <Pill key={label.en} label={`${tx(label)}: ${value}`} color={color} bg={bg} />)}
 			</View>
-			<View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginTop: 12 }}>
-				<View style={{ flexGrow: 1, flexBasis: 150 }}><Button size="sm" variant="light" icon={UserSearch} title={tx(L.findStudent)} onPress={() => setFind({ ...emptyTicket })} /></View>
-				<View style={{ flexGrow: 1, flexBasis: 150 }}><Button size="sm" variant="dark" icon={FileQuestion} title={tx(L.requestReview)} onPress={() => setDispute({ ...emptyTicket })} /></View>
+			<View style={{ gap: 8, marginTop: 14 }}>
+				<Button size="md" variant="light" icon={UserSearch} title={tx(L.findStudent)} onPress={() => setFind({ ...emptyTicket })} />
+				<Button size="md" variant="dark" icon={FileQuestion} title={tx(L.requestReview)} onPress={() => setDispute({ ...emptyTicket })} />
 			</View>
 
 			{/* Deducted & pending accruals */}
@@ -311,9 +313,19 @@ export default function TeacherCoins() {
 				</View>
 				{deducted.length ? <Tap onPress={exportCsv} hitSlop={8} style={styles.exportBtn} accessibilityLabel={tx(L.export)}><Share2 size={16} color={colors.ink2} /></Tap> : null}
 			</View>
-			<View style={{ gap: 8, marginBottom: 10 }}>
-				<ChoicePills value={dedSubject} onChange={setDedSubject} options={[{ value: 'all', label: tx(L.fAll) }, { value: 'math', label: `📐 ${tx(L.mathShort)}` }, { value: 'english', label: `🇬🇧 ${tx(L.engShort)}` }]} />
-				<ChoicePills value={dedStatus} onChange={setDedStatus} options={[{ value: 'all', label: tx(L.fAll) }, { value: 'pending', label: tx(L.fPending) }, { value: 'deducted', label: tx(L.fDeducted) }, { value: 'restored', label: tx(L.fRestored) }]} />
+			<View style={{ gap: 8, marginBottom: 12 }}>
+				<View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+					<T v="label" style={{ fontSize: 11, color: colors.muted, width: 44 }}>{tx(L.subject)}:</T>
+					<View style={{ flex: 1 }}>
+						<ChoicePills value={dedSubject} onChange={setDedSubject} options={[{ value: 'all', label: tx(L.fAll) }, { value: 'math', label: `📐 ${tx(L.mathShort)}` }, { value: 'english', label: `🇬🇧 ${tx(L.engShort)}` }]} />
+					</View>
+				</View>
+				<View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+					<T v="label" style={{ fontSize: 11, color: colors.muted, width: 44 }}>{tx({ uz: 'Holat', ru: 'Статус', en: 'Status' })}:</T>
+					<View style={{ flex: 1 }}>
+						<ChoicePills value={dedStatus} onChange={setDedStatus} options={[{ value: 'all', label: tx(L.fAll) }, { value: 'pending', label: tx(L.fPending) }, { value: 'deducted', label: tx(L.fDeducted) }, { value: 'restored', label: tx(L.fRestored) }]} />
+					</View>
+				</View>
 			</View>
 			{dedLoading ? <ActivityIndicator color={colors.goldDeep} style={{ marginVertical: 16 }} /> : !deducted.length ? (
 				<Card style={{ alignItems: 'center', gap: 4 }}>
@@ -481,8 +493,9 @@ export default function TeacherCoins() {
 const styles = StyleSheet.create({
 	news: { backgroundColor: colors.blueSoft, borderColor: '#CFE0FD', padding: 14 },
 	sectionHead: { flexDirection: 'row', alignItems: 'center', gap: 8, marginTop: 22, marginBottom: 10 },
-	counter: { width: '47%', flexGrow: 1, padding: 14 },
-	counterValue: { fontFamily: fonts.extrabold, fontSize: 30, lineHeight: 36, marginTop: 8 },
+	counter: { width: '48%', borderRadius: radius.xl, borderWidth: 1, padding: 13, marginBottom: 8 },
+	counterValue: { fontFamily: fonts.extrabold, fontSize: 26, lineHeight: 32, marginTop: 6 },
+	counterDivider: { borderTopWidth: 1, marginTop: 8, paddingTop: 6 },
 	exportBtn: { width: 38, height: 38, borderRadius: 19, backgroundColor: colors.white, borderWidth: 1, borderColor: colors.line, alignItems: 'center', justifyContent: 'center' },
 	label: { marginBottom: 8, marginLeft: 4 },
 	hero: { backgroundColor: colors.navyDeep, alignItems: 'center', padding: 22, borderRadius: 26, marginBottom: 12 },

@@ -32,17 +32,17 @@ const typo = StyleSheet.create({
 });
 
 // ——— Pressable with spring scale ———
-export const Tap = ({ onPress, style, containerStyle, children, haptic = true, disabled, scale = 0.97, ...rest }) => {
+export const Tap = ({ onPress, style, containerStyle, children, haptic = false, disabled, scale = 0.98, ...rest }) => {
 	const s = useSharedValue(1);
 	const anim = useAnimatedStyle(() => ({ transform: [{ scale: s.value }] }));
+	const flatStyle = StyleSheet.flatten(style) || {};
 	return (
 		<Pressable
-			style={containerStyle}
+			style={[flatStyle.flex !== undefined && { flex: flatStyle.flex }, containerStyle]}
 			disabled={disabled}
-			onPressIn={() => { s.value = withSpring(scale, { damping: 15, stiffness: 400 }); }}
-			onPressOut={() => { s.value = withSpring(1, { damping: 15, stiffness: 400 }); }}
+			onPressIn={() => { s.value = withSpring(scale, { damping: 25, stiffness: 350 }); }}
+			onPressOut={() => { s.value = withSpring(1, { damping: 25, stiffness: 350 }); }}
 			onPress={(e) => {
-				if (haptic) Haptics.selectionAsync().catch(() => {});
 				onPress?.(e);
 			}}
 			{...rest}
@@ -174,7 +174,6 @@ export const Segmented = ({ options, value, onChange, style, dark }) => (
 				<Pressable
 					key={String(opt.value)}
 					onPress={() => {
-						Haptics.selectionAsync().catch(() => {});
 						onChange(opt.value);
 					}}
 					style={[styles.segmentItem, active && (dark ? styles.segmentActiveDark : styles.segmentActive)]}
@@ -207,7 +206,7 @@ export const Sheet = ({ visible, onClose, children, title, dismissable = true, s
 						<Pressable style={[StyleSheet.absoluteFill, { backgroundColor: colors.overlay }]} onPress={() => dismissable && onClose?.()} />
 					</Animated.View>
 					<View style={{ flex: 1, justifyContent: 'flex-end' }} pointerEvents="box-none">
-						<Animated.View entering={SlideInDown.springify().damping(20).stiffness(180)} exiting={SlideOutDown.duration(180)} style={[styles.sheet, { paddingBottom: insets.bottom + 18, maxHeight }]}>
+						<Animated.View entering={SlideInDown.duration(240)} exiting={SlideOutDown.duration(180)} style={[styles.sheet, { paddingBottom: insets.bottom + 18, maxHeight }]}>
 							<View style={styles.grabber} />
 							{title || dismissable ? (
 								<View style={styles.sheetHeader}>
@@ -240,7 +239,7 @@ export const Dialog = ({ visible, onClose, icon: Icon, tone = 'gold', title, mes
 					<Animated.View entering={FadeIn.duration(160)} style={StyleSheet.absoluteFill}>
 						<Pressable style={[StyleSheet.absoluteFill, { backgroundColor: colors.overlay }]} onPress={() => dismissable && onClose?.()} />
 					</Animated.View>
-					<Animated.View entering={ZoomIn.springify().damping(16)} style={styles.dialog}>
+					<Animated.View entering={FadeIn.duration(200)} style={styles.dialog}>
 						{Icon ? (
 							<View style={[styles.dialogIcon, { backgroundColor: toneMap[0] }]}>
 								<Icon size={30} color={toneMap[1]} strokeWidth={2.2} />

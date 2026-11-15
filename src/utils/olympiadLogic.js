@@ -106,61 +106,9 @@ export const olympiadScore = (user, reg, oly) => {
 	return '';
 };
 
-export const canShowCertificate = (user, oly, reg, session = null) => {
-	if (!oly || !reg) return false;
-
-	// 1. NEVER show certificate if registration is expired, cancelled, or unpaid
-	if (reg.payment_status === 'expired') return false;
-	if (reg.payment_status !== 'paid' && reg.payment_status !== 'free' && Number(oly.price) > 0) {
-		return false;
-	}
-
-	// 2. Check if user is in official imported recipients/winners list
-	const match = recipientMatch(user, oly, reg);
-	if (match) return true;
-
-	const userGrade = String(user?.grade || '');
-
-	// 3. For online olympiads / sub-sessions: test MUST be completed
-	if (oly.olympiad_type === 'online') {
-		let result = null;
-		if (session) {
-			result = resultForSession(user, session.id);
-		} else if (oly.subs && oly.subs.length > 0) {
-			const s = oly.subs.find((sub) => sub.grade_sessions?.some((gs) => String(gs.grade).trim() === userGrade));
-			const gs = s?.grade_sessions?.find((gs) => String(gs.grade).trim() === userGrade);
-			if (gs) result = resultForSession(user, gs.id);
-		} else {
-			result = resultForOlympiad(user, oly.id);
-		}
-
-		// If the test was not taken/completed, no certificate can be given!
-		if (!result || !result.completed_at) {
-			return false;
-		}
-	} else {
-		// For offline olympiads: olympiad must be completed or results published with a score
-		const score = olympiadScore(user, reg, oly);
-		if (!oly.is_completed && !score) {
-			return false;
-		}
-	}
-
-	if (isMustaqillikOly(oly)) return true;
-
-	const cfg = oly.certificate_config;
-	const hasAwardTemplates = cfg?.award_templates && Object.values(cfg.award_templates).some(Boolean);
-	const recipients = cfg?.recipients;
-	if (Array.isArray(recipients) && recipients.length > 0) {
-		// If file with specific winners was imported, and user is not matched above,
-		// only show if general participation template is explicitly configured
-		if (cfg?.award_templates?.general || cfg?.award_configs?.general) {
-			return true;
-		}
-		return false;
-	}
-
-	return Boolean(oly.certificate_image || hasAwardTemplates || (cfg && Object.keys(cfg).length > 0));
+export const canShowCertificate = () => {
+	// Certificate fully turned off
+	return false;
 };
 
 // Registration state of the current user for a catalog olympiad (OlympiadDetail rules).

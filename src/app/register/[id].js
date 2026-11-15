@@ -1,5 +1,6 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { StyleSheet, View } from 'react-native';
+import { Image } from 'expo-image';
 import { router, useLocalSearchParams } from 'expo-router';
 import * as Clipboard from 'expo-clipboard';
 import Animated, { FadeInRight, ZoomIn } from 'react-native-reanimated';
@@ -15,7 +16,7 @@ import RegionGroupsSheet from '../../components/RegionGroupsSheet';
 import { PermissionSheet } from '../../components/DocumentSheets';
 import { colors, fonts, radius } from '../../theme';
 import { GRADES } from '../../utils/constants';
-import { cleanUzPhone, cyrillicToLatin } from '../../utils/format';
+import { cleanUzPhone, cyrillicToLatin, getOlympiadBannerSource } from '../../utils/format';
 
 const PHONE_RE = /^\+998\d{9}$/;
 const LATIN_CLEAN = /[^a-zA-Z'’ʻ\-\s]/g;
@@ -138,7 +139,7 @@ export default function RegisterScreen() {
 	if (result) {
 		return (
 			<Screen header={<StackHeader onBack={() => router.replace('/')} />}>
-				<Animated.View entering={ZoomIn.springify().damping(14)} style={{ alignItems: 'center' }}>
+				<Animated.View entering={FadeIn.duration(200)} style={{ alignItems: 'center' }}>
 					<View style={styles.doneIcon}><CheckCircle2 size={44} color="#fff" /></View>
 					<T v="display" style={{ marginTop: 16 }}>{t('regDone')}</T>
 					<T v="body" style={{ textAlign: 'center', marginTop: 6 }}>{t('regDoneMsg')}</T>
@@ -175,6 +176,17 @@ export default function RegisterScreen() {
 
 	return (
 		<Screen header={<StackHeader title={t('regTitle')} subtitle={pick(oly)} />} keyboard>
+			{/* Olympiad Banner */}
+			<View style={styles.olyBannerWrap}>
+				<Image
+					source={getOlympiadBannerSource(oly.banner_image, oly.id)}
+					style={styles.olyBannerImg}
+					contentFit="cover"
+					cachePolicy="memory-disk"
+					transition={200}
+				/>
+			</View>
+
 			{/* Stepper */}
 			<View style={styles.stepper}>
 				{steps.map((label, i) => (
@@ -185,7 +197,7 @@ export default function RegisterScreen() {
 				))}
 			</View>
 
-			<Animated.View key={step} entering={FadeInRight.springify().damping(20)} style={{ gap: 14, marginTop: 18 }}>
+			<Animated.View key={step} entering={FadeIn.duration(200)} style={{ gap: 14, marginTop: 18 }}>
 				{step === 0 ? (
 					<>
 						<Field label={t('lastName')} icon={User} value={form.lastName} onChangeText={(v) => set('lastName', toLatinName(v))} error={errors.lastName} hint={t('latinOnly')} autoCapitalize="words" autoCorrect={false} />
@@ -242,4 +254,6 @@ const styles = StyleSheet.create({
 	cred: { flexDirection: 'row', alignItems: 'center', gap: 8, padding: 14, borderRadius: radius.lg, backgroundColor: colors.cardMuted, borderWidth: 1, borderColor: colors.line },
 	credBtn: { width: 38, height: 38, borderRadius: 19, backgroundColor: colors.white, alignItems: 'center', justifyContent: 'center', borderWidth: 1, borderColor: colors.line },
 	teacher: { flexDirection: 'row', alignItems: 'center', gap: 10, padding: 14, borderRadius: radius.lg, backgroundColor: colors.greenSoft },
+	olyBannerWrap: { width: '100%', height: 130, borderRadius: 16, overflow: 'hidden', backgroundColor: colors.navyDeep, marginBottom: 16 },
+	olyBannerImg: { width: '100%', height: '100%' },
 });

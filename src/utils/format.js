@@ -1,3 +1,5 @@
+import { mediaUrl } from '../api/client';
+
 const UZ_MONTHS = ['yanvar', 'fevral', 'mart', 'aprel', 'may', 'iyun', 'iyul', 'avgust', 'sentyabr', 'oktyabr', 'noyabr', 'dekabr'];
 const UZ_MONTHS_SHORT = ['yan', 'fev', 'mar', 'apr', 'may', 'iyn', 'iyl', 'avg', 'sen', 'okt', 'noy', 'dek'];
 const RU_MONTHS = ['января', 'февраля', 'марта', 'апреля', 'мая', 'июня', 'июля', 'августа', 'сентября', 'октября', 'ноября', 'декабря'];
@@ -210,5 +212,20 @@ export function cyrillicToLatin(text) {
 	}
 
 	return result.join('');
+}
+
+const DEFAULT_BYD_BANNER = require('../../assets/illustrations/byd_chazor_banner.jpg');
+const DEFAULT_OLYMPIAD_BANNER = require('../../assets/illustrations/olympiad-hero-charcoal-orange.jpg');
+
+export function getOlympiadBannerSource(banner_image, id) {
+	if (banner_image) {
+		const uri = mediaUrl(banner_image);
+		if (uri) return { uri };
+	}
+	const idStr = String(id || '');
+	if (idStr === '43' || idStr === '44') {
+		return DEFAULT_BYD_BANNER;
+	}
+	return DEFAULT_OLYMPIAD_BANNER;
 }
 

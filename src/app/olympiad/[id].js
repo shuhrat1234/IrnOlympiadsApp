@@ -14,7 +14,7 @@ import { Button, Card, Dialog, EmptyState, Loader, Pill, ProgressBar, T } from '
 import RegionGroupsSheet from '../../components/RegionGroupsSheet';
 import { PermissionSheet } from '../../components/DocumentSheets';
 import { colors, fonts, radius, shadow } from '../../theme';
-import { formatDate, formatPrice, formatShortDate, sortedSessions } from '../../utils/format';
+import { formatDate, formatPrice, formatShortDate, getOlympiadBannerSource, sortedSessions } from '../../utils/format';
 import { registrationStateFor } from '../../utils/olympiadLogic';
 
 const InfoRow = ({ icon: Icon, label, value, last }) => (
@@ -101,17 +101,15 @@ export default function OlympiadDetailScreen() {
 			{/* Hero */}
 			<Animated.View entering={FadeInDown.duration(450)}>
 				<View style={[styles.hero, { backgroundColor: online ? colors.gold : colors.navyDeep }]}>
-					{oly.banner_image ? (
-						<View style={styles.bannerWrap}>
-							<Image
-								source={{ uri: mediaUrl(oly.banner_image) }}
-								style={styles.banner}
-								contentFit="contain"
-								cachePolicy="memory-disk"
-								transition={200}
-							/>
-						</View>
-					) : null}
+					<View style={styles.bannerWrap}>
+						<Image
+							source={getOlympiadBannerSource(oly.banner_image, oly.id)}
+							style={styles.banner}
+							contentFit="cover"
+							cachePolicy="memory-disk"
+							transition={200}
+						/>
+					</View>
 					<View style={styles.heroGlow} />
 					<View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
 						<View style={[styles.heroIcon, { backgroundColor: online ? 'rgba(255,255,255,0.55)' : 'rgba(255,255,255,0.1)' }]}>

@@ -224,7 +224,7 @@ export default function LoginScreen() {
 						</Pressable>
 
 						{/* Form card */}
-						<Animated.View entering={FadeInUp.delay(150).springify().damping(18)} style={[styles.card, { paddingBottom: Math.max(insets.bottom, 14) + 6 }]}>
+						<Animated.View entering={FadeInUp.delay(80).duration(260)} style={[styles.card, { paddingBottom: Math.max(insets.bottom, 16) + 12 }]}>
 							<View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 2 }}>
 								{twoFAToken || accounts ? (
 									<Tap onPress={() => { setTwoFAToken(null); setAccounts(null); setCode(''); setError(''); }} style={styles.backBtn}>
@@ -387,10 +387,10 @@ const styles = StyleSheet.create({
 	langBtn: { paddingHorizontal: 9, paddingVertical: 4, borderRadius: radius.pill },
 	langBtnActive: { backgroundColor: colors.gold },
 	browse: { flexDirection: 'row', alignItems: 'center', gap: 5, paddingHorizontal: 10, paddingVertical: 6, borderRadius: radius.pill, backgroundColor: 'rgba(255,255,255,0.08)', borderWidth: 1, borderColor: 'rgba(255,255,255,0.1)' },
-	logoWrap: { alignItems: 'center', marginTop: 2, marginBottom: 2 },
-	heroArtWrap: { width: 72, height: 58, alignItems: 'center', justifyContent: 'center' },
+	logoWrap: { alignItems: 'center', marginTop: 6, marginBottom: 6 },
+	heroArtWrap: { width: 110, height: 88, alignItems: 'center', justifyContent: 'center' },
 	heroArt: { width: '100%', height: '100%' },
-	card: { flex: 1, backgroundColor: colors.bg, borderTopLeftRadius: 28, borderTopRightRadius: 28, paddingHorizontal: 20, paddingTop: 14, ...shadow(3) },
+	card: { flex: 1, backgroundColor: colors.bg, borderTopLeftRadius: 28, borderTopRightRadius: 28, paddingHorizontal: 22, paddingTop: 18, justifyContent: 'center', ...shadow(3) },
 	backBtn: { width: 32, height: 32, borderRadius: 16, backgroundColor: colors.white, alignItems: 'center', justifyContent: 'center', ...shadow(1) },
 	errorBox: { flexDirection: 'row', alignItems: 'center', gap: 8, padding: 8, backgroundColor: colors.redSoft, borderRadius: radius.md, marginBottom: 8 },
 	shield: { width: 50, height: 50, borderRadius: 16, backgroundColor: colors.goldTint, alignItems: 'center', justifyContent: 'center', alignSelf: 'center' },

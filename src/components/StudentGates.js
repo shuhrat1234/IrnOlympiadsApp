@@ -85,7 +85,7 @@ export default function StudentGates() {
 		<Modal visible transparent animationType="fade" statusBarTranslucent>
 			<KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined} style={styles.wrap}>
 				<View style={[StyleSheet.absoluteFill, { backgroundColor: 'rgba(12,18,36,0.72)' }]} />
-				<Animated.View entering={ZoomIn.springify().damping(16)} style={styles.card}>
+				<Animated.View entering={FadeIn.duration(200)} style={styles.card}>
 					<ScrollView contentContainerStyle={{ padding: 26, alignItems: 'center' }} keyboardShouldPersistTaps="handled" showsVerticalScrollIndicator={false}>
 						{needsTelegram ? (
 							<>

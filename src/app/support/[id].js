@@ -131,7 +131,6 @@ export default function TicketChat() {
 			await addReply(ticket.id, message.trim(), image);
 			setMessage('');
 			setImage(null);
-			Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light).catch(() => {});
 		} catch {
 			toast.error(t('failedToSendMessage'));
 		}
@@ -178,7 +177,7 @@ export default function TicketChat() {
 								img={r.image}
 								time={formatTime(r.created_at)}
 								onImage={setLightbox}
-								onLongPress={own || isStaff ? () => { Haptics.selectionAsync().catch(() => {}); setMenu(r); } : undefined}
+								onLongPress={own || isStaff ? () => { setMenu(r); } : undefined}
 							/>
 						);
 					})}

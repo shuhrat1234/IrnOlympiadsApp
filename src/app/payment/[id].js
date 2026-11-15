@@ -185,7 +185,7 @@ export default function PaymentScreen() {
 		const groupLink = currentUser?.region ? REGION_GROUP_LINKS[currentUser.region] : null;
 		return (
 			<Screen header={<StackHeader />}>
-				<Animated.View entering={ZoomIn.springify().damping(14)} style={{ alignItems: 'center', marginTop: 10 }}>
+				<Animated.View entering={FadeIn.duration(200)} style={{ alignItems: 'center', marginTop: 10 }}>
 					<View style={styles.successIcon}>
 						<CheckCircle2 size={46} color="#fff" strokeWidth={2.2} />
 					</View>

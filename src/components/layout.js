@@ -29,10 +29,13 @@ export const Screen = ({ children, onRefresh, header, contentStyle, tabBar = fal
 	}, [onRefresh]);
 	return (
 		<Canvas>
+			{!header ? (
+				<View style={{ position: 'absolute', top: 0, left: 0, right: 0, height: insets.top, backgroundColor: colors.bg, zIndex: 10 }} pointerEvents="none" />
+			) : null}
 			{header}
 			<ScrollView
 				ref={scrollRef}
-				contentContainerStyle={[styles.screenContent, { paddingTop: header ? 4 : insets.top + 12, paddingBottom: tabBar ? 120 : insets.bottom + 32 }, contentStyle]}
+				contentContainerStyle={[styles.screenContent, { paddingTop: header ? 4 : insets.top + 14, paddingBottom: tabBar ? 144 : insets.bottom + 36 }, contentStyle]}
 				showsVerticalScrollIndicator={false}
 				keyboardShouldPersistTaps="handled"
 				keyboardDismissMode="interactive"

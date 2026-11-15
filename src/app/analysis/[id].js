@@ -169,7 +169,6 @@ export default function AnalysisScreen() {
 						) : null}
 						<View style={{ gap: 10, marginTop: 16 }}>
 							{completed ? <Button title={t('viewStats')} icon={ListChecks} variant="dark" size="md" onPress={() => setTab('questions')} /> : null}
-							<Button title={t('downloadCert')} icon={Award} size="md" onPress={openCert} />
 						</View>
 					</Card>
 					<Card style={{ alignItems: 'center' }}>
@@ -224,7 +223,6 @@ export default function AnalysisScreen() {
 					<View style={[styles.zoomClose, { top: insets.top + 12 }]}><X size={22} color="#fff" /></View>
 				</Pressable>
 			</Modal>
-			<CertificateSheet visible={!!cert} onClose={() => setCert(null)} data={cert} user={currentUser} />
 		</Screen>
 	);
 }

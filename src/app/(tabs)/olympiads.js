@@ -107,7 +107,6 @@ export default function OlympiadsTab() {
 				]}
 			/>
 			<PermissionSheet visible={!!permission} onClose={() => setPermission(null)} reg={permission?.reg} oly={permission?.oly} user={currentUser} />
-			<CertificateSheet visible={!!certificate} onClose={() => setCertificate(null)} data={certificate} user={currentUser} />
 		</Screen>
 	);
 }

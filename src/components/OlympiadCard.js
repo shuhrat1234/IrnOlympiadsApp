@@ -9,7 +9,7 @@ import { useOlympiad } from '../context/OlympiadContext';
 import { mediaUrl } from '../api/client';
 import { Card, Pill, ProgressBar, T } from './ui';
 import { colors, fonts, radius } from '../theme';
-import { formatDate, formatPrice, formatShortDate, formatTime, sortedSessions } from '../utils/format';
+import { formatDate, formatPrice, formatShortDate, formatTime, getOlympiadBannerSource, sortedSessions } from '../utils/format';
 
 // Catalog card — schedule summary per sub-olympiad, seats bar, grade chips.
 export default function OlympiadCard({ oly, userGrade, registered, pendingPayment, closed }) {
@@ -56,17 +56,15 @@ export default function OlympiadCard({ oly, userGrade, registered, pendingPaymen
 
 	return (
 		<Card onPress={open} style={{ marginBottom: 14, overflow: 'hidden' }} padded={false}>
-			{oly.banner_image ? (
-				<View style={styles.bannerWrap}>
-					<Image
-						source={{ uri: mediaUrl(oly.banner_image) }}
-						style={styles.banner}
-						contentFit="contain"
-						cachePolicy="memory-disk"
-						transition={200}
-					/>
-				</View>
-			) : null}
+			<View style={styles.bannerWrap}>
+				<Image
+					source={getOlympiadBannerSource(oly.banner_image, oly.id)}
+					style={styles.banner}
+					contentFit="cover"
+					cachePolicy="memory-disk"
+					transition={200}
+				/>
+			</View>
 			<View style={{ backgroundColor: online ? '#FFFBF0' : '#F6F8FC', padding: 18, paddingBottom: 14 }}>
 				<View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start', gap: 10 }}>
 					<View style={[styles.typeIcon, { backgroundColor: online ? colors.gold : colors.navy }]}>

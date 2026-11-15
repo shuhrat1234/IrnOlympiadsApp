@@ -29,8 +29,6 @@ export const ToastProvider = ({ children }) => {
 			seq.current += 1;
 			const id = seq.current;
 			setToasts((prev) => [...prev.slice(-2), { id, title, message, type }]);
-			if (type === 'error') Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error).catch(() => {});
-			else if (type === 'success') Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success).catch(() => {});
 			setTimeout(() => remove(id), duration);
 			return id;
 		},
@@ -56,7 +54,7 @@ export const ToastProvider = ({ children }) => {
 					const cfg = TYPES[toast.type] || TYPES.info;
 					const Icon = cfg.icon;
 					return (
-						<Animated.View key={toast.id} entering={FadeInUp.springify().damping(18)} exiting={FadeOutUp} layout={LinearTransition}>
+						<Animated.View key={toast.id} entering={FadeInUp.duration(200)} exiting={FadeOutUp} layout={LinearTransition}>
 							<Pressable onPress={() => remove(toast.id)} style={styles.toast}>
 								<View style={[styles.iconWrap, { backgroundColor: cfg.bg }]}>
 									<Icon size={18} color={cfg.color} strokeWidth={2.4} />

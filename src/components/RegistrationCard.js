@@ -96,12 +96,6 @@ export default function RegistrationCard({ reg, oly, onAction, onPermission, onC
 								<FileText size={17} color={colors.navy} />
 								<T v="strong" style={{ fontSize: 11 }} color={colors.navy}>{t('permission')}</T>
 							</Tap>
-							{showCert ? (
-								<Tap onPress={() => onCertificate(reg, oly)} style={[styles.docBtn, { backgroundColor: colors.goldTint }]}>
-									<Award size={17} color={colors.amber} />
-									<T v="strong" style={{ fontSize: 11 }} color={colors.amber}>{t('certificate')}</T>
-								</Tap>
-							) : null}
 						</View>
 					) : null}
 				</View>
@@ -113,8 +107,10 @@ export default function RegistrationCard({ reg, oly, onAction, onPermission, onC
 			) : (
 				<View style={{ gap: 10, marginTop: 14 }}>
 					{reg.seconds_left > 0 ? <PaymentCountdown seconds={reg.seconds_left} onExpire={fetchMe} /> : null}
-					<View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 10 }}>
-						<Button style={{ flex: 1 }} size="md" icon={CreditCard} title={t('pay')} onPress={() => onAction({ title: t('confirmPayTitle'), msg: t('confirmPayMsg'), route: `/payment/${oly.id}`, icon: CreditCard })} />
+					<View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
+						<View style={{ flex: 1 }}>
+							<Button style={{ width: '100%' }} size="md" icon={CreditCard} title={t('pay')} onPress={() => onAction({ title: t('confirmPayTitle'), msg: t('confirmPayMsg'), route: `/payment/${oly.id}`, icon: CreditCard })} />
+						</View>
 						<Tap onPress={() => onAction({ title: t('confirmCancelTitle'), msg: t('confirmCancelMsg'), cancelRegId: reg.id, tone: 'red' })} style={styles.cancelBtn}>
 							<X size={20} color={colors.red} />
 						</Tap>
@@ -143,12 +139,9 @@ export default function RegistrationCard({ reg, oly, onAction, onPermission, onC
 								</View>
 								{startable ? (
 									<Button size="md" icon={Play} title={t('startExam')} style={{ marginTop: 10 }} onPress={() => onAction({ title: t('confirmStartTitle'), msg: t('confirmStartMsg'), route: `/exam/${session.id}`, icon: Play, start: true })} />
-								) : (done && online) || subShowCert ? (
+								) : done && online ? (
 									<View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginTop: 10 }}>
-										{done && online ? (
-											<Button style={{ flex: 1 }} size="sm" variant="dark" icon={BarChart3} title={t('viewResult')} onPress={() => onAction({ title: t('viewResult'), msg: '', route: { pathname: `/analysis/${oly.id}`, params: { session: session.id } }, direct: true })} />
-										) : null}
-										{subShowCert ? <Button style={{ flex: 1 }} size="sm" variant="soft" icon={Award} title={t('certificate')} onPress={() => onCertificate(reg, oly, sub, result)} /> : null}
+										<Button style={{ flex: 1 }} size="sm" variant="dark" icon={BarChart3} title={t('viewResult')} onPress={() => onAction({ title: t('viewResult'), msg: '', route: { pathname: `/analysis/${oly.id}`, params: { session: session.id } }, direct: true })} />
 									</View>
 								) : null}
 							</View>

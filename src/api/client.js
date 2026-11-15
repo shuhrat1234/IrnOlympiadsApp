@@ -13,10 +13,14 @@ export const WS_URL = 'wss://x8k2m9f3.irnolympiad.uz';
 // Same rule as the website: always https, relative paths resolve against the API host.
 export const mediaUrl = (path) => {
 	if (!path) return null;
-	if (path.startsWith('data:') || path.startsWith('file:')) return path;
+	if (path.startsWith('data:') || path.startsWith('file:') || path.startsWith('blob:')) return path;
 	if (path.startsWith('http://')) return path.replace(/^http:\/\//i, 'https://');
 	if (path.startsWith('https://')) return path;
-	return `${MEDIA_BASE}/${path.startsWith('/') ? path.slice(1) : path}`;
+	const clean = path.startsWith('/') ? path.slice(1) : path;
+	if (clean.startsWith('assets/')) {
+		return `${SITE_URL}/${clean}`;
+	}
+	return `${MEDIA_BASE}/${clean}`;
 };
 
 const api = axios.create({

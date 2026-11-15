@@ -55,7 +55,6 @@ export const TabBar = ({ state, navigation, items }) => {
 							onPress={() => {
 								const event = navigation.emit({ type: 'tabPress', target: route.key, canPreventDefault: true });
 								if (!focused && !event.defaultPrevented) {
-									Haptics.selectionAsync().catch(() => {});
 									navigation.navigate(route.name);
 								}
 							}}

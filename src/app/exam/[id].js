@@ -112,7 +112,6 @@ export default function ExamScreen() {
 			}
 		}
 		setSubmitting(false);
-		Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success).catch(() => {});
 	}, [id, submitExamResult, answersKey, violationsKey]);
 
 	// Autosave
@@ -304,7 +303,6 @@ export default function ExamScreen() {
 								<Tap
 									key={opt.id}
 									onPress={() => {
-										Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light).catch(() => {});
 										setAnswers((prev) => ({ ...prev, [q.id]: opt.id }));
 									}}
 									haptic={false}
@@ -392,7 +390,7 @@ const StatusScreen = ({ icon: Icon, tone = 'gold', title, message, children }) =
 	return (
 		<Canvas>
 			<View style={[styles.center, { paddingTop: insets.top + 20, paddingBottom: insets.bottom + 20 }]}>
-				<Animated.View entering={ZoomIn.springify().damping(15)} style={styles.statusCard}>
+				<Animated.View entering={FadeIn.duration(200)} style={styles.statusCard}>
 					<View style={[styles.statusIcon, { backgroundColor: tone === 'green' ? colors.green : tone === 'red' ? colors.red : colors.gold }]}>
 						<Icon size={38} color={tone === 'gold' ? colors.navyDeep : '#fff'} strokeWidth={2.2} />
 					</View>
