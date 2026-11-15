@@ -25,7 +25,7 @@ const L = {
 	subjectRequired: { uz: 'Kamida bitta fanni tanlang', ru: 'Выберите хотя бы один предмет', en: 'Select at least one subject' },
 	math: { uz: 'Matematika', ru: 'Математика', en: 'Mathematics' },
 	english: { uz: 'Ingliz tili', ru: 'Английский', en: 'English' },
-	science: { uz: 'Science', ru: 'Science', en: 'Science' },
+	science: { uz: 'Tabiiy fanlar (Science)', ru: 'Science', en: 'Science' },
 	phone: { uz: 'Telefon raqam', ru: 'Номер телефона', en: 'Phone number' },
 	phonePlaceholder: { uz: '+998 90 123 45 67', ru: '+998 90 123 45 67', en: '+998 90 123 45 67' },
 	password: { uz: 'Parol', ru: 'Пароль', en: 'Password' },
@@ -154,7 +154,7 @@ export default function RegisterTeacherScreen() {
 				{/* Subjects selection */}
 				<View style={{ gap: 6 }}>
 					<T v="label" style={{ marginBottom: 2, marginLeft: 2, color: colors.ink2 }}>{tx(L.subjectTitle)} *</T>
-					<View style={{ flexDirection: 'row', gap: 8 }}>
+					<View style={{ gap: 8 }}>
 						{[
 							{ id: 'math', icon: '📐', label: tx(L.math) },
 							{ id: 'english', icon: '🇬🇧', label: tx(L.english) },
@@ -167,11 +167,19 @@ export default function RegisterTeacherScreen() {
 									onPress={() => toggleSubject(item.id)}
 									style={[styles.subjectBtn, isSel && styles.subjectBtnActive]}
 								>
-									<T style={{ fontSize: 15 }}>{item.icon}</T>
-									<T v="strong" numberOfLines={1} style={{ fontSize: 12, flexShrink: 1 }} color={isSel ? colors.navyDeep : colors.ink2}>
-										{item.label}
-									</T>
-									{isSel ? <Check size={14} color={colors.goldDeep} /> : null}
+									<View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
+										<T style={{ fontSize: 18 }}>{item.icon}</T>
+										<T v="strong" style={{ fontSize: 14 }} color={isSel ? colors.navyDeep : colors.ink}>
+											{item.label}
+										</T>
+									</View>
+									{isSel ? (
+										<View style={styles.checkCircle}>
+											<Check size={13} color={colors.navyDeep} strokeWidth={3} />
+										</View>
+									) : (
+										<View style={styles.uncheckCircle} />
+									)}
 								</Tap>
 							);
 						})}
@@ -242,20 +250,34 @@ const styles = StyleSheet.create({
 		marginBottom: 4,
 	},
 	subjectBtn: {
-		flex: 1,
+		width: '100%',
 		flexDirection: 'row',
 		alignItems: 'center',
-		justifyContent: 'center',
-		gap: 6,
-		paddingHorizontal: 6,
-		paddingVertical: 10,
-		borderRadius: radius.md,
+		justifyContent: 'space-between',
+		paddingHorizontal: 14,
+		paddingVertical: 12,
+		borderRadius: 14,
 		borderWidth: 1.2,
-		borderColor: colors.line,
+		borderColor: '#E2E8F0',
 		backgroundColor: colors.white,
 	},
 	subjectBtnActive: {
-		borderColor: colors.gold,
-		backgroundColor: colors.goldTint,
+		borderColor: colors.goldDeep,
+		backgroundColor: 'rgba(253, 200, 0, 0.08)',
+	},
+	checkCircle: {
+		width: 22,
+		height: 22,
+		borderRadius: 11,
+		backgroundColor: colors.goldDeep,
+		alignItems: 'center',
+		justifyContent: 'center',
+	},
+	uncheckCircle: {
+		width: 22,
+		height: 22,
+		borderRadius: 11,
+		borderWidth: 1.5,
+		borderColor: '#CBD5E1',
 	},
 });
