@@ -3,7 +3,7 @@ import { StyleSheet, View } from 'react-native';
 import { Image } from 'expo-image';
 import { router, useLocalSearchParams } from 'expo-router';
 import * as Clipboard from 'expo-clipboard';
-import Animated, { FadeInRight, ZoomIn } from 'react-native-reanimated';
+import Animated, { FadeIn, FadeInRight, ZoomIn } from 'react-native-reanimated';
 import { ArrowLeft, ArrowRight, Calendar, CheckCircle2, ChevronRight, Copy, Eye, EyeOff, FileText, GraduationCap, Lock, MapPin, Phone, School, User, X } from 'lucide-react-native';
 import { useAuth } from '../../context/AuthContext';
 import { useLanguage } from '../../context/LanguageContext';
