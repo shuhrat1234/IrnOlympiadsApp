@@ -140,7 +140,6 @@ export const Field = ({ label, icon: Icon, error, secure, right, style, inputSty
 			{label ? <T v="label" style={{ marginBottom: 7, marginLeft: 2, color: colors.ink2 }}>{label}</T> : null}
 			<View
 				style={[styles.field, focused && styles.fieldFocused, error && styles.fieldError]}
-				onTouchEnd={() => inputRef.current?.focus()}
 			>
 				{Icon ? <Icon size={18} color={focused ? colors.amber : colors.faint} strokeWidth={2.2} /> : null}
 				<TextInput

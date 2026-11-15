@@ -171,54 +171,56 @@ export default function LoginScreen() {
 	const title = twoFAToken ? t('twoFATitle') : accounts ? t('selectAccount') : t('loginTitle');
 
 	return (
-		<TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
-			<View style={{ flex: 1, backgroundColor: colors.navyDeep }}>
-				<StatusBar style="light" />
-				<View style={styles.glow} pointerEvents="none" />
-				<View style={styles.glow2} pointerEvents="none" />
+		<View style={{ flex: 1, backgroundColor: colors.navyDeep }}>
+			<StatusBar style="light" />
+			<View style={styles.glow} pointerEvents="none" />
+			<View style={styles.glow2} pointerEvents="none" />
 
-				<KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined} style={{ flex: 1 }}>
-					<ScrollView
-						ref={scrollRef}
-						contentContainerStyle={{ flexGrow: 1 }}
-						scrollEnabled={true}
-						keyboardShouldPersistTaps="handled"
-						keyboardDismissMode={Platform.OS === 'ios' ? 'interactive' : 'on-drag'}
-						showsVerticalScrollIndicator={false}
-						bounces={true}
-						alwaysBounceVertical={false}
-					>
-						{/* Hero - tapping dismisses keyboard */}
-						<Pressable onPress={Keyboard.dismiss} style={[styles.hero, { paddingTop: insets.top + 16, paddingBottom: keyboardVisible ? 6 : 18 }]}>
-							<View style={[styles.topRow, keyboardVisible && { marginBottom: 10 }]}>
-								<View style={styles.langs}>
-									{LANGS.map((l) => (
-										<Pressable key={l.code} onPress={() => changeLanguage(l.code)} style={[styles.langBtn, lang === l.code && styles.langBtnActive]}>
-											<T v="strong" style={{ fontSize: 11.5 }} color={lang === l.code ? colors.navyDeep : 'rgba(255,255,255,0.7)'}>{l.short}</T>
-										</Pressable>
-									))}
-								</View>
-								<Pressable onPress={() => router.push('/catalog')} style={styles.browse}>
-									<Trophy size={13} color={colors.gold} />
-									<T v="strong" color="#fff" style={{ fontSize: 12 }}>{t('browseOlympiads')}</T>
-								</Pressable>
-							</View>
-
-							{!keyboardVisible ? (
-								<Animated.View entering={FadeInDown.duration(400)}>
-									<View style={styles.logoWrap}>
-										<View style={styles.heroArtWrap}>
-											<Image source={require('../../assets/brand/irn-official-gold-logo.png')} style={styles.heroArt} resizeMode="contain" />
-										</View>
-									</View>
-									<T v="display" color="#fff" style={{ textAlign: 'center', marginTop: 4, fontSize: 22, lineHeight: 28 }}>{t('loginHero')}</T>
-									<T v="body" color="rgba(255,255,255,0.7)" numberOfLines={1} style={{ textAlign: 'center', marginTop: 4, paddingHorizontal: 16, fontSize: 13, lineHeight: 18 }}>{t('loginHeroSub')}</T>
-								</Animated.View>
-							) : null}
+			{/* Fixed Top Bar - protected safe area zone, never collides with status bar */}
+			<View style={[styles.topRowFixed, { paddingTop: insets.top + 6 }]}>
+				<View style={styles.langs}>
+					{LANGS.map((l) => (
+						<Pressable key={l.code} onPress={() => changeLanguage(l.code)} style={[styles.langBtn, lang === l.code && styles.langBtnActive]}>
+							<T v="strong" style={{ fontSize: 11.5 }} color={lang === l.code ? colors.navyDeep : 'rgba(255,255,255,0.7)'}>{l.short}</T>
 						</Pressable>
+					))}
+				</View>
+				<Pressable onPress={() => router.push('/catalog')} style={styles.browse}>
+					<Trophy size={13} color={colors.gold} />
+					<T v="strong" color="#fff" style={{ fontSize: 12 }}>{t('browseOlympiads')}</T>
+				</Pressable>
+			</View>
 
-						{/* Form card */}
-						<Animated.View entering={FadeInUp.delay(80).duration(260)} style={[styles.card, keyboardVisible && { justifyContent: 'flex-start' }, { paddingBottom: Math.max(insets.bottom, 16) + 12 }]}>
+			<KeyboardAvoidingView
+				behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+				style={{ flex: 1 }}
+				keyboardVerticalOffset={Platform.OS === 'ios' ? insets.top + 44 : 0}
+			>
+				<ScrollView
+					ref={scrollRef}
+					contentContainerStyle={{ flexGrow: 1 }}
+					scrollEnabled={true}
+					keyboardShouldPersistTaps="handled"
+					keyboardDismissMode={Platform.OS === 'ios' ? 'interactive' : 'on-drag'}
+					showsVerticalScrollIndicator={false}
+					bounces={true}
+					alwaysBounceVertical={false}
+				>
+					{/* Hero area */}
+					<Pressable onPress={Keyboard.dismiss} style={styles.heroContent}>
+						<Animated.View entering={FadeInDown.duration(500)} style={styles.logoWrap}>
+							<View style={styles.heroArtWrap}>
+								<Image source={require('../../assets/brand/irn-official-gold-logo.png')} style={styles.heroArt} resizeMode="contain" />
+							</View>
+						</Animated.View>
+						<Animated.View entering={FadeInDown.delay(80).duration(450)}>
+							<T v="display" color="#fff" style={{ textAlign: 'center', marginTop: 4, fontSize: 22, lineHeight: 28 }}>{t('loginHero')}</T>
+							<T v="body" color="rgba(255,255,255,0.7)" numberOfLines={1} style={{ textAlign: 'center', marginTop: 4, paddingHorizontal: 16, fontSize: 13, lineHeight: 18 }}>{t('loginHeroSub')}</T>
+						</Animated.View>
+					</Pressable>
+
+					{/* Form card */}
+					<Animated.View entering={FadeInUp.delay(80).duration(260)} style={[styles.card, { paddingBottom: Math.max(insets.bottom, 16) + 16 }]}>
 							<View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 2 }}>
 								{twoFAToken || accounts ? (
 									<Tap onPress={() => { setTwoFAToken(null); setAccounts(null); setCode(''); setError(''); }} style={styles.backBtn}>
@@ -369,15 +371,26 @@ export default function LoginScreen() {
 					]}
 				/>
 			</View>
-		</TouchableWithoutFeedback>
 	);
 }
 
 const styles = StyleSheet.create({
 	glow: { position: 'absolute', top: -120, right: -100, width: 320, height: 320, borderRadius: 160, backgroundColor: 'rgba(253,200,0,0.18)' },
 	glow2: { position: 'absolute', top: 160, left: -140, width: 280, height: 280, borderRadius: 140, backgroundColor: 'rgba(47,111,235,0.14)' },
-	hero: { paddingHorizontal: 20, paddingBottom: 18 },
-	topRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 28 },
+	topRowFixed: {
+		flexDirection: 'row',
+		justifyContent: 'space-between',
+		alignItems: 'center',
+		paddingHorizontal: 20,
+		paddingBottom: 8,
+		backgroundColor: colors.navyDeep,
+		zIndex: 10,
+	},
+	heroContent: {
+		paddingHorizontal: 20,
+		paddingTop: 8,
+		paddingBottom: 16,
+	},
 	langs: { flexDirection: 'row', backgroundColor: 'rgba(255,255,255,0.08)', borderRadius: radius.pill, padding: 2 },
 	langBtn: { paddingHorizontal: 9, paddingVertical: 4, borderRadius: radius.pill },
 	langBtnActive: { backgroundColor: colors.gold },
