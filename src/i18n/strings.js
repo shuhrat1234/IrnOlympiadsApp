@@ -66,6 +66,7 @@ const S = {
 	register: { uz: "Ro'yxatdan o'tish", ru: 'Регистрация', en: 'Register' },
 	browseOlympiads: { uz: "Olimpiadalarni ko'rish", ru: 'Смотреть олимпиады', en: 'Browse olympiads' },
 	forgotPassword: { uz: 'Parolni unutdingizmi?', ru: 'Забыли пароль?', en: 'Forgot password?' },
+	done: { uz: 'Tayyor', ru: 'Готово', en: 'Done' },
 	recoverTitle: { uz: 'Parolni tiklash', ru: 'Восстановление пароля', en: 'Recover Password' },
 	recoverText: {
 		uz: "Parolingizni tiklash va login ma'lumotlarini olish uchun rasmiy Telegram botimizga kiring va pastdagi 'Telefon raqamni yuborish' tugmasini bosing.",

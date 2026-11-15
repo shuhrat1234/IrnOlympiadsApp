@@ -1,5 +1,18 @@
-import React, { useEffect, useState } from 'react';
-import { Image, Keyboard, KeyboardAvoidingView, Linking, Platform, Pressable, ScrollView, StyleSheet, View } from 'react-native';
+import React, { useEffect, useRef, useState } from 'react';
+import {
+	Image,
+	InputAccessoryView,
+	Keyboard,
+	KeyboardAvoidingView,
+	Linking,
+	PanResponder,
+	Platform,
+	Pressable,
+	ScrollView,
+	StyleSheet,
+	TouchableWithoutFeedback,
+	View,
+} from 'react-native';
 import { router } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -17,6 +30,7 @@ import { cleanUzPhone } from '../utils/format';
 const attempts = { failed: 0, lockUntil: 0 };
 
 const PHONE_RE = /^\+998\d{9}$/;
+const ACCESSORY_ID = 'login_phone_bar';
 
 export default function LoginScreen() {
 	const insets = useSafeAreaInsets();
@@ -38,17 +52,37 @@ export default function LoginScreen() {
 	const [staffBlocked, setStaffBlocked] = useState(false);
 	const [lockout, setLockout] = useState(() => Math.max(0, Math.ceil((attempts.lockUntil - Date.now()) / 1000)));
 	const [keyboardVisible, setKeyboardVisible] = useState(false);
+	const keyboardVisibleRef = useRef(false);
 
 	useEffect(() => {
 		const showEvent = Platform.OS === 'ios' ? 'keyboardWillShow' : 'keyboardDidShow';
 		const hideEvent = Platform.OS === 'ios' ? 'keyboardWillHide' : 'keyboardDidHide';
-		const show = Keyboard.addListener(showEvent, () => setKeyboardVisible(true));
-		const hide = Keyboard.addListener(hideEvent, () => setKeyboardVisible(false));
+		const show = Keyboard.addListener(showEvent, () => {
+			keyboardVisibleRef.current = true;
+			setKeyboardVisible(true);
+		});
+		const hide = Keyboard.addListener(hideEvent, () => {
+			keyboardVisibleRef.current = false;
+			setKeyboardVisible(false);
+		});
 		return () => {
 			show.remove();
 			hide.remove();
 		};
 	}, []);
+
+	// Intercept downward drag anywhere on the screen when keyboard is open to dismiss immediately
+	const panResponder = useRef(
+		PanResponder.create({
+			onStartShouldSetPanResponderCapture: () => false,
+			onMoveShouldSetPanResponderCapture: (_, gesture) => {
+				return keyboardVisibleRef.current && gesture.dy > 6;
+			},
+			onPanResponderGrant: () => {
+				Keyboard.dismiss();
+			},
+		})
+	).current;
 
 	useEffect(() => {
 		if (lockout <= 0) return;
@@ -144,178 +178,203 @@ export default function LoginScreen() {
 	const title = twoFAToken ? t('twoFATitle') : accounts ? t('selectAccount') : t('loginTitle');
 
 	return (
-		<View style={{ flex: 1, backgroundColor: colors.navyDeep }}>
-			<StatusBar style="light" />
-			<View style={styles.glow} />
-			<View style={styles.glow2} />
+		<TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
+			<View style={{ flex: 1, backgroundColor: colors.navyDeep }} {...panResponder.panHandlers}>
+				<StatusBar style="light" />
+				<View style={styles.glow} pointerEvents="none" />
+				<View style={styles.glow2} pointerEvents="none" />
 
-			<KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined} style={{ flex: 1 }}>
-				<ScrollView
-					contentContainerStyle={{ flexGrow: 1 }}
-					scrollEnabled={keyboardVisible}
-					keyboardShouldPersistTaps="handled"
-					keyboardDismissMode="interactive"
-					showsVerticalScrollIndicator={false}
-					bounces={false}
-					alwaysBounceVertical={false}
-					onScrollBeginDrag={Keyboard.dismiss}
-				>
-					<Pressable onPress={Keyboard.dismiss} style={{ flex: 1 }}>
-					{/* Hero */}
-					<View style={[styles.hero, { paddingTop: insets.top + 8 }]}>
-						<View style={styles.topRow}>
-							<View style={styles.langs}>
-								{LANGS.map((l) => (
-									<Pressable key={l.code} onPress={() => changeLanguage(l.code)} style={[styles.langBtn, lang === l.code && styles.langBtnActive]}>
-										<T v="strong" style={{ fontSize: 11.5 }} color={lang === l.code ? colors.navyDeep : 'rgba(255,255,255,0.7)'}>{l.short}</T>
-									</Pressable>
-								))}
-							</View>
-							<Pressable onPress={() => router.push('/catalog')} style={styles.browse}>
-								<Trophy size={13} color={colors.gold} />
-								<T v="strong" color="#fff" style={{ fontSize: 12 }}>{t('browseOlympiads')}</T>
-							</Pressable>
-						</View>
-
-						<Animated.View entering={FadeInDown.duration(650)} style={styles.logoWrap}>
-							<View style={styles.heroArtWrap}>
-								<Image source={require('../../assets/illustrations/olympiad-hero.png')} style={styles.heroArt} resizeMode="contain" />
-							</View>
-						</Animated.View>
-						<Animated.View entering={FadeInDown.delay(120).duration(600)}>
-							<T v="label" color={colors.gold} style={{ textAlign: 'center', letterSpacing: 2, marginTop: 4, fontSize: 10 }}>IRN OLYMPIADS</T>
-							<T v="display" color="#fff" style={{ textAlign: 'center', marginTop: 3, fontSize: 21, lineHeight: 26 }}>{t('loginHero')}</T>
-							<T v="body" color="rgba(255,255,255,0.65)" numberOfLines={1} style={{ textAlign: 'center', marginTop: 3, paddingHorizontal: 16, fontSize: 12, lineHeight: 16 }}>{t('loginHeroSub')}</T>
-						</Animated.View>
-					</View>
-
-					{/* Form card */}
-					<Animated.View entering={FadeInUp.delay(150).springify().damping(18)} style={[styles.card, { paddingBottom: Math.max(insets.bottom, 14) + 6 }]}>
-						<View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 2 }}>
-							{twoFAToken || accounts ? (
-								<Tap onPress={() => { setTwoFAToken(null); setAccounts(null); setCode(''); setError(''); }} style={styles.backBtn}>
-									<ChevronLeft size={18} color={colors.ink} />
-								</Tap>
-							) : null}
-							<T v="h2">{title}</T>
-						</View>
-						<T v="small" style={{ marginBottom: 12, fontSize: 12 }}>{twoFAToken ? t('twoFASubtitle') : accounts ? '' : t('loginSubtitle')}</T>
-
-						{error ? (
-							<View style={styles.errorBox}>
-								<AlertTriangle size={15} color={colors.red} />
-								<T v="small" color={colors.red} style={{ flex: 1, fontFamily: fonts.bold, fontSize: 12 }}>{error}</T>
-							</View>
-						) : null}
-
-						{twoFAToken ? (
-							<View style={{ gap: 14 }}>
-								<View style={styles.shield}><ShieldCheck size={28} color={colors.amber} /></View>
-								<Field
-									value={code}
-									onChangeText={(v) => setCode(v.replace(/\D/g, '').slice(0, 6))}
-									placeholder="000000"
-									keyboardType="number-pad"
-									autoFocus
-									inputStyle={{ textAlign: 'center', fontSize: 24, letterSpacing: 8, fontFamily: fonts.extrabold }}
-								/>
-								<Button size="md" title={t('confirm')} onPress={submit2FA} loading={loading} disabled={code.length !== 6} />
-							</View>
-						) : accounts ? (
-							<View style={{ gap: 8 }}>
-								{accounts.map((acc) => {
-									const isTeacher = acc.role === 'teacher' || acc.is_teacher || !acc.grade;
-									return (
-										<Tap key={acc.participant_id} onPress={() => pickAccount(acc.participant_id)} style={[styles.account, isTeacher && { backgroundColor: colors.goldTint, borderColor: colors.goldSoft }]}>
-											<View style={[styles.accIcon, isTeacher && { backgroundColor: colors.gold }]}>
-												{isTeacher ? <GraduationCap size={18} color={colors.navyDeep} /> : <User size={18} color={colors.amber} />}
-											</View>
-											<View style={{ flex: 1 }}>
-												<T v="strong" numberOfLines={1} style={{ textTransform: 'uppercase', fontSize: 13 }}>{acc.full_name}</T>
-												<T v="small" style={{ marginTop: 1, fontSize: 11.5 }}>
-													{acc.participant_id}
-													{acc.grade ? ` · ${acc.grade}${t('gradeSuffix')}` : ''}
-													{isTeacher ? ` · ${t('teacherBadge')}` : ''}
-												</T>
-											</View>
-											<ArrowRight size={16} color={colors.faint} />
-										</Tap>
-									);
-								})}
-							</View>
-						) : (
-							<View style={{ gap: 10 }}>
-								<Segmented
-									value={mode}
-									onChange={(m) => { setMode(m); setError(''); }}
-									options={[
-										{ value: 'phone', label: t('byPhone'), icon: Phone },
-										{ value: 'id', label: t('byId'), icon: Hash },
-									]}
-								/>
-								{mode === 'phone' ? (
-									<Field icon={Phone} value={phone} onChangeText={onPhoneChange} keyboardType="phone-pad" placeholder="+998XXXXXXXXX" error={phoneError} textContentType="telephoneNumber" autoComplete="tel" returnKeyType="done" onSubmitEditing={Keyboard.dismiss} />
-								) : (
-									<Field icon={User} value={participantId} onChangeText={setParticipantId} placeholder="USR-XXXXX" autoCapitalize="characters" autoCorrect={false} returnKeyType="next" />
-								)}
-								<Field icon={Lock} value={password} onChangeText={setPassword} placeholder={t('passwordPlaceholder')} secure autoCapitalize="none" autoCorrect={false} textContentType="password" returnKeyType="go" onSubmitEditing={submit} />
-								<Pressable onPress={() => setShowRecovery(true)} hitSlop={8} style={{ alignSelf: 'flex-end' }}>
-									<T v="strong" color={colors.amber} style={{ fontSize: 12.5 }}>{t('forgotPassword')}</T>
+				<KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined} style={{ flex: 1 }}>
+					<ScrollView
+						contentContainerStyle={{ flexGrow: 1 }}
+						scrollEnabled={keyboardVisible}
+						keyboardShouldPersistTaps="handled"
+						keyboardDismissMode={Platform.OS === 'ios' ? 'interactive' : 'on-drag'}
+						showsVerticalScrollIndicator={false}
+						bounces={keyboardVisible}
+						alwaysBounceVertical={keyboardVisible}
+						onScrollBeginDrag={Keyboard.dismiss}
+					>
+						{/* Hero - tapping dismisses keyboard */}
+						<Pressable onPress={Keyboard.dismiss} style={[styles.hero, { paddingTop: insets.top + 8 }]}>
+							<View style={styles.topRow}>
+								<View style={styles.langs}>
+									{LANGS.map((l) => (
+										<Pressable key={l.code} onPress={() => changeLanguage(l.code)} style={[styles.langBtn, lang === l.code && styles.langBtnActive]}>
+											<T v="strong" style={{ fontSize: 11.5 }} color={lang === l.code ? colors.navyDeep : 'rgba(255,255,255,0.7)'}>{l.short}</T>
+										</Pressable>
+									))}
+								</View>
+								<Pressable onPress={() => router.push('/catalog')} style={styles.browse}>
+									<Trophy size={13} color={colors.gold} />
+									<T v="strong" color="#fff" style={{ fontSize: 12 }}>{t('browseOlympiads')}</T>
 								</Pressable>
-								<Button
-									size="md"
-									title={lockout > 0 ? t('waitText', { s: lockout }) : t('loginBtn')}
-									iconRight={lockout > 0 ? undefined : LogIn}
-									onPress={submit}
-									loading={loading}
-									disabled={lockout > 0}
-									style={{ marginTop: 2 }}
-								/>
-								<View style={styles.registerRow}>
-									<T v="small" style={{ fontSize: 12.5 }}>{t('noAccount')}</T>
-									<Pressable onPress={() => router.push('/catalog')} hitSlop={8}>
-										<T v="strong" color={colors.amber} style={{ fontSize: 13 }}>{t('register')}</T>
+							</View>
+
+							<Animated.View entering={FadeInDown.duration(650)} style={styles.logoWrap}>
+								<View style={styles.heroArtWrap}>
+									<Image source={require('../../assets/illustrations/olympiad-hero.png')} style={styles.heroArt} resizeMode="contain" />
+								</View>
+							</Animated.View>
+							<Animated.View entering={FadeInDown.delay(120).duration(600)}>
+								<T v="label" color={colors.gold} style={{ textAlign: 'center', letterSpacing: 2, marginTop: 4, fontSize: 10 }}>IRN OLYMPIADS</T>
+								<T v="display" color="#fff" style={{ textAlign: 'center', marginTop: 3, fontSize: 21, lineHeight: 26 }}>{t('loginHero')}</T>
+								<T v="body" color="rgba(255,255,255,0.65)" numberOfLines={1} style={{ textAlign: 'center', marginTop: 3, paddingHorizontal: 16, fontSize: 12, lineHeight: 16 }}>{t('loginHeroSub')}</T>
+							</Animated.View>
+						</Pressable>
+
+						{/* Form card */}
+						<Animated.View entering={FadeInUp.delay(150).springify().damping(18)} style={[styles.card, { paddingBottom: Math.max(insets.bottom, 14) + 6 }]}>
+							<View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 2 }}>
+								{twoFAToken || accounts ? (
+									<Tap onPress={() => { setTwoFAToken(null); setAccounts(null); setCode(''); setError(''); }} style={styles.backBtn}>
+										<ChevronLeft size={18} color={colors.ink} />
+									</Tap>
+								) : null}
+								<T v="h2">{title}</T>
+							</View>
+							<T v="small" style={{ marginBottom: 12, fontSize: 12 }}>{twoFAToken ? t('twoFASubtitle') : accounts ? '' : t('loginSubtitle')}</T>
+
+							{error ? (
+								<View style={styles.errorBox}>
+									<AlertTriangle size={15} color={colors.red} />
+									<T v="small" color={colors.red} style={{ flex: 1, fontFamily: fonts.bold, fontSize: 12 }}>{error}</T>
+								</View>
+							) : null}
+
+							{twoFAToken ? (
+								<View style={{ gap: 14 }}>
+									<View style={styles.shield}><ShieldCheck size={28} color={colors.amber} /></View>
+									<Field
+										value={code}
+										onChangeText={(v) => setCode(v.replace(/\D/g, '').slice(0, 6))}
+										placeholder="000000"
+										keyboardType="number-pad"
+										inputAccessoryViewID={ACCESSORY_ID}
+										autoFocus
+										inputStyle={{ textAlign: 'center', fontSize: 24, letterSpacing: 8, fontFamily: fonts.extrabold }}
+										returnKeyType="done"
+										onSubmitEditing={submit2FA}
+									/>
+									<Button size="md" title={t('confirm')} onPress={submit2FA} loading={loading} disabled={code.length !== 6} />
+								</View>
+							) : accounts ? (
+								<View style={{ gap: 8 }}>
+									{accounts.map((acc) => {
+										const isTeacher = acc.role === 'teacher' || acc.is_teacher || !acc.grade;
+										return (
+											<Tap key={acc.participant_id} onPress={() => pickAccount(acc.participant_id)} style={[styles.account, isTeacher && { backgroundColor: colors.goldTint, borderColor: colors.goldSoft }]}>
+												<View style={[styles.accIcon, isTeacher && { backgroundColor: colors.gold }]}>
+													{isTeacher ? <GraduationCap size={18} color={colors.navyDeep} /> : <User size={18} color={colors.amber} />}
+												</View>
+												<View style={{ flex: 1 }}>
+													<T v="strong" numberOfLines={1} style={{ textTransform: 'uppercase', fontSize: 13 }}>{acc.full_name}</T>
+													<T v="small" style={{ marginTop: 1, fontSize: 11.5 }}>
+														{acc.participant_id}
+														{acc.grade ? ` · ${acc.grade}${t('gradeSuffix')}` : ''}
+														{isTeacher ? ` · ${t('teacherBadge')}` : ''}
+													</T>
+												</View>
+												<ArrowRight size={16} color={colors.faint} />
+											</Tap>
+										);
+									})}
+								</View>
+							) : (
+								<View style={{ gap: 10 }}>
+									<Segmented
+										value={mode}
+										onChange={(m) => { setMode(m); setError(''); }}
+										options={[
+											{ value: 'phone', label: t('byPhone'), icon: Phone },
+											{ value: 'id', label: t('byId'), icon: Hash },
+										]}
+									/>
+									{mode === 'phone' ? (
+										<Field
+											icon={Phone}
+											value={phone}
+											onChangeText={onPhoneChange}
+											keyboardType="phone-pad"
+											inputAccessoryViewID={ACCESSORY_ID}
+											placeholder="+998XXXXXXXXX"
+											error={phoneError}
+											textContentType="telephoneNumber"
+											autoComplete="tel"
+											returnKeyType="done"
+											onSubmitEditing={Keyboard.dismiss}
+										/>
+									) : (
+										<Field icon={User} value={participantId} onChangeText={setParticipantId} placeholder="USR-XXXXX" autoCapitalize="characters" autoCorrect={false} returnKeyType="next" />
+									)}
+									<Field icon={Lock} value={password} onChangeText={setPassword} placeholder={t('passwordPlaceholder')} secure autoCapitalize="none" autoCorrect={false} textContentType="password" returnKeyType="go" onSubmitEditing={submit} />
+									<Pressable onPress={() => setShowRecovery(true)} hitSlop={8} style={{ alignSelf: 'flex-end' }}>
+										<T v="strong" color={colors.amber} style={{ fontSize: 12.5 }}>{t('forgotPassword')}</T>
+									</Pressable>
+									<Button
+										size="md"
+										title={lockout > 0 ? t('waitText', { s: lockout }) : t('loginBtn')}
+										iconRight={lockout > 0 ? undefined : LogIn}
+										onPress={submit}
+										loading={loading}
+										disabled={lockout > 0}
+										style={{ marginTop: 2 }}
+									/>
+									<View style={styles.registerRow}>
+										<T v="small" style={{ fontSize: 12.5 }}>{t('noAccount')}</T>
+										<Pressable onPress={() => router.push('/catalog')} hitSlop={8}>
+											<T v="strong" color={colors.amber} style={{ fontSize: 13 }}>{t('register')}</T>
+										</Pressable>
+									</View>
+									<Pressable
+										onPress={() => router.push('/register-teacher')}
+										style={styles.teacherBanner}
+										accessibilityRole="button"
+									>
+										<GraduationCap size={15} color={colors.goldDeep} />
+										<T v="strong" numberOfLines={1} style={{ fontSize: 12, color: colors.goldDeep, flexShrink: 1 }}>{t('teacherSignup')}</T>
+										<ArrowRight size={13} color={colors.goldDeep} />
 									</Pressable>
 								</View>
-								<Pressable
-									onPress={() => router.push('/register-teacher')}
-									style={styles.teacherBanner}
-									accessibilityRole="button"
-								>
-									<GraduationCap size={15} color={colors.goldDeep} />
-									<T v="strong" numberOfLines={1} style={{ fontSize: 12, color: colors.goldDeep, flexShrink: 1 }}>{t('teacherSignup')}</T>
-									<ArrowRight size={13} color={colors.goldDeep} />
-								</Pressable>
-							</View>
-						)}
-					</Animated.View>
-					</Pressable>
-				</ScrollView>
-			</KeyboardAvoidingView>
+							)}
+						</Animated.View>
+					</ScrollView>
+				</KeyboardAvoidingView>
 
-			<Sheet visible={showRecovery} onClose={() => setShowRecovery(false)} title={t('recoverTitle')}>
-				<View style={{ alignItems: 'center', gap: 14, paddingBottom: 6 }}>
-					<View style={[styles.tgIcon, { backgroundColor: '#0088CC' }]}>
-						<Send size={30} color="#fff" />
+				{Platform.OS === 'ios' ? (
+					<InputAccessoryView nativeID={ACCESSORY_ID}>
+						<View style={styles.accessory}>
+							<Pressable onPress={Keyboard.dismiss} hitSlop={10} style={styles.accessoryBtn}>
+								<T v="strong" color={colors.goldDeep} style={{ fontSize: 14 }}>{t('done')}</T>
+							</Pressable>
+						</View>
+					</InputAccessoryView>
+				) : null}
+
+				<Sheet visible={showRecovery} onClose={() => setShowRecovery(false)} title={t('recoverTitle')}>
+					<View style={{ alignItems: 'center', gap: 14, paddingBottom: 6 }}>
+						<View style={[styles.tgIcon, { backgroundColor: '#0088CC' }]}>
+							<Send size={30} color="#fff" />
+						</View>
+						<T v="body" style={{ textAlign: 'center' }}>{t('recoverText')}</T>
+						<Button title={t('openBot')} icon={Send} style={{ alignSelf: 'stretch', marginTop: 6 }} onPress={() => { setShowRecovery(false); Linking.openURL(LINKS.bot); }} />
 					</View>
-					<T v="body" style={{ textAlign: 'center' }}>{t('recoverText')}</T>
-					<Button title={t('openBot')} icon={Send} style={{ alignSelf: 'stretch', marginTop: 6 }} onPress={() => { setShowRecovery(false); Linking.openURL(LINKS.bot); }} />
-				</View>
-			</Sheet>
+				</Sheet>
 
-			<Dialog
-				visible={staffBlocked}
-				onClose={() => setStaffBlocked(false)}
-				icon={GraduationCap}
-				tone="navy"
-				title={t('studentsOnlyTitle')}
-				message={t('studentsOnlyText')}
-				actions={[
-					{ title: t('openSite'), icon: Globe, variant: 'dark', onPress: () => { setStaffBlocked(false); Linking.openURL(`${LINKS.site}/login`); } },
-					{ title: t('close'), variant: 'ghost', onPress: () => setStaffBlocked(false) },
-				]}
-			/>
-		</View>
+				<Dialog
+					visible={staffBlocked}
+					onClose={() => setStaffBlocked(false)}
+					icon={GraduationCap}
+					tone="navy"
+					title={t('studentsOnlyTitle')}
+					message={t('studentsOnlyText')}
+					actions={[
+						{ title: t('openSite'), icon: Globe, variant: 'dark', onPress: () => { setStaffBlocked(false); Linking.openURL(`${LINKS.site}/login`); } },
+						{ title: t('close'), variant: 'ghost', onPress: () => setStaffBlocked(false) },
+					]}
+				/>
+			</View>
+		</TouchableWithoutFeedback>
 	);
 }
 
@@ -340,4 +399,6 @@ const styles = StyleSheet.create({
 	registerRow: { flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'center', alignItems: 'center', gap: 6, marginTop: 4 },
 	teacherBanner: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8, height: 36, borderRadius: radius.md, backgroundColor: colors.goldTint, borderWidth: 1, borderColor: colors.goldSoft, marginTop: 6, paddingHorizontal: 12 },
 	tgIcon: { width: 60, height: 60, borderRadius: 18, alignItems: 'center', justifyContent: 'center' },
+	accessory: { backgroundColor: '#F8F9FA', borderTopWidth: StyleSheet.hairlineWidth, borderColor: '#D1D5DB', flexDirection: 'row', justifyContent: 'flex-end', alignItems: 'center', paddingHorizontal: 16, height: 42 },
+	accessoryBtn: { paddingVertical: 6, paddingHorizontal: 12, borderRadius: radius.sm, backgroundColor: colors.goldTint },
 });
