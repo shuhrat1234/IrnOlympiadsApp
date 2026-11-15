@@ -5,7 +5,6 @@ import {
 	Keyboard,
 	KeyboardAvoidingView,
 	Linking,
-	PanResponder,
 	Platform,
 	Pressable,
 	ScrollView,
@@ -52,17 +51,18 @@ export default function LoginScreen() {
 	const [staffBlocked, setStaffBlocked] = useState(false);
 	const [lockout, setLockout] = useState(() => Math.max(0, Math.ceil((attempts.lockUntil - Date.now()) / 1000)));
 	const [keyboardVisible, setKeyboardVisible] = useState(false);
-	const keyboardVisibleRef = useRef(false);
+	const scrollRef = useRef(null);
 
 	useEffect(() => {
 		const showEvent = Platform.OS === 'ios' ? 'keyboardWillShow' : 'keyboardDidShow';
 		const hideEvent = Platform.OS === 'ios' ? 'keyboardWillHide' : 'keyboardDidHide';
 		const show = Keyboard.addListener(showEvent, () => {
-			keyboardVisibleRef.current = true;
 			setKeyboardVisible(true);
+			setTimeout(() => {
+				scrollRef.current?.scrollToEnd({ animated: true });
+			}, Platform.OS === 'ios' ? 20 : 100);
 		});
 		const hide = Keyboard.addListener(hideEvent, () => {
-			keyboardVisibleRef.current = false;
 			setKeyboardVisible(false);
 		});
 		return () => {
@@ -71,24 +71,17 @@ export default function LoginScreen() {
 		};
 	}, []);
 
-	// Intercept downward drag anywhere on the screen when keyboard is open to dismiss immediately
-	const panResponder = useRef(
-		PanResponder.create({
-			onStartShouldSetPanResponderCapture: () => false,
-			onMoveShouldSetPanResponderCapture: (_, gesture) => {
-				return keyboardVisibleRef.current && gesture.dy > 6;
-			},
-			onPanResponderGrant: () => {
-				Keyboard.dismiss();
-			},
-		})
-	).current;
-
 	useEffect(() => {
 		if (lockout <= 0) return;
 		const timer = setTimeout(() => setLockout((s) => s - 1), 1000);
 		return () => clearTimeout(timer);
 	}, [lockout]);
+
+	const onInputFocus = () => {
+		setTimeout(() => {
+			scrollRef.current?.scrollToEnd({ animated: true });
+		}, Platform.OS === 'ios' ? 40 : 120);
+	};
 
 	const onPhoneChange = (value) => {
 		const v = cleanUzPhone(value);
@@ -179,25 +172,25 @@ export default function LoginScreen() {
 
 	return (
 		<TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
-			<View style={{ flex: 1, backgroundColor: colors.navyDeep }} {...panResponder.panHandlers}>
+			<View style={{ flex: 1, backgroundColor: colors.navyDeep }}>
 				<StatusBar style="light" />
 				<View style={styles.glow} pointerEvents="none" />
 				<View style={styles.glow2} pointerEvents="none" />
 
 				<KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined} style={{ flex: 1 }}>
 					<ScrollView
+						ref={scrollRef}
 						contentContainerStyle={{ flexGrow: 1 }}
-						scrollEnabled={keyboardVisible}
+						scrollEnabled={true}
 						keyboardShouldPersistTaps="handled"
 						keyboardDismissMode={Platform.OS === 'ios' ? 'interactive' : 'on-drag'}
 						showsVerticalScrollIndicator={false}
-						bounces={keyboardVisible}
-						alwaysBounceVertical={keyboardVisible}
-						onScrollBeginDrag={Keyboard.dismiss}
+						bounces={true}
+						alwaysBounceVertical={false}
 					>
 						{/* Hero - tapping dismisses keyboard */}
-						<Pressable onPress={Keyboard.dismiss} style={[styles.hero, { paddingTop: insets.top + 16 }]}>
-							<View style={styles.topRow}>
+						<Pressable onPress={Keyboard.dismiss} style={[styles.hero, { paddingTop: insets.top + 16, paddingBottom: keyboardVisible ? 6 : 18 }]}>
+							<View style={[styles.topRow, keyboardVisible && { marginBottom: 10 }]}>
 								<View style={styles.langs}>
 									{LANGS.map((l) => (
 										<Pressable key={l.code} onPress={() => changeLanguage(l.code)} style={[styles.langBtn, lang === l.code && styles.langBtnActive]}>
@@ -211,19 +204,21 @@ export default function LoginScreen() {
 								</Pressable>
 							</View>
 
-							<Animated.View entering={FadeInDown.duration(500)} style={styles.logoWrap}>
-								<View style={styles.heroArtWrap}>
-									<Image source={require('../../assets/brand/irn-official-gold-logo.png')} style={styles.heroArt} resizeMode="contain" />
-								</View>
-							</Animated.View>
-							<Animated.View entering={FadeInDown.delay(80).duration(450)}>
-								<T v="display" color="#fff" style={{ textAlign: 'center', marginTop: 4, fontSize: 22, lineHeight: 28 }}>{t('loginHero')}</T>
-								<T v="body" color="rgba(255,255,255,0.7)" numberOfLines={1} style={{ textAlign: 'center', marginTop: 4, paddingHorizontal: 16, fontSize: 13, lineHeight: 18 }}>{t('loginHeroSub')}</T>
-							</Animated.View>
+							{!keyboardVisible ? (
+								<Animated.View entering={FadeInDown.duration(400)}>
+									<View style={styles.logoWrap}>
+										<View style={styles.heroArtWrap}>
+											<Image source={require('../../assets/brand/irn-official-gold-logo.png')} style={styles.heroArt} resizeMode="contain" />
+										</View>
+									</View>
+									<T v="display" color="#fff" style={{ textAlign: 'center', marginTop: 4, fontSize: 22, lineHeight: 28 }}>{t('loginHero')}</T>
+									<T v="body" color="rgba(255,255,255,0.7)" numberOfLines={1} style={{ textAlign: 'center', marginTop: 4, paddingHorizontal: 16, fontSize: 13, lineHeight: 18 }}>{t('loginHeroSub')}</T>
+								</Animated.View>
+							) : null}
 						</Pressable>
 
 						{/* Form card */}
-						<Animated.View entering={FadeInUp.delay(80).duration(260)} style={[styles.card, { paddingBottom: Math.max(insets.bottom, 16) + 12 }]}>
+						<Animated.View entering={FadeInUp.delay(80).duration(260)} style={[styles.card, keyboardVisible && { justifyContent: 'flex-start' }, { paddingBottom: Math.max(insets.bottom, 16) + 12 }]}>
 							<View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 2 }}>
 								{twoFAToken || accounts ? (
 									<Tap onPress={() => { setTwoFAToken(null); setAccounts(null); setCode(''); setError(''); }} style={styles.backBtn}>
@@ -301,12 +296,13 @@ export default function LoginScreen() {
 											textContentType="telephoneNumber"
 											autoComplete="tel"
 											returnKeyType="done"
+											onFocus={onInputFocus}
 											onSubmitEditing={Keyboard.dismiss}
 										/>
 									) : (
-										<Field icon={User} value={participantId} onChangeText={setParticipantId} placeholder="USR-XXXXX" autoCapitalize="characters" autoCorrect={false} returnKeyType="next" />
+										<Field icon={User} value={participantId} onChangeText={setParticipantId} placeholder="USR-XXXXX" autoCapitalize="characters" autoCorrect={false} returnKeyType="next" onFocus={onInputFocus} />
 									)}
-									<Field icon={Lock} value={password} onChangeText={setPassword} placeholder={t('passwordPlaceholder')} secure autoCapitalize="none" autoCorrect={false} textContentType="password" returnKeyType="go" onSubmitEditing={submit} />
+									<Field icon={Lock} value={password} onChangeText={setPassword} placeholder={t('passwordPlaceholder')} secure autoCapitalize="none" autoCorrect={false} textContentType="password" returnKeyType="go" onFocus={onInputFocus} onSubmitEditing={submit} />
 									<Pressable onPress={() => setShowRecovery(true)} hitSlop={8} style={{ alignSelf: 'flex-end' }}>
 										<T v="strong" color={colors.amber} style={{ fontSize: 12.5 }}>{t('forgotPassword')}</T>
 									</Pressable>

@@ -17,8 +17,6 @@ import { canStartExam, olyIdOf, userSessionFor } from '../../utils/olympiadLogic
 import { finalPermissionPdf } from '../../utils/documents';
 import SubjectTeachers from '../../components/SubjectTeachers';
 
-const ACH_ICONS = { Trophy, Star, Award, Shield, Bird: Star };
-
 export default function HomeScreen() {
 	const { currentUser, fetchMe, regions } = useAuth();
 	const { t, lang, pick } = useLanguage();
@@ -211,28 +209,6 @@ export default function HomeScreen() {
 				))}
 			</View>
 
-			{/* Achievements */}
-			<SectionTitle title={t('achievements')} style={{ marginTop: 24 }} />
-			{currentUser.achievements?.length ? (
-				<ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 12, paddingRight: 18 }} style={{ marginHorizontal: -18, paddingLeft: 18 }}>
-					{currentUser.achievements.map((ach) => {
-						const Icon = ACH_ICONS[ach.icon] || Award;
-						return (
-							<View key={ach.id} style={styles.ach}>
-								<View style={styles.achIcon}><Icon size={22} color={colors.navyDeep} /></View>
-								<T v="strong" numberOfLines={2} style={{ fontSize: 13.5, marginTop: 10 }}>{pick(ach)}</T>
-								<T v="small" style={{ fontSize: 11.5, marginTop: 4 }}>{t('earned')}: {formatDate(ach.earned_at, lang, { time: false })}</T>
-							</View>
-						);
-					})}
-				</ScrollView>
-			) : (
-				<Card style={{ alignItems: 'center', paddingVertical: 26 }}>
-					<View style={styles.achEmpty}><Trophy size={26} color={colors.faint} /></View>
-					<T v="strong" style={{ marginTop: 12 }}>{t('noAchievements')}</T>
-					<T v="small" style={{ textAlign: 'center', marginTop: 4 }}>{t('startParticipating')}</T>
-				</Card>
-			)}
 
 			<Dialog
 				visible={!!confirm}
@@ -265,8 +241,4 @@ const styles = StyleSheet.create({
 	grid: { flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-between', rowGap: 12 },
 	quick: { backgroundColor: colors.white, borderRadius: radius.xl, padding: 16, borderWidth: 1, borderColor: colors.line, minHeight: 124, ...shadow(1) },
 	qBadge: { minWidth: 22, height: 22, borderRadius: 11, backgroundColor: colors.red, alignItems: 'center', justifyContent: 'center', paddingHorizontal: 6 },
-	qBadgeText: { color: '#fff', fontFamily: fonts.extrabold, fontSize: 11 },
-	ach: { width: 150, backgroundColor: colors.white, borderRadius: 24, padding: 16, borderWidth: 1, borderColor: colors.line, ...shadow(1) },
-	achIcon: { width: 46, height: 46, borderRadius: 16, backgroundColor: colors.gold, alignItems: 'center', justifyContent: 'center' },
-	achEmpty: { width: 56, height: 56, borderRadius: 20, backgroundColor: colors.cardMuted, alignItems: 'center', justifyContent: 'center' },
 });
