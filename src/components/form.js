@@ -78,8 +78,10 @@ export const ChoicePills = ({ options, value, onChange }) => (
 	<View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8 }}>
 		{options.map((o) => {
 			const on = String(o.value) === String(value);
+			const Icon = o.icon;
 			return (
-				<Tap key={String(o.value)} onPress={() => onChange(o.value)} style={[styles.chip, on && styles.chipOn]}>
+				<Tap key={String(o.value)} onPress={() => onChange(o.value)} style={[styles.chip, on && styles.chipOn, { flexDirection: 'row', alignItems: 'center', gap: 5 }]}>
+					{Icon ? <Icon size={13} color={on ? colors.navyDeep : colors.ink2} /> : null}
 					<T v="strong" style={{ fontSize: 13 }} color={on ? colors.navyDeep : colors.ink2}>{o.label}</T>
 				</Tap>
 			);

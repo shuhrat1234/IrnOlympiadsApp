@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { ActivityIndicator, StyleSheet, View } from 'react-native';
 import { router, useFocusEffect } from 'expo-router';
-import { AlertTriangle, Award, CheckCircle2, Clock, FileQuestion, History, Medal, Megaphone, MinusCircle, RotateCcw, Search, Share2, ShieldCheck, Sliders, Trophy, UserSearch, Users, Wrench } from 'lucide-react-native';
+import { AlertTriangle, Award, Calculator, CheckCircle2, Clock, FileQuestion, FlaskConical, History, Languages, Medal, Megaphone, MinusCircle, RotateCcw, Search, Share2, ShieldCheck, Sliders, Trophy, UserSearch, Users, Wrench } from 'lucide-react-native';
 import api, { errorMessage } from '../../api/client';
 import E from '../../api/endpoints';
 import { useAuth } from '../../context/AuthContext';
@@ -56,7 +56,7 @@ const L = {
 	more: { uz: 'Batafsil', ru: 'Подробнее', en: 'Read more' },
 	less: { uz: 'Yopish', ru: 'Свернуть', en: 'Show less' },
 	balances: { uz: 'Tangalar balansi', ru: 'Баланс коинов', en: 'Coin balance' },
-	balancesSub: { uz: "Fanlar bo'yicha mustaqil hisob-kitob (Matematika va Ingliz tili)", ru: 'Раздельный учёт по предметам (Математика и Английский)', en: 'Tracked separately per subject (Mathematics and English)' },
+	balancesSub: { uz: "Fanlar bo'yicha mustaqil hisob-kitob (Matematika, Ingliz tili va Science)", ru: 'Раздельный учёт по предметам (Математика, Английский и Наука)', en: 'Tracked separately per subject (Mathematics, English and Science)' },
 	confirmed: { uz: 'Tasdiqlangan', ru: 'Подтверждённые', en: 'Confirmed' },
 	confirmedSub: { uz: 'Faol balans', ru: 'Активный баланс', en: 'Active balance' },
 	pending: { uz: 'Kutilayotgan', ru: 'Ожидающие', en: 'Pending' },
@@ -67,6 +67,8 @@ const L = {
 	restoredSub: { uz: 'Admin tekshiruvi orqali', ru: 'Одобрено админом', en: 'Approved by admin' },
 	mathShort: { uz: 'Mat', ru: 'Мат', en: 'Math' },
 	engShort: { uz: 'Ingl', ru: 'Англ', en: 'Eng' },
+	scienceShort: { uz: 'Science', ru: 'Наука', en: 'Science' },
+	science: { uz: 'Tabiiy fanlar', ru: 'Естественные науки', en: 'Science' },
 	stConfirmed: { uz: "Tasdiqlagan o'quvchilar", ru: 'Подтвердили', en: 'Confirmed students' },
 	stPending: { uz: 'Kutilmoqda', ru: 'Ожидают', en: 'Pending' },
 	stRejected: { uz: 'Rad etgan', ru: 'Отклонили', en: 'Rejected' },
@@ -212,10 +214,10 @@ export default function TeacherCoins() {
 
 	const bd = balances?.breakdown || {};
 	const counters = [
-		{ key: 'confirmed', icon: ShieldCheck, tone: ['#047857', '#F0FDF4', '#BBF7D0'], value: balances?.confirmed_coins || coins?.total_coins || 0, math: bd.math?.confirmed ?? balances?.math_confirmed_coins, eng: bd.english?.confirmed ?? balances?.english_confirmed_coins },
-		{ key: 'pending', icon: Clock, tone: ['#B45309', '#FFFBEB', '#FDE68A'], value: balances?.pending_coins ?? 0, math: bd.math?.pending, eng: bd.english?.pending },
-		{ key: 'deducted', icon: MinusCircle, tone: ['#BE123C', '#FFF1F2', '#FECDD3'], value: balances?.deducted_coins ?? 0, math: bd.math?.deducted, eng: bd.english?.deducted },
-		{ key: 'restored', icon: RotateCcw, tone: ['#0369A1', '#F0F9FF', '#BAE6FD'], value: balances?.restored_coins ?? 0, math: bd.math?.restored, eng: bd.english?.restored },
+		{ key: 'confirmed', icon: ShieldCheck, tone: ['#047857', '#F0FDF4', '#BBF7D0'], value: balances?.confirmed_coins || coins?.total_coins || 0, math: bd.math?.confirmed ?? balances?.math_confirmed_coins, eng: bd.english?.confirmed ?? balances?.english_confirmed_coins, sci: bd.science?.confirmed ?? balances?.science_confirmed_coins },
+		{ key: 'pending', icon: Clock, tone: ['#B45309', '#FFFBEB', '#FDE68A'], value: balances?.pending_coins ?? 0, math: bd.math?.pending, eng: bd.english?.pending, sci: bd.science?.pending },
+		{ key: 'deducted', icon: MinusCircle, tone: ['#BE123C', '#FFF1F2', '#FECDD3'], value: balances?.deducted_coins ?? 0, math: bd.math?.deducted, eng: bd.english?.deducted, sci: bd.science?.deducted },
+		{ key: 'restored', icon: RotateCcw, tone: ['#0369A1', '#F0F9FF', '#BAE6FD'], value: balances?.restored_coins ?? 0, math: bd.math?.restored, eng: bd.english?.restored, sci: bd.science?.restored },
 	];
 	const ss = balances?.students_stats || {};
 	const studentStats = [
@@ -259,7 +261,11 @@ export default function TeacherCoins() {
 		}
 	};
 
-	const subjectOptions = [{ value: 'math', label: `📐 ${tx(L.math)}` }, { value: 'english', label: `🇬🇧 ${tx(L.english)}` }];
+	const subjectOptions = [
+		{ value: 'math', label: tx(L.math), icon: Calculator },
+		{ value: 'english', label: tx(L.english), icon: Languages },
+		{ value: 'science', label: tx(L.science), icon: FlaskConical },
+	];
 
 	return (
 		<Screen tabBar onRefresh={() => Promise.all([load(), loadDeducted()])}>
@@ -291,8 +297,21 @@ export default function TeacherCoins() {
 						</View>
 						{loading ? <Skeleton height={28} width={50} style={{ marginTop: 8 }} /> : <T style={[styles.counterValue, { color: c.tone[0] }]}>{c.value}</T>}
 						<T v="small" style={{ fontSize: 11, color: c.tone[0], opacity: 0.85 }} numberOfLines={1}>{tx(L[`${c.key}Sub`])}</T>
-						<View style={[styles.counterDivider, { borderTopColor: c.tone[2] }]}>
-							<T v="small" style={{ fontSize: 10.5, color: c.tone[0] }}>📐 {tx(L.mathShort)}: {c.math ?? 0}  ·  🇬🇧 {tx(L.engShort)}: {c.eng ?? 0}</T>
+						<View style={[styles.counterDivider, { borderTopColor: c.tone[2], flexDirection: 'row', alignItems: 'center', gap: 6, flexWrap: 'wrap' }]}>
+							<View style={{ flexDirection: 'row', alignItems: 'center', gap: 3 }}>
+								<Calculator size={11} color={c.tone[0]} />
+								<T v="small" style={{ fontSize: 10.5, color: c.tone[0] }}>{tx(L.mathShort)}: {c.math ?? 0}</T>
+							</View>
+							<T v="small" style={{ fontSize: 10, color: c.tone[0], opacity: 0.6 }}>·</T>
+							<View style={{ flexDirection: 'row', alignItems: 'center', gap: 3 }}>
+								<Languages size={11} color={c.tone[0]} />
+								<T v="small" style={{ fontSize: 10.5, color: c.tone[0] }}>{tx(L.engShort)}: {c.eng ?? 0}</T>
+							</View>
+							<T v="small" style={{ fontSize: 10, color: c.tone[0], opacity: 0.6 }}>·</T>
+							<View style={{ flexDirection: 'row', alignItems: 'center', gap: 3 }}>
+								<FlaskConical size={11} color={c.tone[0]} />
+								<T v="small" style={{ fontSize: 10.5, color: c.tone[0] }}>{tx(L.scienceShort)}: {c.sci ?? 0}</T>
+							</View>
 						</View>
 					</View>
 				))}
@@ -315,13 +334,13 @@ export default function TeacherCoins() {
 			</View>
 			<View style={{ gap: 8, marginBottom: 12 }}>
 				<View style={{ flexDirection: 'row', alignItems: 'flex-start', gap: 8 }}>
-					<T v="label" numberOfLines={1} style={{ fontSize: 11, color: colors.muted, minWidth: 72, paddingTop: 8 }}>{tx(L.subject)}:</T>
+					<T v="label" numberOfLines={1} style={{ fontSize: 11, color: colors.muted, width: 76, flexShrink: 0, paddingTop: 8 }}>{tx(L.subject)}:</T>
 					<View style={{ flex: 1 }}>
-						<ChoicePills value={dedSubject} onChange={setDedSubject} options={[{ value: 'all', label: tx(L.fAll) }, { value: 'math', label: `📐 ${tx(L.mathShort)}` }, { value: 'english', label: `🇬🇧 ${tx(L.engShort)}` }]} />
+						<ChoicePills value={dedSubject} onChange={setDedSubject} options={[{ value: 'all', label: tx(L.fAll) }, { value: 'math', label: tx(L.mathShort), icon: Calculator }, { value: 'english', label: tx(L.engShort), icon: Languages }, { value: 'science', label: tx(L.scienceShort), icon: FlaskConical }]} />
 					</View>
 				</View>
 				<View style={{ flexDirection: 'row', alignItems: 'flex-start', gap: 8 }}>
-					<T v="label" numberOfLines={1} style={{ fontSize: 11, color: colors.muted, minWidth: 72, paddingTop: 8 }}>{tx({ uz: 'Holat', ru: 'Статус', en: 'Status' })}:</T>
+					<T v="label" numberOfLines={1} style={{ fontSize: 11, color: colors.muted, width: 76, flexShrink: 0, paddingTop: 8 }}>{tx({ uz: 'Holat', ru: 'Статус', en: 'Status' })}:</T>
 					<View style={{ flex: 1 }}>
 						<ChoicePills value={dedStatus} onChange={setDedStatus} options={[{ value: 'all', label: tx(L.fAll) }, { value: 'pending', label: tx(L.fPending) }, { value: 'deducted', label: tx(L.fDeducted) }, { value: 'restored', label: tx(L.fRestored) }]} />
 					</View>
@@ -334,7 +353,7 @@ export default function TeacherCoins() {
 					<T v="small" style={{ textAlign: 'center' }}>{tx(L.dedEmptySub)}</T>
 				</Card>
 			) : deducted.map((d) => {
-				const code = d.subject_code || (d.subject === 'english' ? 'english' : 'math');
+				const code = d.subject_code || (d.subject === 'science' || d.subject === 'Наука' || d.subject === 'Tabiiy fanlar' ? 'science' : d.subject === 'english' ? 'english' : 'math');
 				const tone = STATUS_TONE[d.status] || STATUS_TONE.deducted;
 				return (
 					<Card key={d.id} style={{ marginBottom: 8, padding: 14 }}>
@@ -347,7 +366,12 @@ export default function TeacherCoins() {
 						</View>
 						{d.olympiad_title ? <T v="small" style={{ marginTop: 6 }} numberOfLines={2}>{d.olympiad_title}</T> : null}
 						<View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 6, marginTop: 8, alignItems: 'center' }}>
-							<Pill label={code === 'english' ? `🇬🇧 ${tx(L.engShort)}` : `📐 ${tx(L.mathShort)}`} color={code === 'english' ? colors.blue : colors.amber} bg={code === 'english' ? colors.blueSoft : colors.goldTint} />
+							<Pill
+								icon={code === 'science' ? FlaskConical : code === 'english' ? Languages : Calculator}
+								label={code === 'science' ? tx(L.scienceShort) : code === 'english' ? tx(L.engShort) : tx(L.mathShort)}
+								color={code === 'science' ? colors.green : code === 'english' ? colors.blue : colors.amber}
+								bg={code === 'science' ? colors.greenSoft : code === 'english' ? colors.blueSoft : colors.goldTint}
+							/>
 							{d.reason ? <Pill label={d.reason} color={tone[0]} bg={tone[1]} /> : null}
 							{d.date ? <T v="small" style={{ fontSize: 11 }}>{d.date}</T> : null}
 						</View>

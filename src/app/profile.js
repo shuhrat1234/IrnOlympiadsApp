@@ -134,16 +134,24 @@ export default function ProfileScreen() {
 			<View style={{ alignItems: 'center', marginBottom: 20 }}>
 				<Avatar initials={initialsOf(currentUser)} size={88} />
 				<T v="h1" style={{ marginTop: 12, textAlign: 'center' }}>{currentUser.first_name} {currentUser.last_name}</T>
-				<Tap
-					onPress={async () => {
-						await Clipboard.setStringAsync(String(currentUser.participant_id || ''));
-						toast.success(t('idCopied'));
-					}}
-					style={styles.idChip}
-				>
-					<T v="mono" style={{ fontWeight: '800' }}>#{currentUser.participant_id}</T>
-					<Copy size={14} color={colors.muted} />
-				</Tap>
+				<View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, marginTop: 8, flexWrap: 'wrap', justifyContent: 'center' }}>
+					<Tap
+						onPress={async () => {
+							await Clipboard.setStringAsync(String(currentUser.participant_id || ''));
+							toast.success(t('idCopied'));
+						}}
+						style={styles.idChip}
+					>
+						<T v="mono" style={{ fontWeight: '800' }}>#{currentUser.participant_id}</T>
+						<Copy size={14} color={colors.muted} />
+					</Tap>
+					{currentUser.phone ? (
+						<View style={styles.phoneChip}>
+							<Phone size={13} color={colors.muted} />
+							<T style={{ fontSize: 13, color: colors.ink2, fontWeight: '700' }}>{currentUser.phone}</T>
+						</View>
+					) : null}
+				</View>
 			</View>
 
 			<Segmented
@@ -236,7 +244,8 @@ export default function ProfileScreen() {
 
 const styles = StyleSheet.create({
 	editBtn: { width: 44, height: 44, borderRadius: 22, backgroundColor: colors.gold, alignItems: 'center', justifyContent: 'center' },
-	idChip: { flexDirection: 'row', alignItems: 'center', gap: 8, marginTop: 8, paddingHorizontal: 14, paddingVertical: 7, borderRadius: radius.pill, backgroundColor: colors.white, borderWidth: 1, borderColor: colors.line },
+	idChip: { flexDirection: 'row', alignItems: 'center', gap: 8, paddingHorizontal: 14, paddingVertical: 7, borderRadius: radius.pill, backgroundColor: colors.white, borderWidth: 1, borderColor: colors.line },
+	phoneChip: { flexDirection: 'row', alignItems: 'center', gap: 6, paddingHorizontal: 14, paddingVertical: 7, borderRadius: radius.pill, backgroundColor: colors.cardMuted, borderWidth: 1, borderColor: colors.line },
 	row: { flexDirection: 'row', alignItems: 'center', gap: 12, paddingVertical: 12 },
 	rowBorder: { borderBottomWidth: 1, borderBottomColor: colors.line },
 	teacher: { flexDirection: 'row', alignItems: 'center', gap: 12 },

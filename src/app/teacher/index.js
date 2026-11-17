@@ -298,7 +298,25 @@ export default function TeacherStudents() {
 						<Avatar initials={initialsOf(s)} size={44} />
 						<View style={{ flex: 1 }}>
 							<T v="strong" numberOfLines={1}>{s.last_name} {s.first_name}</T>
-							<T v="small" style={{ fontSize: 12 }}>{s.phone}</T>
+							<View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, marginTop: 2, flexWrap: 'wrap' }}>
+								{s.phone ? <T v="small" style={{ fontSize: 12 }}>{s.phone}</T> : null}
+								{s.participant_id ? (
+									<>
+										{s.phone ? <T v="small" style={{ fontSize: 11, color: colors.muted }}>·</T> : null}
+										<Tap
+											onPress={async () => {
+												await Clipboard.setStringAsync(String(s.participant_id));
+												toast.info(tx(L.copied));
+											}}
+											hitSlop={6}
+											style={{ flexDirection: 'row', alignItems: 'center', gap: 3, paddingVertical: 1 }}
+										>
+											<T v="small" style={{ fontSize: 11.5, fontFamily: fonts.bold, color: colors.navy }}>ID: {s.participant_id}</T>
+											<Copy size={11} color={colors.navy} />
+										</Tap>
+									</>
+								) : null}
+							</View>
 						</View>
 						<Tap onPress={() => { setResetErrors({}); setReset({ student: s, password: '', confirmPassword: '' }); }} style={[styles.round, { backgroundColor: colors.cardMuted }]}><KeyRound size={16} color={colors.ink2} /></Tap>
 					</View>

@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 import { router } from 'expo-router';
-import { Check, GraduationCap, Info, Lock, MapPin, Phone, User, UserPlus } from 'lucide-react-native';
+import { Calculator, Check, FlaskConical, GraduationCap, Info, Languages, Lock, MapPin, Phone, User, UserPlus } from 'lucide-react-native';
 import { useAuth } from '../context/AuthContext';
 import { useLanguage } from '../context/LanguageContext';
 import { useToast } from '../context/ToastContext';
@@ -156,11 +156,12 @@ export default function RegisterTeacherScreen() {
 					<T v="label" style={{ marginBottom: 2, marginLeft: 2, color: colors.ink2 }}>{tx(L.subjectTitle)} *</T>
 					<View style={{ gap: 8 }}>
 						{[
-							{ id: 'math', icon: '📐', label: tx(L.math) },
-							{ id: 'english', icon: '🇬🇧', label: tx(L.english) },
-							{ id: 'science', icon: '🔬', label: tx(L.science) },
+							{ id: 'math', icon: Calculator, label: tx(L.math), color: colors.amber, bg: colors.goldTint },
+							{ id: 'english', icon: Languages, label: tx(L.english), color: colors.blue, bg: colors.blueSoft },
+							{ id: 'science', icon: FlaskConical, label: tx(L.science), color: colors.green, bg: colors.greenSoft },
 						].map((item) => {
 							const isSel = form.subjects.includes(item.id);
+							const Icon = item.icon;
 							return (
 								<Tap
 									key={item.id}
@@ -168,7 +169,9 @@ export default function RegisterTeacherScreen() {
 									style={[styles.subjectBtn, isSel && styles.subjectBtnActive]}
 								>
 									<View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
-										<T style={{ fontSize: 18 }}>{item.icon}</T>
+										<View style={{ width: 32, height: 32, borderRadius: 8, backgroundColor: item.bg, alignItems: 'center', justifyContent: 'center' }}>
+											<Icon size={16} color={item.color} />
+										</View>
 										<T v="strong" style={{ fontSize: 14 }} color={isSel ? colors.navyDeep : colors.ink}>
 											{item.label}
 										</T>

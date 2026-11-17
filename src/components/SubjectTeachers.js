@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import { StyleSheet, View } from 'react-native';
-import { Check, Clock, GraduationCap, Phone, Send, User, Users, XCircle } from 'lucide-react-native';
+import { Calculator, Check, Clock, FlaskConical, GraduationCap, Languages, Phone, Send, User, Users, XCircle } from 'lucide-react-native';
 import api, { errorMessage } from '../api/client';
 import E from '../api/endpoints';
 import { useAuth } from '../context/AuthContext';
@@ -23,6 +23,7 @@ const L = {
 	change: { uz: "O'zgartirish", ru: 'Изменить', en: 'Change' },
 	math: { uz: 'Matematika', ru: 'Математика', en: 'Mathematics' },
 	english: { uz: 'Ingliz tili', ru: 'Английский', en: 'English' },
+	science: { uz: 'Tabiiy fanlar', ru: 'Естественные науки', en: 'Science' },
 	current: { uz: 'Hozirgi holat:', ru: 'Текущий выбор:', en: 'Current selection:' },
 	self: { uz: 'Mustaqil', ru: 'Занимаюсь сам', en: 'Self-study' },
 	none: { uz: 'Tanlanmagan', ru: 'Не выбран', en: 'Not selected' },
@@ -41,7 +42,8 @@ const L = {
 	saved: { uz: 'Saqlandi', ru: 'Сохранено', en: 'Saved' },
 	noMath: { uz: "Menda matematika bo'yicha o'qituvchi yo'q (mustaqil)", ru: 'У меня нет учителя по математике (занимаюсь сам)', en: "I don't have a mathematics teacher (self-study)" },
 	noEnglish: { uz: "Menda ingliz tili bo'yicha o'qituvchi yo'q (mustaqil)", ru: 'У меня нет учителя по английскому (занимаюсь сам)', en: "I don't have an English teacher (self-study)" },
-	noBoth: { uz: "Ikkala fan bo'yicha ham o'qituvchi yo'q", ru: 'У меня нет учителей по обоим предметам', en: "I don't have teachers for both subjects" },
+	noScience: { uz: "Menda tabiiy fanlar bo'yicha o'qituvchi yo'q (mustaqil)", ru: 'У меня нет учителя по науке (занимаюсь сам)', en: "I don't have a science teacher (self-study)" },
+	noAll: { uz: "Barcha fanlar bo'yicha ham o'qituvchi yo'q", ru: 'У меня нет учителей по всем предметам', en: "I don't have teachers for all subjects" },
 	skip: { uz: "O'tkazib yuborish", ru: 'Пропустить', en: 'Skip' },
 	closeIn: { uz: "Yopish tugmasi {s} soniyadan so'ng chiqadi", ru: 'Закрыть можно будет через {s} сек', en: 'You can close this in {s}s' },
 	review: { uz: 'Tekshiruvda', ru: 'На проверке', en: 'In review' },
@@ -52,7 +54,12 @@ const L = {
 	no: { uz: "Yo'q", ru: 'Нет', en: 'No' },
 };
 
-const SUBJECTS = ['math', 'english'];
+const SUBJECTS = ['math', 'english', 'science'];
+const SUBJECT_ICONS = {
+	math: { icon: Calculator, color: colors.amber, bg: colors.goldTint },
+	english: { icon: Languages, color: colors.blue, bg: colors.blueSoft },
+	science: { icon: FlaskConical, color: colors.green, bg: colors.greenSoft },
+};
 // Auto prompt is shown once per app session (the website keeps this in sessionStorage).
 const session = { prompted: false };
 
@@ -113,11 +120,11 @@ export default function SubjectTeachers({ variant = 'banner', style }) {
 	const close = () => { if (canClose) setOpen(false); };
 	const openFor = (s) => { setSubject(s); setMode('search'); setCountdown(0); setOpen(true); };
 
-	// After a subject is settled: move on to the other one if it's still empty, else close.
+	// After a subject is settled: move on to the next one if it's still empty, else close.
 	const advance = (fresh, settled) => {
-		const other = settled === 'math' ? 'english' : 'math';
-		if (settled !== 'both' && fresh && !subjectState(fresh, other).done) {
-			setSubject(other);
+		const next = SUBJECTS.find((s) => s !== settled && fresh && !subjectState(fresh, s).done);
+		if (settled !== 'all' && settled !== 'both' && next) {
+			setSubject(next);
 			setMode('search');
 		} else {
 			setCountdown(0);
@@ -201,7 +208,7 @@ export default function SubjectTeachers({ variant = 'banner', style }) {
 				<Segmented
 					value={subject}
 					onChange={(s) => { setSubject(s); setMode('search'); }}
-					options={SUBJECTS.map((s) => ({ value: s, label: `${s === 'math' ? '📐' : '🇬🇧'} ${tx(L[s])}${subjectState(data, s).teacher ? ' ✓' : subjectState(data, s).self ? ' ∅' : ''}` }))}
+					options={SUBJECTS.map((s) => ({ value: s, label: `${tx(L[s])}${subjectState(data, s).teacher ? ' ✓' : subjectState(data, s).self ? ' ∅' : ''}` }))}
 				/>
 				<View style={styles.current}>
 					<T v="small">{tx(L.current)}</T>
@@ -221,12 +228,14 @@ export default function SubjectTeachers({ variant = 'banner', style }) {
 				)}
 
 				<Tap onPress={() => setNoTeacher(subject)} style={styles.noTeacher}>
-					<T v="strong" style={{ fontSize: 13, textAlign: 'center' }} color={colors.ink2}>{tx(subject === 'math' ? L.noMath : L.noEnglish)}</T>
+					<T v="strong" style={{ fontSize: 13, textAlign: 'center' }} color={colors.ink2}>
+						{tx(subject === 'math' ? L.noMath : subject === 'english' ? L.noEnglish : L.noScience)}
+					</T>
 				</Tap>
 
 				{canClose ? (
 					<View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8 }}>
-						<View style={{ flexGrow: 2, flexBasis: 200 }}><Button size="sm" variant="light" title={tx(L.noBoth)} onPress={() => setNoTeacher('both')} /></View>
+						<View style={{ flexGrow: 2, flexBasis: 200 }}><Button size="sm" variant="light" title={tx(L.noAll)} onPress={() => setNoTeacher('all')} /></View>
 						<View style={{ flexGrow: 1, flexBasis: 100 }}><Button size="sm" variant="ghost" title={tx(L.skip)} onPress={close} /></View>
 					</View>
 				) : (
@@ -240,7 +249,7 @@ export default function SubjectTeachers({ variant = 'banner', style }) {
 	);
 
 	if (variant === 'banner') {
-		// Nothing to nag about once both subjects are settled — the profile keeps the full block.
+		// Nothing to nag about once all subjects are settled — the profile keeps the full block.
 		if (!data.must_prompt_modal) return sheet;
 		return (
 			<>
@@ -252,7 +261,7 @@ export default function SubjectTeachers({ variant = 'banner', style }) {
 							<T v="small" style={{ marginTop: 2 }}>{tx(L.promo)}</T>
 						</View>
 					</View>
-					<Button size="md" icon={Users} title={tx(L.specify)} style={{ marginTop: 12 }} onPress={() => openFor(subjectState(data, 'math').done ? 'english' : 'math')} />
+					<Button size="md" icon={Users} title={tx(L.specify)} style={{ marginTop: 12 }} onPress={() => openFor(SUBJECTS.find((s) => !subjectState(data, s).done) || 'math')} />
 				</Card>
 				{sheet}
 			</>
@@ -264,10 +273,14 @@ export default function SubjectTeachers({ variant = 'banner', style }) {
 			{SUBJECTS.map((s) => {
 				const st = subjectState(data, s);
 				const pending = st.teacher?.status === 'pending';
+				const meta = SUBJECT_ICONS[s] || SUBJECT_ICONS.math;
+				const Icon = meta.icon;
 				return (
 					<Card key={s} style={{ marginBottom: 10, padding: 14 }}>
 						<View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
-							<View style={[styles.emoji, { backgroundColor: s === 'math' ? colors.goldTint : colors.blueSoft }]}><T style={{ fontSize: 18 }}>{s === 'math' ? '📐' : '🇬🇧'}</T></View>
+							<View style={[styles.emoji, { backgroundColor: meta.bg }]}>
+								<Icon size={20} color={meta.color} />
+							</View>
 							<View style={{ flex: 1, gap: 3 }}>
 								<T v="label" style={{ fontSize: 10 }}>{tx(L[s])}</T>
 								<T v="strong" numberOfLines={1}>{label(s)}</T>
