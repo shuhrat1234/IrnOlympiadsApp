@@ -59,8 +59,8 @@ export default function LoginScreen() {
 		const show = Keyboard.addListener(showEvent, () => {
 			setKeyboardVisible(true);
 			setTimeout(() => {
-				scrollRef.current?.scrollToEnd({ animated: true });
-			}, Platform.OS === 'ios' ? 20 : 100);
+				scrollRef.current?.scrollTo({ y: 0, animated: true });
+			}, Platform.OS === 'ios' ? 20 : 80);
 		});
 		const hide = Keyboard.addListener(hideEvent, () => {
 			setKeyboardVisible(false);
@@ -79,8 +79,14 @@ export default function LoginScreen() {
 
 	const onInputFocus = () => {
 		setTimeout(() => {
-			scrollRef.current?.scrollToEnd({ animated: true });
-		}, Platform.OS === 'ios' ? 40 : 120);
+			scrollRef.current?.scrollTo({ y: 0, animated: true });
+		}, Platform.OS === 'ios' ? 40 : 100);
+	};
+
+	const onPasswordFocus = () => {
+		setTimeout(() => {
+			scrollRef.current?.scrollTo({ y: 40, animated: true });
+		}, Platform.OS === 'ios' ? 40 : 100);
 	};
 
 	const onPhoneChange = (value) => {
@@ -207,17 +213,26 @@ export default function LoginScreen() {
 					alwaysBounceVertical={false}
 				>
 					{/* Hero area */}
-					<Pressable onPress={Keyboard.dismiss} style={styles.heroContent}>
-						<Animated.View entering={FadeInDown.duration(500)} style={styles.logoWrap}>
-							<View style={styles.heroArtWrap}>
-								<Image source={require('../../assets/brand/irn-official-gold-logo.png')} style={styles.heroArt} resizeMode="contain" />
+					{!keyboardVisible ? (
+						<Pressable onPress={Keyboard.dismiss} style={styles.heroContent}>
+							<Animated.View entering={FadeInDown.duration(500)} style={styles.logoWrap}>
+								<View style={styles.heroArtWrap}>
+									<Image source={require('../../assets/brand/irn-official-gold-logo.png')} style={styles.heroArt} resizeMode="contain" />
+								</View>
+							</Animated.View>
+							<Animated.View entering={FadeInDown.delay(80).duration(450)}>
+								<T v="display" color="#fff" style={{ textAlign: 'center', marginTop: 4, fontSize: 22, lineHeight: 28 }}>{t('loginHero')}</T>
+								<T v="body" color="rgba(255,255,255,0.7)" numberOfLines={1} style={{ textAlign: 'center', marginTop: 4, paddingHorizontal: 16, fontSize: 13, lineHeight: 18 }}>{t('loginHeroSub')}</T>
+							</Animated.View>
+						</Pressable>
+					) : (
+						<Pressable onPress={Keyboard.dismiss} style={styles.heroContentCompact}>
+							<View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8 }}>
+								<Image source={require('../../assets/brand/irn-official-gold-logo.png')} style={{ width: 26, height: 26 }} resizeMode="contain" />
+								<T v="strong" color="#fff" style={{ fontSize: 14 }}>{t('loginHero')}</T>
 							</View>
-						</Animated.View>
-						<Animated.View entering={FadeInDown.delay(80).duration(450)}>
-							<T v="display" color="#fff" style={{ textAlign: 'center', marginTop: 4, fontSize: 22, lineHeight: 28 }}>{t('loginHero')}</T>
-							<T v="body" color="rgba(255,255,255,0.7)" numberOfLines={1} style={{ textAlign: 'center', marginTop: 4, paddingHorizontal: 16, fontSize: 13, lineHeight: 18 }}>{t('loginHeroSub')}</T>
-						</Animated.View>
-					</Pressable>
+						</Pressable>
+					)}
 
 					{/* Form card */}
 					<Animated.View entering={FadeInUp.delay(80).duration(260)} style={[styles.card, { paddingBottom: Math.max(insets.bottom, 16) + 16 }]}>
@@ -304,7 +319,7 @@ export default function LoginScreen() {
 									) : (
 										<Field icon={User} value={participantId} onChangeText={setParticipantId} placeholder="USR-XXXXX" autoCapitalize="characters" autoCorrect={false} returnKeyType="next" onFocus={onInputFocus} />
 									)}
-									<Field icon={Lock} value={password} onChangeText={setPassword} placeholder={t('passwordPlaceholder')} secure autoCapitalize="none" autoCorrect={false} textContentType="password" returnKeyType="go" onFocus={onInputFocus} onSubmitEditing={submit} />
+									<Field icon={Lock} value={password} onChangeText={setPassword} placeholder={t('passwordPlaceholder')} secure autoCapitalize="none" autoCorrect={false} textContentType="password" returnKeyType="go" onFocus={onPasswordFocus} onSubmitEditing={submit} />
 									<Pressable onPress={() => setShowRecovery(true)} hitSlop={8} style={{ alignSelf: 'flex-end' }}>
 										<T v="strong" color={colors.amber} style={{ fontSize: 12.5 }}>{t('forgotPassword')}</T>
 									</Pressable>
@@ -391,6 +406,11 @@ const styles = StyleSheet.create({
 		paddingTop: 8,
 		paddingBottom: 16,
 	},
+	heroContentCompact: {
+		paddingHorizontal: 20,
+		paddingVertical: 10,
+		alignItems: 'center',
+	},
 	langs: { flexDirection: 'row', backgroundColor: 'rgba(255,255,255,0.08)', borderRadius: radius.pill, padding: 2 },
 	langBtn: { paddingHorizontal: 9, paddingVertical: 4, borderRadius: radius.pill },
 	langBtnActive: { backgroundColor: colors.gold },
@@ -398,7 +418,7 @@ const styles = StyleSheet.create({
 	logoWrap: { alignItems: 'center', marginTop: 14, marginBottom: 12 },
 	heroArtWrap: { width: 145, height: 94, alignItems: 'center', justifyContent: 'center' },
 	heroArt: { width: '100%', height: '100%' },
-	card: { flex: 1, backgroundColor: colors.bg, borderTopLeftRadius: 28, borderTopRightRadius: 28, paddingHorizontal: 22, paddingTop: 18, justifyContent: 'center', ...shadow(3) },
+	card: { flex: 1, backgroundColor: colors.bg, borderTopLeftRadius: 28, borderTopRightRadius: 28, paddingHorizontal: 22, paddingTop: 18, justifyContent: 'flex-start', ...shadow(3) },
 	backBtn: { width: 32, height: 32, borderRadius: 16, backgroundColor: colors.white, alignItems: 'center', justifyContent: 'center', ...shadow(1) },
 	errorBox: { flexDirection: 'row', alignItems: 'center', gap: 8, padding: 8, backgroundColor: colors.redSoft, borderRadius: radius.md, marginBottom: 8 },
 	shield: { width: 50, height: 50, borderRadius: 16, backgroundColor: colors.goldTint, alignItems: 'center', justifyContent: 'center', alignSelf: 'center' },
