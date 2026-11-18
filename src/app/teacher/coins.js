@@ -120,7 +120,7 @@ const L = {
 	student: { uz: "O'quvchi", ru: 'Ученик', en: 'Student' },
 };
 
-const MEDAL = { gold: ['🥇', colors.amber, colors.goldTint], silver: ['🥈', '#64748B', '#F1F5F9'], bronze: ['🥉', '#C2410C', '#FFF7ED'] };
+const MEDAL = { gold: [Medal, colors.amber, colors.goldTint], silver: [Medal, '#64748B', '#F1F5F9'], bronze: [Medal, '#C2410C', '#FFF7ED'] };
 const TYPE = {
 	teacher_approval: [CheckCircle2, colors.blue, colors.blueSoft],
 	student_registration: [Users, colors.purple, colors.purpleSoft],
@@ -205,11 +205,11 @@ export default function TeacherCoins() {
 	const tabCount = (key) => items.filter(HISTORY_TABS[key]).length;
 
 	const stats = coins ? [
-		[L.approval, `+${coins.registration_coins || 0}`, colors.blue],
-		[L.registrations, `+${coins.student_reg_coins || 0}`, colors.purple],
-		[L.gold, coins.gold || 0, colors.amber, '🥇'],
-		[L.silver, coins.silver || 0, '#64748B', '🥈'],
-		[L.bronze, coins.bronze || 0, '#C2410C', '🥉'],
+		{ label: L.approval, value: `+${coins.registration_coins || 0}`, color: colors.blue, icon: CheckCircle2 },
+		{ label: L.registrations, value: `+${coins.student_reg_coins || 0}`, color: colors.purple, icon: Users },
+		{ label: L.gold, value: coins.gold || 0, color: colors.amber, icon: Medal },
+		{ label: L.silver, value: coins.silver || 0, color: '#64748B', icon: Medal },
+		{ label: L.bronze, value: coins.bronze || 0, color: '#C2410C', icon: Medal },
 	] : [];
 
 	const bd = balances?.breakdown || {};
@@ -409,10 +409,13 @@ export default function TeacherCoins() {
 						{coins.manual_adjustment ? <Pill label={`${tx(L.manual)}: ${coins.manual_adjustment > 0 ? '+' : ''}${coins.manual_adjustment}`} color={colors.navyDeep} bg={colors.gold} /> : null}
 					</View>
 					<View style={styles.grid}>
-						{stats.map(([k, v, c, emoji]) => (
-							<Card key={k.en} style={styles.stat}>
-								<T style={{ fontFamily: fonts.extrabold, fontSize: 20, color: c }}>{emoji ? `${emoji} ` : ''}{v}</T>
-								<T v="small" style={{ fontSize: 11.5 }} numberOfLines={1}>{tx(k)}</T>
+						{stats.map(({ label, value, color, icon: Icon }) => (
+							<Card key={label.en} style={styles.stat}>
+								<View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 5 }}>
+									{Icon ? <Icon size={16} color={color} strokeWidth={2.4} /> : null}
+									<T style={{ fontFamily: fonts.extrabold, fontSize: 20, color }}>{value}</T>
+								</View>
+								<T v="small" style={{ fontSize: 11.5 }} numberOfLines={1}>{tx(label)}</T>
 							</Card>
 						))}
 					</View>
@@ -461,14 +464,14 @@ export default function TeacherCoins() {
 								<T v="h3">{tx(L.breakdown)}</T>
 							</View>
 							{coins.entries.map((e, i) => {
-								const [emoji, c, bg] = MEDAL[e.medal] || MEDAL.bronze;
+								const [MedalIcon, c, bg] = MEDAL[e.medal] || MEDAL.bronze;
 								return (
 									<View key={`${e.student_id}-${e.olympiad_id}-${i}`} style={styles.entry}>
 										<View style={{ flex: 1 }}>
 											<T v="strong" style={{ fontSize: 14 }}>{e.student_name}</T>
 											<T v="small" style={{ fontSize: 12 }} numberOfLines={1}>{e.olympiad_title}</T>
 										</View>
-										<Pill label={`${emoji} ${tx(L[e.medal] || L.bronze)}`} color={c} bg={bg} />
+										<Pill icon={MedalIcon} label={tx(L[e.medal] || L.bronze)} color={c} bg={bg} />
 										<T v="strong" color={colors.green}>+{e.coins}</T>
 									</View>
 								);

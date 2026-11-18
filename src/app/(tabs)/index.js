@@ -76,7 +76,7 @@ export default function HomeScreen() {
 				<Tap onPress={() => router.push('/profile')} containerStyle={{ flex: 1 }} style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
 					<Avatar initials={initialsOf(currentUser)} size={50} />
 					<View style={{ flex: 1 }}>
-						<T v="small">{t('greeting')} 👋</T>
+						<T v="small">{t('greeting')}</T>
 						<T v="h2" numberOfLines={1}>{currentUser.first_name} {currentUser.last_name}</T>
 					</View>
 				</Tap>

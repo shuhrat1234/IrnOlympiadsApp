@@ -59,9 +59,9 @@ const RULES = [
 		title: { uz: "3. O'quvchilarning sovrinli medallari", ru: '3. Медали учеников', en: '3. Student medals' },
 		desc: { uz: "IRN Respublika, NextGen va XpertStem olimpiadalarida (onlayn va rasmiy protokollar bo'yicha) o'quvchilaringizning medallari uchun:", ru: 'За призовые результаты прикреплённых учеников в олимпиадах Республиканская IRN, NextGen и XpertStem (онлайн и очные протоколы):', en: 'For medals your students win in IRN Republic, NextGen and XpertStem olympiads (online and official protocols):' },
 		badges: [
-			{ uz: '🥇 Oltin medal (100+ ball): +5 tanga', ru: '🥇 Золотая медаль (100+ баллов): +5 монет', en: '🥇 Gold medal (100+ points): +5 coins' },
-			{ uz: '🥈 Kumush medal (95+ ball): +4 tanga', ru: '🥈 Серебряная медаль (95+ баллов): +4 монеты', en: '🥈 Silver medal (95+ points): +4 coins' },
-			{ uz: '🥉 Bronza medal (90+ ball): +3 tanga', ru: '🥉 Бронзовая медаль (90+ баллов): +3 монеты', en: '🥉 Bronze medal (90+ points): +3 coins' },
+			{ icon: Medal, tone: [colors.amber, colors.goldTint], uz: "Oltin medal (100+ ball): +5 tanga", ru: 'Золотая медаль (100+ баллов): +5 монет', en: 'Gold medal (100+ points): +5 coins' },
+			{ icon: Medal, tone: ['#64748B', '#F1F5F9'], uz: "Kumush medal (95+ ball): +4 tanga", ru: 'Серебряная медаль (95+ баллов): +4 монеты', en: 'Silver medal (95+ points): +4 coins' },
+			{ icon: Medal, tone: ['#C2410C', '#FFF7ED'], uz: "Bronza medal (90+ ball): +3 tanga", ru: 'Бронзовая медаль (90+ баллов): +3 монеты', en: 'Bronze medal (90+ points): +3 coins' },
 		],
 	},
 	{
@@ -171,7 +171,7 @@ export default function TeacherRating() {
 	const metrics = [
 		[tx(L.approvalBonus), `+${my.regCoins}`],
 		[tx(L.studentRegs), `+${my.studentRegs}`],
-		[tx(L.medals), `🥇${my.gold} 🥈${my.silver} 🥉${my.bronze}`],
+		[tx(L.medals), `${my.gold || 0} / ${my.silver || 0} / ${my.bronze || 0}`],
 		...(my.manualAdj ? [[tx(L.manualBonus), `${my.manualAdj > 0 ? '+' : ''}${my.manualAdj}`]] : []),
 	];
 
@@ -232,7 +232,13 @@ export default function TeacherRating() {
 										<T v="strong" style={{ flexShrink: 1, fontSize: 14 }} numberOfLines={1}>{t.teacher_name}</T>
 										{mine ? <Pill label={tx(L.you)} color={colors.navyDeep} bg={colors.gold} /> : null}
 									</View>
-									<T v="small" style={{ fontSize: 12 }} numberOfLines={1}>{[t.region_name, `🥇${t.gold || 0} 🥈${t.silver || 0} 🥉${t.bronze || 0}`, `${t.student_reg_count || 0} ${tx(L.students)}`].filter(Boolean).join(' · ')}</T>
+									<View style={{ flexDirection: 'row', alignItems: 'center', flexWrap: 'wrap', gap: 5 }}>
+										{t.region_name ? <T v="small" style={{ fontSize: 12 }}>{t.region_name} ·</T> : null}
+										<View style={{ flexDirection: 'row', alignItems: 'center', gap: 2 }}><Medal size={12} color={colors.amber} /><T v="small" style={{ fontSize: 11.5, color: colors.amber, fontFamily: fonts.bold }}>{t.gold || 0}</T></View>
+										<View style={{ flexDirection: 'row', alignItems: 'center', gap: 2 }}><Medal size={12} color="#64748B" /><T v="small" style={{ fontSize: 11.5, color: '#64748B', fontFamily: fonts.bold }}>{t.silver || 0}</T></View>
+										<View style={{ flexDirection: 'row', alignItems: 'center', gap: 2 }}><Medal size={12} color="#C2410C" /><T v="small" style={{ fontSize: 11.5, color: '#C2410C', fontFamily: fonts.bold }}>{t.bronze || 0}</T></View>
+										{t.student_reg_count ? <T v="small" style={{ fontSize: 12 }}>· {t.student_reg_count} {tx(L.students)}</T> : null}
+									</View>
 								</View>
 								<View style={{ alignItems: 'flex-end' }}>
 									<T style={styles.coins}>{t.total_coins || 0}</T>
@@ -254,7 +260,7 @@ export default function TeacherRating() {
 							</View>
 							<T v="small" style={{ marginTop: 8, color: colors.ink2 }}>{tx(rule.desc)}</T>
 							<View style={{ gap: 6, marginTop: 10, alignItems: 'flex-start' }}>
-								{rule.badges.map((b) => <Pill key={b.en} label={tx(b)} color={rule.tone[0]} bg={rule.tone[1]} />)}
+								{rule.badges.map((b) => <Pill key={b.en} icon={b.icon} label={tx(b)} color={b.tone ? b.tone[0] : rule.tone[0]} bg={b.tone ? b.tone[1] : rule.tone[1]} />)}
 							</View>
 						</Card>
 					))}

@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { AppState, Linking, Modal, ScrollView, StyleSheet, View, KeyboardAvoidingView, Platform } from 'react-native';
 import { usePathname } from 'expo-router';
 import Animated, { ZoomIn } from 'react-native-reanimated';
-import { GraduationCap, Languages, LogOut, RefreshCw, Send } from 'lucide-react-native';
+import { CheckCircle2, GraduationCap, Languages, LogOut, Megaphone, RefreshCw, Send } from 'lucide-react-native';
 import { useAuth } from '../context/AuthContext';
 import { useLanguage } from '../context/LanguageContext';
 import { colors, shadow } from '../theme';
@@ -95,11 +95,11 @@ export default function StudentGates() {
 								<T v="h2" style={styles.center}>{t('tgGateTitle')}</T>
 								<T v="body" style={[styles.center, { marginTop: 8 }]}>{t('tgGateText')}</T>
 								<View style={styles.actions}>
-									<Button title={`📢 1. ${t('joinChannel') || "Kanalga a'zo bo'lish"}`} onPress={() => Linking.openURL(LINKS.channel)} />
-									<Button title={`🤖 2. ${t('launchBot')}`} icon={Send} variant="light" onPress={() => Linking.openURL(`${LINKS.bot}?start=${currentUser.participant_id || currentUser.id}`)} />
+									<Button icon={Megaphone} title={`1. ${t('joinChannel') || "Kanalga a'zo bo'lish"}`} onPress={() => Linking.openURL(LINKS.channel)} />
+									<Button icon={Send} title={`2. ${t('launchBot')}`} variant="light" onPress={() => Linking.openURL(`${LINKS.bot}?start=${currentUser.participant_id || currentUser.id}`)} />
 									<Button
-										title={`✅ 3. ${t('checkStatus')}`}
-										icon={RefreshCw}
+										title={`3. ${t('checkStatus')}`}
+										icon={CheckCircle2}
 										variant="dark"
 										loading={checking}
 										onPress={async () => {
