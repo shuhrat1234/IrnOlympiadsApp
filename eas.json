@@ -18,13 +18,17 @@
       "autoIncrement": true,
       "android": {
         "buildType": "app-bundle"
+      },
+      "ios": {
+        "appleTeamId": "XUBZC349A6"
       }
     }
   },
   "submit": {
     "production": {
       "ios": {
-        "ascAppId": "6834832792"
+        "ascAppId": "6834832792",
+        "appleTeamId": "XUBZC349A6"
       }
     }
   }

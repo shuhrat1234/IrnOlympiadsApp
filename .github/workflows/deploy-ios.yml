@@ -1,0 +1,58 @@
+name: Deploy iOS to TestFlight
+
+on:
+  workflow_dispatch:
+    inputs:
+      auto_submit:
+        description: 'Submit directly to App Store Connect / TestFlight'
+        required: true
+        type: boolean
+        default: true
+
+jobs:
+  build:
+    name: Build & Submit iOS
+    runs-on: macos-14
+    timeout-minutes: 60
+    steps:
+      - name: ⬇️ Checkout code
+        uses: actions/checkout@v4
+
+      - name: 🟢 Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: 📦 Install npm dependencies
+        run: npm ci
+
+      - name: 🚀 Setup Expo & EAS CLI
+        uses: expo/expo-github-action@v8
+        with:
+          eas-version: latest
+          token: ${{ secrets.EXPO_TOKEN }}
+
+      - name: 🔨 Build iOS IPA (Local Runner - Free Compute)
+        run: |
+          mkdir -p build
+          npx eas-cli build --platform ios --profile production --local --output ./build/IRNOlympiads.ipa --non-interactive
+        env:
+          EAS_NO_VCS: 1
+          EXPO_APPLE_TEAM_ID: "XUBZC349A6"
+          APPLE_TEAM_ID: "XUBZC349A6"
+
+      - name: 📤 Upload IPA Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: irn-olympiads-ipa
+          path: ./build/IRNOlympiads.ipa
+          retention-days: 7
+
+      - name: 📲 Submit IPA to TestFlight
+        if: ${{ inputs.auto_submit }}
+        run: |
+          npx eas-cli submit --platform ios --path ./build/IRNOlympiads.ipa --non-interactive
+        env:
+          EXPO_APPLE_TEAM_ID: "XUBZC349A6"
+          APPLE_TEAM_ID: "XUBZC349A6"
