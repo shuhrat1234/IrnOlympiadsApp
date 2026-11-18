@@ -68,15 +68,7 @@ export const TabBar = ({ state, navigation, items = {} }) => {
 										? (route.name === 'index' ? '/teacher' : `/teacher/${route.name}`)
 										: (route.name === 'index' ? '/(tabs)' : `/(tabs)/${route.name}`);
 
-									try {
-										if (navigation?.navigate) {
-											navigation.navigate(route.name);
-										} else {
-											router.push(target);
-										}
-									} catch (_) {
-										router.push(target);
-									}
+									router.replace(target);
 								}
 							}}
 						/>
