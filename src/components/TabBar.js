@@ -1,7 +1,7 @@
 import React from 'react';
 import { Platform, Pressable, StyleSheet, Text, View } from 'react-native';
 import { BlurView } from 'expo-blur';
-import { router } from 'expo-router';
+import { router, usePathname } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import * as Haptics from 'expo-haptics';
 import Animated, { useAnimatedStyle, withSpring } from 'react-native-reanimated';
@@ -17,10 +17,12 @@ const TabItem = ({ route, focused, onPress, label, badge, icon: Icon = Home }) =
 	return (
 		<Pressable onPress={onPress} style={styles.item} accessibilityRole="tab" accessibilityState={{ selected: focused }}>
 			<View style={styles.iconBox}>
-				<Animated.View style={[styles.pill, pill]} />
-				<Icon size={22} color={focused ? colors.navyDeep : colors.muted} strokeWidth={focused ? 2.5 : 2} />
+				<Animated.View style={[styles.pill, pill, { zIndex: 0 }]} />
+				<View style={{ zIndex: 2, position: 'relative', alignItems: 'center', justifyContent: 'center' }}>
+					<Icon size={22} color={focused ? colors.navyDeep : colors.muted} strokeWidth={focused ? 2.5 : 2} />
+				</View>
 				{badge ? (
-					<View style={styles.badge}>
+					<View style={[styles.badge, { zIndex: 3 }]}>
 						<Text style={styles.badgeText}>{badge > 9 ? '9+' : badge}</Text>
 					</View>
 				) : null}
@@ -35,6 +37,7 @@ const TabItem = ({ route, focused, onPress, label, badge, icon: Icon = Home }) =
 // items: { [routeName]: { icon, label, badge } } — routes missing from items are hidden.
 export const TabBar = ({ state, navigation, items = {} }) => {
 	const insets = useSafeAreaInsets();
+	const pathname = usePathname();
 	if (!state?.routes) return null;
 
 	return (
@@ -60,10 +63,19 @@ export const TabBar = ({ state, navigation, items = {} }) => {
 								} catch (_) {}
 								const event = navigation?.emit ? navigation.emit({ type: 'tabPress', target: route.key, canPreventDefault: true }) : null;
 								if (!focused && !event?.defaultPrevented) {
-									if (navigation?.navigate) {
-										navigation.navigate(route.name);
-									} else {
-										router.push(`/(tabs)/${route.name === 'index' ? '' : route.name}`);
+									const isTeacher = pathname?.startsWith('/teacher') || state.routes?.some((r) => r.name === 'coins');
+									const target = isTeacher
+										? (route.name === 'index' ? '/teacher' : `/teacher/${route.name}`)
+										: (route.name === 'index' ? '/(tabs)' : `/(tabs)/${route.name}`);
+
+									try {
+										if (navigation?.navigate) {
+											navigation.navigate(route.name);
+										} else {
+											router.push(target);
+										}
+									} catch (_) {
+										router.push(target);
 									}
 								}
 							}}
