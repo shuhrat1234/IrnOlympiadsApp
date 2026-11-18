@@ -5,7 +5,7 @@ import { router } from 'expo-router';
 import { BookOpen, Download, Minus, Package, Plus, Search, ShoppingBag, Trash2, Truck } from 'lucide-react-native';
 import api, { mediaUrl } from '../api/client';
 import E from '../api/endpoints';
-import { useAuth } from '../context/AuthContext';
+import { useAuth, homeRouteFor } from '../context/AuthContext';
 import { useLanguage } from '../context/LanguageContext';
 import { useToast } from '../context/ToastContext';
 import { Screen, StackHeader, LargeTitle } from '../components/layout';
@@ -58,7 +58,7 @@ const Cover = ({ book, title, height }) => {
 export default function BooksScreen() {
 	const { tx, lang, pick } = useLanguage();
 	const toast = useToast();
-	const { isLoggedIn } = useAuth();
+	const { isLoggedIn, currentUser } = useAuth();
 	const { items, count, total } = useCart();
 	const [books, setBooks] = useState([]);
 	const [loading, setLoading] = useState(true);
@@ -66,6 +66,16 @@ export default function BooksScreen() {
 	const [type, setType] = useState('all');
 	const [selected, setSelected] = useState(null);
 	const [cartOpen, setCartOpen] = useState(false);
+
+	const handleBack = () => {
+		if (router.canGoBack()) {
+			router.back();
+		} else if (isLoggedIn) {
+			router.replace(homeRouteFor(currentUser));
+		} else {
+			router.replace('/login');
+		}
+	};
 
 	const load = useCallback(async () => {
 		try {
@@ -113,7 +123,7 @@ export default function BooksScreen() {
 	return (
 		<>
 			<Screen
-				header={<StackHeader right={<IconButton icon={ShoppingBag} badge={count} onPress={() => setCartOpen(true)} />} />}
+				header={<StackHeader onBack={handleBack} right={<IconButton icon={ShoppingBag} badge={count} onPress={() => setCartOpen(true)} />} />}
 				onRefresh={load}
 				contentStyle={count ? { paddingBottom: 120 } : null}
 			>

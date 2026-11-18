@@ -2,7 +2,7 @@ import React, { useEffect, useMemo, useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { BookOpen, GraduationCap, MapPin, Search, SlidersHorizontal, Trophy, Wifi, X } from 'lucide-react-native';
 import { router } from 'expo-router';
-import { useAuth } from '../context/AuthContext';
+import { useAuth, homeRouteFor } from '../context/AuthContext';
 import { useLanguage } from '../context/LanguageContext';
 import { useOlympiad } from '../context/OlympiadContext';
 import { Screen, StackHeader, LargeTitle } from '../components/layout';
@@ -23,7 +23,7 @@ const Chip = ({ icon: Icon, label, active, onPress, onClear }) => (
 );
 
 export default function CatalogScreen() {
-	const { currentUser, regions, fetchMe } = useAuth();
+	const { currentUser, regions, fetchMe, isLoggedIn } = useAuth();
 	const { t, pick } = useLanguage();
 	const { olympiads, isLoaded, fetchOlympiads, userRegistrations, isRegistrationClosed } = useOlympiad();
 	const [query, setQuery] = useState('');
@@ -31,6 +31,16 @@ export default function CatalogScreen() {
 	const [grade, setGrade] = useState('all');
 	const [region, setRegion] = useState('all');
 	const [sheet, setSheet] = useState(null);
+
+	const handleBack = () => {
+		if (router.canGoBack()) {
+			router.back();
+		} else if (isLoggedIn) {
+			router.replace(homeRouteFor(currentUser));
+		} else {
+			router.replace('/login');
+		}
+	};
 
 	useEffect(() => { if (currentUser) fetchMe(); }, []);
 
@@ -68,7 +78,7 @@ export default function CatalogScreen() {
 	const regionName = region !== 'all' ? pick(regions.find((r) => String(r.id) === String(region)), 'name') : t('region');
 
 	return (
-		<Screen header={<StackHeader right={<IconButton icon={BookOpen} onPress={() => router.push('/books')} />} />} onRefresh={() => fetchOlympiads(true)}>
+		<Screen header={<StackHeader onBack={handleBack} right={<IconButton icon={BookOpen} onPress={() => router.push('/books')} />} />} onRefresh={() => fetchOlympiads(true)}>
 			<LargeTitle title={t('catalogTitle')} subtitle={t('catalogSub')} />
 			<Field icon={Search} value={query} onChangeText={setQuery} placeholder={t('search')} returnKeyType="search" />
 			<ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ marginHorizontal: -18, marginTop: 12, marginBottom: 18 }} contentContainerStyle={{ paddingHorizontal: 18, gap: 8 }}>

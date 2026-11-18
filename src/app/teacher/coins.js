@@ -332,18 +332,14 @@ export default function TeacherCoins() {
 				</View>
 				{deducted.length ? <Tap onPress={exportCsv} hitSlop={8} style={styles.exportBtn} accessibilityLabel={tx(L.export)}><Share2 size={16} color={colors.ink2} /></Tap> : null}
 			</View>
-			<View style={{ gap: 8, marginBottom: 12 }}>
-				<View style={{ flexDirection: 'row', alignItems: 'flex-start', gap: 8 }}>
-					<T v="label" numberOfLines={1} style={{ fontSize: 11, color: colors.muted, width: 76, flexShrink: 0, paddingTop: 8 }}>{tx(L.subject)}:</T>
-					<View style={{ flex: 1 }}>
-						<ChoicePills value={dedSubject} onChange={setDedSubject} options={[{ value: 'all', label: tx(L.fAll) }, { value: 'math', label: tx(L.mathShort), icon: Calculator }, { value: 'english', label: tx(L.engShort), icon: Languages }, { value: 'science', label: tx(L.scienceShort), icon: FlaskConical }]} />
-					</View>
+			<View style={{ gap: 12, marginBottom: 14 }}>
+				<View style={{ gap: 6 }}>
+					<T v="label" numberOfLines={1} style={{ fontSize: 11, color: colors.muted }}>{tx(L.subject)}:</T>
+					<ChoicePills value={dedSubject} onChange={setDedSubject} options={[{ value: 'all', label: tx(L.fAll) }, { value: 'math', label: tx(L.mathShort), icon: Calculator }, { value: 'english', label: tx(L.engShort), icon: Languages }, { value: 'science', label: tx(L.scienceShort), icon: FlaskConical }]} />
 				</View>
-				<View style={{ flexDirection: 'row', alignItems: 'flex-start', gap: 8 }}>
-					<T v="label" numberOfLines={1} style={{ fontSize: 11, color: colors.muted, width: 76, flexShrink: 0, paddingTop: 8 }}>{tx({ uz: 'Holat', ru: 'Статус', en: 'Status' })}:</T>
-					<View style={{ flex: 1 }}>
-						<ChoicePills value={dedStatus} onChange={setDedStatus} options={[{ value: 'all', label: tx(L.fAll) }, { value: 'pending', label: tx(L.fPending) }, { value: 'deducted', label: tx(L.fDeducted) }, { value: 'restored', label: tx(L.fRestored) }]} />
-					</View>
+				<View style={{ gap: 6 }}>
+					<T v="label" numberOfLines={1} style={{ fontSize: 11, color: colors.muted }}>{tx({ uz: 'Holat', ru: 'Статус', en: 'Status' })}:</T>
+					<ChoicePills value={dedStatus} onChange={setDedStatus} options={[{ value: 'all', label: tx(L.fAll) }, { value: 'pending', label: tx(L.fPending) }, { value: 'deducted', label: tx(L.fDeducted) }, { value: 'restored', label: tx(L.fRestored) }]} />
 				</View>
 			</View>
 			{dedLoading ? <ActivityIndicator color={colors.goldDeep} style={{ marginVertical: 16 }} /> : !deducted.length ? (
