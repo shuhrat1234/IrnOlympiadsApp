@@ -14,7 +14,7 @@ export const isTeacher = (user) => user?.role === 'teacher';
 const allowed = (user) => KNOWN_ROLES.includes(user?.role);
 
 // Where each role lands after login.
-export const homeRouteFor = (user) => (isTeacher(user) ? '/teacher' : '/');
+export const homeRouteFor = (user) => (isTeacher(user) ? '/teacher' : '/(tabs)');
 
 export const AuthProvider = ({ children }) => {
 	const [currentUser, setCurrentUser] = useState(null);

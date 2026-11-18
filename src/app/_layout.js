@@ -36,17 +36,16 @@ const RootNavigator = ({ onReady }) => {
 	useEffect(() => {
 		if (booting) return;
 		const first = segments[0];
-		if (!first || first === 'index') return;
 		if (!isLoggedIn) {
-			const publicRoute = ['login', 'catalog', 'olympiad', 'register', 'register-teacher', 'books'].includes(first);
-			if (!publicRoute) {
+			const publicRoute = ['login', 'catalog', 'olympiad', 'register', 'register-teacher'].includes(first);
+			if (!first || !publicRoute) {
 				router.replace('/login');
 			}
 			return;
 		}
 		landed.current = true;
 		const area = AREA[role];
-		const inOtherArea = (first === 'teacher' && area !== 'teacher') || (STUDENT_ONLY.includes(first) && area !== '(tabs)') || first === 'login';
+		const inOtherArea = (first === 'teacher' && area !== 'teacher') || (STUDENT_ONLY.includes(first) && area !== '(tabs)') || first === 'login' || !first;
 		if (inOtherArea) router.replace(homeRouteFor(currentUser));
 	}, [booting, isLoggedIn, role, segments]);
 
@@ -58,8 +57,7 @@ const RootNavigator = ({ onReady }) => {
 
 	return (
 		<View style={{ flex: 1 }} onTouchStart={touch}>
-			<Stack initialRouteName="index" screenOptions={{ headerShown: false, contentStyle: { backgroundColor: colors.bg }, animation: 'slide_from_right' }}>
-				<Stack.Screen name="index" />
+			<Stack initialRouteName="login" screenOptions={{ headerShown: false, contentStyle: { backgroundColor: colors.bg }, animation: 'slide_from_right' }}>
 				<Stack.Protected guard={student}>
 					<Stack.Screen name="(tabs)" options={{ animation: 'fade' }} />
 					<Stack.Screen name="payment/[id]" />
