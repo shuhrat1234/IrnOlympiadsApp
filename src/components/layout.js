@@ -99,20 +99,20 @@ export const useCountdown = (initialSeconds, onExpire) => {
 	return left;
 };
 
-export const PaymentCountdown = ({ seconds, onExpire, style }) => {
+export const PaymentCountdown = ({ seconds, onExpire, fullWidth = true, style }) => {
 	const { t } = useLanguage();
 	const left = useCountdown(seconds, onExpire);
 	const urgent = left < 60;
 	if (left <= 0) {
 		return (
-			<View style={[styles.countdown, { backgroundColor: colors.redSoft }, style]}>
+			<View style={[styles.countdown, fullWidth ? styles.countdownFull : styles.countdownInline, { backgroundColor: colors.redSoft }, style]}>
 				<AlertCircle size={15} color={colors.red} />
 				<T v="strong" color={colors.red} style={{ fontSize: 13 }}>{t('timeExpired')}</T>
 			</View>
 		);
 	}
 	return (
-		<View style={[styles.countdown, { backgroundColor: urgent ? colors.redSoft : colors.goldTint }, style]}>
+		<View style={[styles.countdown, fullWidth ? styles.countdownFull : styles.countdownInline, { backgroundColor: urgent ? colors.redSoft : colors.goldTint }, style]}>
 			<Timer size={15} color={urgent ? colors.red : colors.amber} strokeWidth={2.4} />
 			<T v="small" color={urgent ? colors.red : colors.amber} style={{ fontFamily: 'Manrope_700Bold' }}>{t('payWithin')}</T>
 			<T v="mono" style={{ fontWeight: '800', color: urgent ? colors.red : colors.navyDeep }}>{formatClock(left)}</T>
@@ -126,5 +126,7 @@ const styles = StyleSheet.create({
 	screenContent: { width: '100%', maxWidth: 760, alignSelf: 'center', paddingHorizontal: 18 },
 	largeTitle: { flexDirection: 'row', flexWrap: 'wrap', alignItems: 'flex-end', marginBottom: 18, gap: 12 },
 	header: { flexDirection: 'row', alignItems: 'center', gap: 12, paddingHorizontal: 18, paddingBottom: 12, backgroundColor: 'rgba(251,250,247,0.96)', zIndex: 10, borderBottomWidth: StyleSheet.hairlineWidth, borderBottomColor: 'rgba(230,224,211,0.7)' },
-	countdown: { flexDirection: 'row', alignItems: 'center', gap: 8, paddingHorizontal: 14, paddingVertical: 9, borderRadius: radius.pill, alignSelf: 'flex-start' },
+	countdown: { flexDirection: 'row', alignItems: 'center', gap: 8, paddingHorizontal: 14, paddingVertical: 10, borderRadius: radius.pill },
+	countdownFull: { width: '100%', alignSelf: 'stretch', justifyContent: 'center' },
+	countdownInline: { alignSelf: 'flex-start' },
 });
