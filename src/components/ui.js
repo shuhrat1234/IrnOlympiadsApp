@@ -140,6 +140,7 @@ export const Field = ({ label, icon: Icon, error, secure, right, style, inputSty
 			{label ? <T v="label" style={{ marginBottom: 7, marginLeft: 2, color: colors.ink2 }}>{label}</T> : null}
 			<View
 				style={[styles.field, focused && styles.fieldFocused, error && styles.fieldError]}
+				onTouchEnd={() => inputRef.current?.focus()}
 			>
 				{Icon ? <Icon size={18} color={focused ? colors.amber : colors.faint} strokeWidth={2.2} /> : null}
 				<TextInput
@@ -147,7 +148,6 @@ export const Field = ({ label, icon: Icon, error, secure, right, style, inputSty
 					placeholderTextColor={placeholderTextColor}
 					style={[styles.input, inputStyle]}
 					secureTextEntry={secure && hidden}
-					showSoftInputOnFocus
 					onFocus={(e) => { setFocused(true); props.onFocus?.(e); }}
 					onBlur={(e) => { setFocused(false); props.onBlur?.(e); }}
 					{...props}
