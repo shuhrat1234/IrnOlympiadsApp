@@ -166,36 +166,30 @@ export default function LoginScreen() {
 				</Pressable>
 			</View>
 
-			<KeyboardAvoidingView
-				behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-				style={{ flex: 1 }}
-				keyboardVerticalOffset={Platform.OS === 'ios' ? insets.top + 44 : 0}
+			<ScrollView
+				ref={scrollRef}
+				contentContainerStyle={{ flexGrow: 1 }}
+				keyboardShouldPersistTaps="handled"
+				keyboardDismissMode="on-drag"
+				automaticallyAdjustKeyboardInsets={Platform.OS === 'ios'}
+				showsVerticalScrollIndicator={false}
+				bounces={false}
 			>
-				<ScrollView
-					ref={scrollRef}
-					contentContainerStyle={{ flexGrow: 1 }}
-					scrollEnabled={true}
-					keyboardShouldPersistTaps="handled"
-					keyboardDismissMode={Platform.OS === 'ios' ? 'interactive' : 'on-drag'}
-					showsVerticalScrollIndicator={false}
-					bounces={true}
-					alwaysBounceVertical={false}
-				>
-					{/* Hero area */}
-					<Pressable onPress={Keyboard.dismiss} style={styles.heroContent}>
-						<Animated.View entering={FadeInDown.duration(500)} style={styles.logoWrap}>
-							<View style={styles.heroArtWrap}>
-								<Image source={require('../../assets/brand/irn-official-gold-logo.png')} style={styles.heroArt} resizeMode="contain" />
-							</View>
-						</Animated.View>
-						<Animated.View entering={FadeInDown.delay(80).duration(450)}>
-							<T v="display" color="#fff" style={{ textAlign: 'center', marginTop: 4, fontSize: 22, lineHeight: 28 }}>{t('loginHero')}</T>
-							<T v="body" color="rgba(255,255,255,0.7)" style={{ textAlign: 'center', marginTop: 4, paddingHorizontal: 16, fontSize: 13, lineHeight: 18 }}>{t('loginHeroSub')}</T>
-						</Animated.View>
-					</Pressable>
+				{/* Hero area */}
+				<Pressable onPress={Keyboard.dismiss} style={styles.heroContent}>
+					<Animated.View entering={FadeInDown.duration(500)} style={styles.logoWrap}>
+						<View style={styles.heroArtWrap}>
+							<Image source={require('../../assets/brand/irn-official-gold-logo.png')} style={styles.heroArt} resizeMode="contain" />
+						</View>
+					</Animated.View>
+					<Animated.View entering={FadeInDown.delay(80).duration(450)}>
+						<T v="display" color="#fff" style={{ textAlign: 'center', marginTop: 4, fontSize: 22, lineHeight: 28 }}>{t('loginHero')}</T>
+						<T v="body" color="rgba(255,255,255,0.7)" style={{ textAlign: 'center', marginTop: 4, paddingHorizontal: 16, fontSize: 13, lineHeight: 18 }}>{t('loginHeroSub')}</T>
+					</Animated.View>
+				</Pressable>
 
-					{/* Form card */}
-					<Animated.View entering={FadeInUp.delay(80).duration(260)} style={[styles.card, { paddingBottom: Math.max(insets.bottom, 16) + 16 }]}>
+				{/* Form card */}
+				<Animated.View entering={FadeInUp.delay(80).duration(260)} style={[styles.card, { paddingBottom: Math.max(insets.bottom, 16) + 24 }]}>
 							<View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 2 }}>
 								{twoFAToken || accounts ? (
 									<Tap onPress={() => { setTwoFAToken(null); setAccounts(null); setCode(''); setError(''); }} style={styles.backBtn}>
@@ -310,7 +304,6 @@ export default function LoginScreen() {
 							)}
 						</Animated.View>
 					</ScrollView>
-				</KeyboardAvoidingView>
 
 				{Platform.OS === 'ios' ? (
 					<InputAccessoryView nativeID={ACCESSORY_ID}>
@@ -362,17 +355,17 @@ const styles = StyleSheet.create({
 	},
 	heroContent: {
 		paddingHorizontal: 20,
-		paddingTop: 24,
-		paddingBottom: 22,
+		paddingTop: 12,
+		paddingBottom: 14,
 	},
 	langs: { flexDirection: 'row', backgroundColor: 'rgba(255,255,255,0.08)', borderRadius: radius.pill, padding: 2 },
 	langBtn: { paddingHorizontal: 9, paddingVertical: 4, borderRadius: radius.pill },
 	langBtnActive: { backgroundColor: colors.gold },
 	browse: { flexDirection: 'row', alignItems: 'center', gap: 5, paddingHorizontal: 10, paddingVertical: 6, borderRadius: radius.pill, backgroundColor: 'rgba(255,255,255,0.08)', borderWidth: 1, borderColor: 'rgba(255,255,255,0.1)' },
-	logoWrap: { alignItems: 'center', marginTop: 14, marginBottom: 14 },
-	heroArtWrap: { width: 148, height: 96, alignItems: 'center', justifyContent: 'center' },
+	logoWrap: { alignItems: 'center', marginTop: 6, marginBottom: 10 },
+	heroArtWrap: { width: 140, height: 90, alignItems: 'center', justifyContent: 'center' },
 	heroArt: { width: '100%', height: '100%' },
-	card: { flex: 1, backgroundColor: colors.bg, borderTopLeftRadius: 28, borderTopRightRadius: 28, paddingHorizontal: 22, paddingTop: 26, justifyContent: 'flex-start', ...shadow(3) },
+	card: { flex: 1, backgroundColor: colors.bg, borderTopLeftRadius: 28, borderTopRightRadius: 28, paddingHorizontal: 22, paddingTop: 22, minHeight: 480, justifyContent: 'flex-start', ...shadow(3) },
 	backBtn: { width: 32, height: 32, borderRadius: 16, backgroundColor: colors.white, alignItems: 'center', justifyContent: 'center', ...shadow(1) },
 	errorBox: { flexDirection: 'row', alignItems: 'center', gap: 8, padding: 8, backgroundColor: colors.redSoft, borderRadius: radius.md, marginBottom: 8 },
 	shield: { width: 50, height: 50, borderRadius: 16, backgroundColor: colors.goldTint, alignItems: 'center', justifyContent: 'center', alignSelf: 'center' },
