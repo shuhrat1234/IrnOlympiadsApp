@@ -14,6 +14,7 @@ import {
 } from 'react-native';
 import { router } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
+import { LinearGradient } from 'expo-linear-gradient';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Animated, { FadeInDown, FadeInUp } from 'react-native-reanimated';
 import { AlertTriangle, ArrowRight, ChevronLeft, GraduationCap, Hash, Lock, LogIn, Phone, Send, ShieldCheck, Trophy, User, Globe } from 'lucide-react-native';
@@ -148,8 +149,15 @@ export default function LoginScreen() {
 	return (
 		<View style={{ flex: 1, backgroundColor: colors.navyDeep }}>
 			<StatusBar style="light" />
-			<View style={styles.glow} pointerEvents="none" />
-			<View style={styles.glow2} pointerEvents="none" />
+			<LinearGradient
+				colors={['#081226', '#0C1A36', '#102244']}
+				start={{ x: 0, y: 0 }}
+				end={{ x: 1, y: 1 }}
+				style={StyleSheet.absoluteFill}
+				pointerEvents="none"
+			/>
+			<Image source={require('../../assets/brand/glow.png')} style={styles.glow} resizeMode="contain" pointerEvents="none" />
+			<Image source={require('../../assets/brand/glow.png')} style={styles.glow2} resizeMode="contain" pointerEvents="none" />
 
 			{/* Fixed Top Bar - protected safe area zone, never collides with status bar */}
 			<View style={[styles.topRowFixed, { paddingTop: insets.top + 6 }]}>
@@ -342,15 +350,40 @@ export default function LoginScreen() {
 }
 
 const styles = StyleSheet.create({
-	glow: { position: 'absolute', top: -120, right: -100, width: 320, height: 320, borderRadius: 160, backgroundColor: 'rgba(253,200,0,0.18)' },
-	glow2: { position: 'absolute', top: 160, left: -140, width: 280, height: 280, borderRadius: 140, backgroundColor: 'rgba(47,111,235,0.14)' },
+	glow: {
+		position: 'absolute',
+		top: -90,
+		right: -80,
+		width: 380,
+		height: 380,
+		opacity: 0.35,
+		...Platform.select({
+			web: {
+				filter: 'blur(24px)',
+			},
+		}),
+	},
+	glow2: {
+		position: 'absolute',
+		top: 120,
+		left: -120,
+		width: 340,
+		height: 340,
+		opacity: 0.22,
+		tintColor: '#2F6FEB',
+		...Platform.select({
+			web: {
+				filter: 'blur(30px)',
+			},
+		}),
+	},
 	topRowFixed: {
 		flexDirection: 'row',
 		justifyContent: 'space-between',
 		alignItems: 'center',
 		paddingHorizontal: 20,
 		paddingBottom: 8,
-		backgroundColor: colors.navyDeep,
+		backgroundColor: 'transparent',
 		zIndex: 10,
 	},
 	heroContent: {
