@@ -50,6 +50,7 @@ export default function LoginScreen() {
 	const [showRecovery, setShowRecovery] = useState(false);
 	const [staffBlocked, setStaffBlocked] = useState(false);
 	const [lockout, setLockout] = useState(() => Math.max(0, Math.ceil((attempts.lockUntil - Date.now()) / 1000)));
+	const scrollRef = useRef(null);
 
 	useEffect(() => {
 		if (lockout <= 0) return;
