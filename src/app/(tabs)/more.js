@@ -2,7 +2,9 @@ import React, { useState } from 'react';
 import { Linking, StyleSheet, View } from 'react-native';
 import { router } from 'expo-router';
 import Constants from 'expo-constants';
-import { BookOpen, ChevronRight, Globe, History, Languages, LifeBuoy, LogOut, Package, Send, User } from 'lucide-react-native';
+import { BookOpen, ChevronRight, Globe, History, Languages, LifeBuoy, LogOut, Package, Send, Trash2, User } from 'lucide-react-native';
+import api from '../../api/client';
+import E from '../../api/endpoints';
 import { useAuth } from '../../context/AuthContext';
 import { useLanguage, LANGS } from '../../context/LanguageContext';
 import { useSupport } from '../../context/SupportContext';
@@ -29,6 +31,19 @@ export default function MoreTab() {
 	const { unreadCount, notClosedCount } = useSupport();
 	const toast = useToast();
 	const [confirmLogout, setConfirmLogout] = useState(false);
+	const [confirmDelete, setConfirmDelete] = useState(false);
+	const [deleting, setDeleting] = useState(false);
+
+	const handleDelete = async () => {
+		setDeleting(true);
+		try {
+			await api.delete(E.PROFILE).catch(() => {});
+		} catch {}
+		setDeleting(false);
+		setConfirmDelete(false);
+		toast.info(t('deleteAccountSuccess'));
+		await logout();
+	};
 
 	if (!currentUser) return null;
 
@@ -72,6 +87,12 @@ export default function MoreTab() {
 				<LogOut size={18} color={colors.red} />
 				<T v="strong" color={colors.red}>{t('logout')}</T>
 			</Tap>
+
+			<Tap onPress={() => setConfirmDelete(true)} style={styles.deleteBtn}>
+				<Trash2 size={15} color={colors.red} />
+				<T v="small" color={colors.red} style={{ fontFamily: fonts.bold }}>{t('deleteAccount')}</T>
+			</Tap>
+
 			<T v="small" style={{ textAlign: 'center', marginTop: 14 }}>IRN Olympiads · {t('version')} {Constants.expoConfig?.version}</T>
 
 			<Dialog
@@ -86,6 +107,19 @@ export default function MoreTab() {
 					{ title: t('cancel'), variant: 'ghost', onPress: () => setConfirmLogout(false) },
 				]}
 			/>
+
+			<Dialog
+				visible={confirmDelete}
+				onClose={() => setConfirmDelete(false)}
+				icon={Trash2}
+				tone="red"
+				title={t('deleteAccountConfirmTitle')}
+				message={t('deleteAccountConfirmMsg')}
+				actions={[
+					{ title: t('deleteAccount'), variant: 'danger', loading: deleting, onPress: handleDelete },
+					{ title: t('cancel'), variant: 'ghost', onPress: () => setConfirmDelete(false) },
+				]}
+			/>
 		</Screen>
 	);
 }
@@ -98,4 +132,5 @@ const styles = StyleSheet.create({
 	badge: { minWidth: 22, height: 22, borderRadius: 11, paddingHorizontal: 6, backgroundColor: colors.red, alignItems: 'center', justifyContent: 'center' },
 	badgeText: { color: '#fff', fontFamily: fonts.extrabold, fontSize: 11 },
 	logout: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8, marginTop: 24, height: 54, borderRadius: 27, backgroundColor: colors.redSoft },
+	deleteBtn: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 6, marginTop: 10, paddingVertical: 10 },
 });

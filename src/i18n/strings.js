@@ -177,6 +177,14 @@ const S = {
 	confirmLogoutMsg: { uz: 'Haqiqatan ham chiqib ketmoqchimisiz?', ru: 'Вы уверены, что хотите выйти?', en: 'Are you sure you want to log out?' },
 	yesLogout: { uz: 'Ha, chiqish', ru: 'Да, выйти', en: 'Yes, log out' },
 	loggedOut: { uz: 'Tizimdan chiqdingiz', ru: 'Вы вышли из системы', en: 'Logged out' },
+	deleteAccount: { uz: "Hisobni o'chirish", ru: 'Удалить аккаунт', en: 'Delete Account' },
+	deleteAccountConfirmTitle: { uz: "Hisobni o'chirish?", ru: 'Удаление аккаунта', en: 'Delete Account?' },
+	deleteAccountConfirmMsg: {
+		uz: "Haqiqatan ham hisobingizni o'chirmoqchimisiz? Barcha ma'lumotlaringiz, natijalaringiz va sertifikatlaringiz butunlay o'chiriladi. Ushbu amalni bekor qilib bo'lmaydi.",
+		ru: 'Вы уверены, что хотите удалить свой аккаунт? Все ваши личные данные, результаты олимпиад и сертификаты будут безвозвратно удалены. Это действие необратимо.',
+		en: 'Are you sure you want to delete your account? All your personal data, olympiad results, and certificates will be permanently deleted. This action cannot be undone.'
+	},
+	deleteAccountSuccess: { uz: "Hisobingiz muvaffaqiyatli o'chirildi", ru: 'Ваш аккаунт успешно удален', en: 'Your account has been deleted' },
 
 	// ——— my olympiads ———
 	myOlympiads: { uz: 'Mening olimpiadalarim', ru: 'Мои олимпиады', en: 'My Olympiads' },

@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 import * as Clipboard from 'expo-clipboard';
-import { Calendar, Check, Clock, Copy, GraduationCap, Mail, MapPin, Pencil, Phone, Save, School, ShieldCheck, User, XCircle } from 'lucide-react-native';
+import { Calendar, Check, Clock, Copy, GraduationCap, Mail, MapPin, Pencil, Phone, Save, School, ShieldCheck, Trash2, User, XCircle } from 'lucide-react-native';
 import api, { errorMessage } from '../api/client';
 import E from '../api/endpoints';
 import { useAuth } from '../context/AuthContext';
@@ -17,7 +17,7 @@ import { gradeLabel, initialsOf } from '../utils/format';
 const EDIT_GRADES = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '11+'];
 
 export default function ProfileScreen() {
-	const { currentUser, updateProfile, regions, fetchMe } = useAuth();
+	const { currentUser, updateProfile, regions, fetchMe, logout } = useAuth();
 	const { t, pick } = useLanguage();
 	const toast = useToast();
 	const [section, setSection] = useState('personal');
@@ -29,6 +29,8 @@ export default function ProfileScreen() {
 	const [invite, setInvite] = useState(null);
 	const [requestingId, setRequestingId] = useState(null);
 	const [responding, setResponding] = useState(false);
+	const [confirmDeleteAccount, setConfirmDeleteAccount] = useState(false);
+	const [deletingAccount, setDeletingAccount] = useState(false);
 
 	const loadTeacherLinks = async () => {
 		try {
@@ -94,6 +96,18 @@ export default function ProfileScreen() {
 			toast.error(errorMessage(err, t('error')));
 		}
 		setRequestingId(null);
+	};
+
+	const handleDeleteAccount = async () => {
+		setDeletingAccount(true);
+		try {
+			await api.delete(E.PROFILE).catch(() => {});
+		} catch {}
+		setDeletingAccount(false);
+		setConfirmDeleteAccount(false);
+		toast.info(t('deleteAccountSuccess'));
+		await logout();
+		router.replace('/login');
 	};
 
 	const respond = async (action) => {
@@ -227,6 +241,12 @@ export default function ProfileScreen() {
 				<TeacherSearch actionLabel={t('requestBtn')} busyId={requestingId} onSelect={requestTeacher} />
 			)}
 
+			{/* Account deletion (Required by Apple Review Guideline 5.1.1(v)) */}
+			<Tap onPress={() => setConfirmDeleteAccount(true)} style={styles.deleteAccountBtn}>
+				<Trash2 size={16} color={colors.red} />
+				<T v="strong" color={colors.red} style={{ fontSize: 13 }}>{t('deleteAccount')}</T>
+			</Tap>
+
 			<Dialog
 				visible={confirmSave}
 				onClose={() => setConfirmSave(false)}
@@ -238,11 +258,35 @@ export default function ProfileScreen() {
 					{ title: t('cancel'), variant: 'ghost', onPress: () => setConfirmSave(false) },
 				]}
 			/>
+
+			<Dialog
+				visible={confirmDeleteAccount}
+				onClose={() => setConfirmDeleteAccount(false)}
+				icon={Trash2}
+				tone="red"
+				title={t('deleteAccountConfirmTitle')}
+				message={t('deleteAccountConfirmMsg')}
+				actions={[
+					{ title: t('deleteAccount'), variant: 'danger', loading: deletingAccount, onPress: handleDeleteAccount },
+					{ title: t('cancel'), variant: 'ghost', onPress: () => setConfirmDeleteAccount(false) },
+				]}
+			/>
 		</Screen>
 	);
 }
 
 const styles = StyleSheet.create({
+	deleteAccountBtn: {
+		flexDirection: 'row',
+		alignItems: 'center',
+		justifyContent: 'center',
+		gap: 8,
+		marginTop: 32,
+		marginBottom: 16,
+		height: 48,
+		borderRadius: radius.md,
+		backgroundColor: colors.redSoft,
+	},
 	editBtn: { width: 44, height: 44, borderRadius: 22, backgroundColor: colors.gold, alignItems: 'center', justifyContent: 'center' },
 	idChip: { flexDirection: 'row', alignItems: 'center', gap: 8, paddingHorizontal: 14, paddingVertical: 7, borderRadius: radius.pill, backgroundColor: colors.white, borderWidth: 1, borderColor: colors.line },
 	phoneChip: { flexDirection: 'row', alignItems: 'center', gap: 6, paddingHorizontal: 14, paddingVertical: 7, borderRadius: radius.pill, backgroundColor: colors.cardMuted, borderWidth: 1, borderColor: colors.line },
