@@ -20,7 +20,7 @@ SplashScreen.preventAutoHideAsync().catch(() => {});
 
 // Top-level route areas per role.
 const AREA = { participant: '(tabs)', teacher: 'teacher' };
-const STUDENT_ONLY = ['(tabs)', 'payment', 'exam', 'analysis', 'profile', 'history', 'orders', 'books', 'checkout'];
+const STUDENT_ONLY = ['(tabs)', 'payment', 'exam', 'analysis', 'profile', 'history', 'orders'];
 
 const RootNavigator = ({ onReady }) => {
 	const { isLoggedIn, booting, currentUser } = useAuth();
@@ -37,7 +37,7 @@ const RootNavigator = ({ onReady }) => {
 		if (booting) return;
 		const first = segments[0];
 		if (!isLoggedIn) {
-			const publicRoute = ['login', 'catalog', 'olympiad', 'register', 'register-teacher'].includes(first);
+			const publicRoute = ['login', 'catalog', 'olympiad', 'register', 'register-teacher', 'books'].includes(first);
 			if (!first || !publicRoute) {
 				router.replace('/login');
 			}
