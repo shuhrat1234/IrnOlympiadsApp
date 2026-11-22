@@ -186,6 +186,21 @@ const S = {
 	},
 	deleteAccountSuccess: { uz: "Hisobingiz muvaffaqiyatli o'chirildi", ru: 'Ваш аккаунт успешно удален', en: 'Your account has been deleted' },
 
+	// ——— companion subject selection (website parity) ———
+	selectSubjectsTitle: { uz: 'Olimpiada fanlarini tanlang', ru: 'Выберите предметы олимпиады', en: 'Select Olympiad Subjects' },
+	selectSubjectsSubtitle: {
+		uz: "Asosiy fanni almashtirishingiz yoki bir vaqtning o'zida bir nechta fanni tanlab, bitta to'lov orqali to'lashingiz mumkin!",
+		ru: 'Вы можете переключать основной предмет или выбрать сразу несколько предметов и оплатить всё одним платежом!',
+		en: 'You can switch the main subject or select multiple subjects and pay all in one payment!'
+	},
+	mainSubject: { uz: 'Asosiy fan', ru: 'Основной', en: 'Main' },
+	makeMain: { uz: 'Asosiy qilish', ru: 'Сделать основным', en: 'Make main' },
+	addedSubject: { uz: "Qo'shilgan", ru: 'Добавлен', en: 'Added' },
+	chooseSubject: { uz: 'Tanlash', ru: 'Выбрать', en: 'Select' },
+	addSubject: { uz: "+ Qo'shish", ru: '+ Добавить', en: '+ Add' },
+	totalToPay: { uz: "Jami to'lov summasi:", ru: 'Итоговая сумма к оплате:', en: 'Total to pay:' },
+	freeSubject: { uz: 'Bepul', ru: 'Бесплатно', en: 'Free' },
+
 	// ——— my olympiads ———
 	myOlympiads: { uz: 'Mening olimpiadalarim', ru: 'Мои олимпиады', en: 'My Olympiads' },
 	myOlympiadsSub: { uz: "Ro'yxatdan o'tgan olimpiadalar", ru: 'Олимпиады, на которые вы зарегистрированы', en: 'Olympiads you are registered for' },

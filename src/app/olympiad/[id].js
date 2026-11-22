@@ -76,25 +76,7 @@ export default function OlympiadDetailScreen() {
 
 	const handleRegister = async () => {
 		setConfirm(false);
-		if (!currentUser) {
-			router.push(`/register/${id}`);
-			return;
-		}
-		setLoading(true);
-		const res = await registerForOlympiad(id);
-		const paidOly = Number(oly.price) > 0;
-		setLoading(false);
-		if (res.success) {
-			if (paidOly) router.push({ pathname: `/payment/${id}`, params: { regId: res.registration_id || res.id } });
-			else {
-				setFreeResult(res);
-				setShowGroups(true);
-			}
-		} else if (paidOly && res.isAlreadyRegistered) {
-			router.push(`/payment/${id}`);
-		} else {
-			toast.error(res.error || t('error'));
-		}
+		router.push(`/register/${id}`);
 	};
 
 	return (

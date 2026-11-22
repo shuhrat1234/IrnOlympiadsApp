@@ -53,7 +53,7 @@ export const Screen = ({ children, onRefresh, header, contentStyle, tabBar = fal
 export const StackHeader = ({ title, subtitle, right, onBack }) => {
 	const insets = useSafeAreaInsets();
 	return (
-		<View style={[styles.header, { paddingTop: insets.top + 6 }]}>
+		<View style={[styles.header, { paddingTop: Math.max(insets.top, 14) + 6 }]}>
 			<IconButton icon={ChevronLeft} onPress={onBack || (() => (router.canGoBack() ? router.back() : router.replace('/')))} />
 			<View style={{ flex: 1, minWidth: 0 }}>
 				{title ? <T v="h3" numberOfLines={2} style={{ fontSize: 17 }}>{title}</T> : null}
