@@ -11,7 +11,7 @@ import { Button, Dialog, EmptyState, Segmented, SkeletonCard } from '../../compo
 import RegistrationCard from '../../components/RegistrationCard';
 import OlympiadCard from '../../components/OlympiadCard';
 import { CertificateSheet, PermissionSheet } from '../../components/DocumentSheets';
-import { certificateData, olyIdOf } from '../../utils/olympiadLogic';
+import { certificateData, olyIdOf, registrationStateFor } from '../../utils/olympiadLogic';
 import { formatDate } from '../../utils/format';
 
 export default function OlympiadsTab() {
@@ -32,9 +32,7 @@ export default function OlympiadsTab() {
 	const refresh = useCallback(() => Promise.all([fetchMe(), fetchOlympiads(true), fetchUserRegistrations()]), [fetchMe, fetchOlympiads, fetchUserRegistrations]);
 
 	const registrations = currentUser?.registrations?.length ? currentUser.registrations : userRegistrations;
-
-	const registeredIds = new Set((currentUser?.registrations || []).filter((r) => r.payment_status !== 'expired').map((r) => String(r.olympiad)));
-	const available = olympiads.filter((o) => o.is_active !== false && !registeredIds.has(String(o.id)) && !isRegistrationClosed(o));
+	const allActive = olympiads.filter((o) => o.is_active !== false);
 
 	const onAction = (action) => {
 		if (action.direct) router.push(action.route);
@@ -68,7 +66,7 @@ export default function OlympiadsTab() {
 				style={{ marginBottom: 18 }}
 				options={[
 					{ value: 'mine', label: t('mine'), icon: BookOpen, badge: registrations.length || null },
-					{ value: 'available', label: t('available'), icon: Search, badge: available.length || null },
+					{ value: 'available', label: t('available'), icon: Search, badge: allActive.length || null },
 				]}
 			/>
 
@@ -88,10 +86,22 @@ export default function OlympiadsTab() {
 						return <RegistrationCard key={reg.id || i} reg={reg} oly={oly} onAction={onAction} onPermission={(r, o) => setPermission({ reg: r, oly: o })} onCertificate={openCertificate} />;
 					})
 				)
-			) : available.length === 0 ? (
+			) : allActive.length === 0 ? (
 				<EmptyState icon={Search} title={t('noAvailable')} text={t('noAvailableSub')} />
 			) : (
-				available.map((oly) => <OlympiadCard key={oly.id} oly={oly} userGrade={currentUser?.grade} />)
+				allActive.map((oly) => {
+					const st = currentUser ? registrationStateFor(currentUser, userRegistrations, oly) : {};
+					return (
+						<OlympiadCard
+							key={oly.id}
+							oly={oly}
+							userGrade={currentUser?.grade}
+							registered={st.isPaid}
+							pendingPayment={st.isPendingPayment}
+							closed={isRegistrationClosed(oly)}
+						/>
+					);
+				})
 			)}
 
 			<Dialog

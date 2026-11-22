@@ -3,7 +3,7 @@ import { Image, ScrollView, StyleSheet, View } from 'react-native';
 import { router } from 'expo-router';
 import * as Clipboard from 'expo-clipboard';
 import Animated, { FadeInDown } from 'react-native-reanimated';
-import { Award, Bell, BookOpen, Check, ChevronRight, Clock, Copy, CreditCard, Download, History, LifeBuoy, MapPin, Package, Play, Search, Shield, Star, Trophy, Zap, CheckCircle2, GraduationCap } from 'lucide-react-native';
+import { Award, Bell, BookOpen, Check, ChevronRight, Clock, Copy, CreditCard, Download, History, LifeBuoy, MapPin, Package, Play, Search, Shield, Star, Trophy, Zap, CheckCircle2, GraduationCap, ArrowRight } from 'lucide-react-native';
 import { useAuth } from '../../context/AuthContext';
 import { useLanguage } from '../../context/LanguageContext';
 import { useOlympiad } from '../../context/OlympiadContext';
@@ -13,14 +13,15 @@ import { Screen, PaymentCountdown } from '../../components/layout';
 import { Avatar, Button, Card, Dialog, IconBadge, IconButton, Pill, SectionTitle, T, Tap } from '../../components/ui';
 import { colors, fonts, radius, shadow } from '../../theme';
 import { formatDate, gradeLabel, initialsOf } from '../../utils/format';
-import { canStartExam, olyIdOf, userSessionFor } from '../../utils/olympiadLogic';
+import { canStartExam, olyIdOf, userSessionFor, registrationStateFor } from '../../utils/olympiadLogic';
 import { finalPermissionPdf } from '../../utils/documents';
 import SubjectTeachers from '../../components/SubjectTeachers';
+import OlympiadCard from '../../components/OlympiadCard';
 
 export default function HomeScreen() {
 	const { currentUser, fetchMe, regions } = useAuth();
 	const { t, lang, pick } = useLanguage();
-	const { olympiads, getOlympiad, fetchOlympiads, fetchUserRegistrations, userRegistrations } = useOlympiad();
+	const { olympiads, getOlympiad, fetchOlympiads, fetchUserRegistrations, userRegistrations, isRegistrationClosed } = useOlympiad();
 	const { unreadCount } = useSupport();
 	const toast = useToast();
 	const [confirm, setConfirm] = useState(null);
@@ -209,6 +210,57 @@ export default function HomeScreen() {
 				))}
 			</View>
 
+			{/* Open / Featured Olympiads Section */}
+			<View style={{ marginTop: 28 }}>
+				<View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
+					<SectionTitle title={t('availableTitle')} style={{ marginTop: 0 }} />
+					<Tap onPress={() => router.push({ pathname: '/olympiads', params: { tab: 'available' } })} style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}>
+						<T v="small" style={{ color: colors.goldDeep, fontFamily: fonts.bold }}>
+							{t('viewAll')}
+						</T>
+						<ChevronRight size={14} color={colors.goldDeep} />
+					</Tap>
+				</View>
+				{olympiads.filter((o) => o.is_active !== false).slice(0, 3).map((o) => {
+					const st = currentUser ? registrationStateFor(currentUser, userRegistrations, o) : {};
+					return (
+						<OlympiadCard
+							key={o.id}
+							oly={o}
+							userGrade={currentUser?.grade}
+							registered={st.isPaid}
+							pendingPayment={st.isPendingPayment}
+							closed={isRegistrationClosed(o)}
+						/>
+					);
+				})}
+			</View>
+
+			{/* Book Shop & Preparation Banner */}
+			<Card style={styles.bookBanner}>
+				<View style={{ flexDirection: 'row', gap: 14, alignItems: 'center' }}>
+					<View style={styles.bookIconBadge}>
+						<BookOpen size={24} color={colors.goldDeep} />
+					</View>
+					<View style={{ flex: 1 }}>
+						<T v="h3" style={{ fontSize: 16 }}>
+							{t('prepBooksTitle')}
+						</T>
+						<T v="small" style={{ color: colors.ink2, marginTop: 4, lineHeight: 18 }}>
+							{t('prepBooksSub')}
+						</T>
+					</View>
+				</View>
+				<Button
+					title={t('openBookShop')}
+					iconRight={ArrowRight}
+					variant="dark"
+					size="md"
+					onPress={() => router.push('/books')}
+					style={{ marginTop: 14 }}
+				/>
+			</Card>
+
 
 			<Dialog
 				visible={!!confirm}
@@ -241,4 +293,23 @@ const styles = StyleSheet.create({
 	grid: { flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-between', rowGap: 12 },
 	quick: { backgroundColor: colors.white, borderRadius: radius.xl, padding: 16, borderWidth: 1, borderColor: colors.line, minHeight: 124, ...shadow(1) },
 	qBadge: { minWidth: 22, height: 22, borderRadius: 11, backgroundColor: colors.red, alignItems: 'center', justifyContent: 'center', paddingHorizontal: 6 },
+	bookBanner: {
+		marginTop: 22,
+		padding: 18,
+		borderRadius: 22,
+		backgroundColor: '#FFFDF5',
+		borderWidth: 1.5,
+		borderColor: '#FDE68A',
+		...shadow(1)
+	},
+	bookIconBadge: {
+		width: 48,
+		height: 48,
+		borderRadius: 16,
+		backgroundColor: '#FEF3C7',
+		borderWidth: 1.2,
+		borderColor: '#FDE68A',
+		alignItems: 'center',
+		justifyContent: 'center'
+	}
 });

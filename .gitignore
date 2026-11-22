@@ -40,6 +40,12 @@ yarn-error.*
 /ios
 /android
 
+# builds and screenshots
+*.aab
+*.ipa
+store-captures-current/
+IRN-Plain-Screenshots/
+
 
 # local Claude Code settings
 .claude/

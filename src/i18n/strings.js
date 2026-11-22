@@ -186,6 +186,31 @@ const S = {
 	},
 	deleteAccountSuccess: { uz: "Hisobingiz muvaffaqiyatli o'chirildi", ru: 'Ваш аккаунт успешно удален', en: 'Your account has been deleted' },
 
+	// ——— app update modal & home sections ———
+	updateAvailable: { uz: 'Yangi yangilanish mavjud!', ru: 'Доступно обновление!', en: 'Update Available!' },
+	updateAvailableMsg: {
+		uz: 'Ilovaning yangi versiyasi chiqdi. Barcha yangi imkoniyatlar va yaxshilanishlardan foydalanish uchun ilovani yangilang.',
+		ru: 'Вышла новая версия приложения с выбором дополнительных предметов и улучшениями. Пожалуйста, обновите приложение.',
+		en: 'A new version of the app is available with companion subjects and improvements. Please update to the latest version.'
+	},
+	updateBtn: { uz: 'Yangilash', ru: 'Обновить', en: 'Update' },
+	updateRequiredNotice: {
+		uz: "Ilovadan foydalanishni davom ettirish uchun yangilash talab qilinadi",
+		ru: 'Для продолжения работы необходимо обновить приложение',
+		en: 'Update is required to continue using the app'
+	},
+	later: { uz: 'Keyinroq', ru: 'Позже', en: 'Later' },
+	currentVersion: { uz: 'Joriy versiya', ru: 'Текущая версия', en: 'Current version' },
+	newVersion: { uz: 'Yangi versiya', ru: 'Новая версия', en: 'New version' },
+	prepBooksTitle: { uz: 'Olimpiadaga tayyorgarlik kitoblari', ru: 'Книги для подготовки к олимпиаде', en: 'Olympiad Prep Books' },
+	prepBooksSub: {
+		uz: "O'tgan yillardagi testlar va rasmiy topshiriqlar to'plami bilan bilimingizni oshiring",
+		ru: 'Официальные сборники тестов и заданий прошлых лет по математике и английскому языку',
+		en: 'Official test collections and problem sets for mathematics and english'
+	},
+	openBookShop: { uz: "Kitoblar bo'limiga o'tish", ru: 'В магазин книг', en: 'Open Book Shop' },
+	viewAll: { uz: "Barchasi", ru: 'Все', en: 'All' },
+
 	// ——— companion subject selection (website parity) ———
 	selectSubjectsTitle: { uz: 'Olimpiada fanlarini tanlang', ru: 'Выберите предметы олимпиады', en: 'Select Olympiad Subjects' },
 	selectSubjectsSubtitle: {

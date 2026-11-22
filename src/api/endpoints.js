@@ -34,6 +34,7 @@ const E = {
     NOTIFICATION_MARK_READ: (id) => `notifications/${id}/mark_as_read/`,
     NOTIFICATIONS_MARK_ALL_READ: 'notifications/mark_all_as_read/',
     REGIONS: 'regions/',
+    APP_VERSION: 'app-version/',
 
     // Teacher cabinet
     TEACHER_COINS: 'admin/teacher-coins/', // leaderboard — readable by teachers

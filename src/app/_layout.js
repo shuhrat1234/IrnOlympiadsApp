@@ -13,6 +13,7 @@ import { SupportProvider } from '../context/SupportContext';
 import { OlympiadProvider } from '../context/OlympiadContext';
 import StudentGates from '../components/StudentGates';
 import BootLoader from '../components/BootLoader';
+import AppUpdateChecker from '../components/AppUpdateChecker';
 import useIdleLogout from '../hooks/useIdleLogout';
 import { colors } from '../theme';
 
@@ -87,6 +88,7 @@ const RootNavigator = ({ onReady }) => {
 				<Stack.Screen name="olympiad/[id]" />
 			</Stack>
 			{student ? <StudentGates /> : null}
+			<AppUpdateChecker />
 		</View>
 	);
 };
