@@ -83,14 +83,14 @@ export default function MoreTab() {
 				<Row icon={Globe} tint={[colors.cardMuted, colors.ink2]} label="irnolympiad.uz" onPress={() => Linking.openURL(LINKS.site)} last />
 			</Card>
 
+			<T v="label" style={styles.group}>{t('accountManagement')}</T>
+			<Card padded={false}>
+				<Row icon={Trash2} tint={[colors.redSoft, colors.red]} label={t('deleteAccount')} onPress={() => setConfirmDelete(true)} last />
+			</Card>
+
 			<Tap onPress={() => setConfirmLogout(true)} style={styles.logout}>
 				<LogOut size={18} color={colors.red} />
 				<T v="strong" color={colors.red}>{t('logout')}</T>
-			</Tap>
-
-			<Tap onPress={() => setConfirmDelete(true)} style={styles.deleteBtn}>
-				<Trash2 size={15} color={colors.red} />
-				<T v="small" color={colors.red} style={{ fontFamily: fonts.bold }}>{t('deleteAccount')}</T>
 			</Tap>
 
 			<T v="small" style={{ textAlign: 'center', marginTop: 14 }}>IRN Olympiads · {t('version')} {Constants.expoConfig?.version}</T>

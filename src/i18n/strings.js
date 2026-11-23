@@ -178,6 +178,8 @@ const S = {
 	yesLogout: { uz: 'Ha, chiqish', ru: 'Да, выйти', en: 'Yes, log out' },
 	loggedOut: { uz: 'Tizimdan chiqdingiz', ru: 'Вы вышли из системы', en: 'Logged out' },
 	deleteAccount: { uz: "Hisobni o'chirish", ru: 'Удалить аккаунт', en: 'Delete Account' },
+	deleteAccountDesc: { uz: "Barcha ma'lumotlarni butunlay o'chirish", ru: 'Полное удаление личных данных и результатов', en: 'Permanently remove account and data' },
+	accountManagement: { uz: 'Hisobni boshqarish', ru: 'Управление аккаунтом', en: 'Account Management' },
 	deleteAccountConfirmTitle: { uz: "Hisobni o'chirish?", ru: 'Удаление аккаунта', en: 'Delete Account?' },
 	deleteAccountConfirmMsg: {
 		uz: "Haqiqatan ham hisobingizni o'chirmoqchimisiz? Barcha ma'lumotlaringiz, natijalaringiz va sertifikatlaringiz butunlay o'chiriladi. Ushbu amalni bekor qilib bo'lmaydi.",

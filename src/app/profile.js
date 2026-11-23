@@ -242,10 +242,16 @@ export default function ProfileScreen() {
 			)}
 
 			{/* Account deletion (Required by Apple Review Guideline 5.1.1(v)) */}
-			<Tap onPress={() => setConfirmDeleteAccount(true)} style={styles.deleteAccountBtn}>
-				<Trash2 size={16} color={colors.red} />
-				<T v="strong" color={colors.red} style={{ fontSize: 13 }}>{t('deleteAccount')}</T>
-			</Tap>
+			<T v="h2" style={{ marginTop: 24, marginBottom: 10 }}>{t('accountManagement')}</T>
+			<Card padded={false} style={{ borderColor: colors.redSoft, borderWidth: 1 }}>
+				<Tap onPress={() => setConfirmDeleteAccount(true)} scale={0.985} style={styles.deleteRow}>
+					<IconBadge icon={Trash2} bg={colors.redSoft} color={colors.red} size={38} />
+					<View style={{ flex: 1 }}>
+						<T v="strong" color={colors.red}>{t('deleteAccount')}</T>
+						<T v="small" color={colors.ink2} style={{ marginTop: 2 }}>{t('deleteAccountDesc')}</T>
+					</View>
+				</Tap>
+			</Card>
 
 			<Dialog
 				visible={confirmSave}
@@ -276,16 +282,12 @@ export default function ProfileScreen() {
 }
 
 const styles = StyleSheet.create({
-	deleteAccountBtn: {
+	deleteRow: {
 		flexDirection: 'row',
 		alignItems: 'center',
-		justifyContent: 'center',
-		gap: 8,
-		marginTop: 32,
-		marginBottom: 16,
-		height: 48,
-		borderRadius: radius.md,
-		backgroundColor: colors.redSoft,
+		gap: 12,
+		paddingHorizontal: 16,
+		paddingVertical: 14,
 	},
 	editBtn: { width: 44, height: 44, borderRadius: 22, backgroundColor: colors.gold, alignItems: 'center', justifyContent: 'center' },
 	idChip: { flexDirection: 'row', alignItems: 'center', gap: 8, paddingHorizontal: 14, paddingVertical: 7, borderRadius: radius.pill, backgroundColor: colors.white, borderWidth: 1, borderColor: colors.line },
