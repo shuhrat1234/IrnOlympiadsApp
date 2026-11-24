@@ -33,6 +33,20 @@ module.exports = function withRemoveStoragePermissions(config) {
       });
     });
 
+    if (!Array.isArray(androidManifest.manifest['uses-feature'])) {
+      androidManifest.manifest['uses-feature'] = [];
+    }
+    // Set screen.portrait to not required so app is available across all Android form factors
+    androidManifest.manifest['uses-feature'] = androidManifest.manifest['uses-feature'].filter(
+      (item) => item.$?.['android:name'] !== 'android.hardware.screen.portrait'
+    );
+    androidManifest.manifest['uses-feature'].push({
+      $: {
+        'android:name': 'android.hardware.screen.portrait',
+        'android:required': 'false',
+      },
+    });
+
     return config;
   });
 };
