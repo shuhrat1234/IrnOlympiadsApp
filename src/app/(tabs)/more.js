@@ -14,6 +14,7 @@ import { Avatar, Card, Dialog, IconBadge, Segmented, T, Tap } from '../../compon
 import { colors, fonts } from '../../theme';
 import { gradeLabel, initialsOf } from '../../utils/format';
 import { LINKS } from '../../utils/constants';
+import { openTelegram } from '../../utils/telegram';
 
 const Row = ({ icon, tint, label, value, badge, onPress, last }) => (
 	<Tap onPress={onPress} scale={0.985} style={[styles.row, !last && styles.rowBorder]}>
@@ -79,7 +80,7 @@ export default function MoreTab() {
 			</Card>
 
 			<Card padded={false} style={{ marginTop: 12 }}>
-				<Row icon={Send} tint={[colors.blueSoft, '#0088CC']} label={t('telegramChannel')} value="@IRN_Olympiads" onPress={() => Linking.openURL(LINKS.channel)} />
+				<Row icon={Send} tint={[colors.blueSoft, '#0088CC']} label={t('telegramChannel')} value="@IRN_Olympiads" onPress={() => openTelegram(LINKS.channel)} />
 				<Row icon={Globe} tint={[colors.cardMuted, colors.ink2]} label="irnolympiad.uz" onPress={() => Linking.openURL(LINKS.site)} last />
 			</Card>
 
@@ -103,7 +104,17 @@ export default function MoreTab() {
 				title={t('confirmLogoutTitle')}
 				message={t('confirmLogoutMsg')}
 				actions={[
-					{ title: t('yesLogout'), variant: 'danger', onPress: async () => { setConfirmLogout(false); await logout(); toast.info(t('loggedOut')); } },
+					{
+						title: t('yesLogout'),
+						variant: 'danger',
+						onPress: async () => {
+							setConfirmLogout(false);
+							setTimeout(async () => {
+								await logout();
+								toast.info(t('loggedOut'));
+							}, 60);
+						},
+					},
 					{ title: t('cancel'), variant: 'ghost', onPress: () => setConfirmLogout(false) },
 				]}
 			/>

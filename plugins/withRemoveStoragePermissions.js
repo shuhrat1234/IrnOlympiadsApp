@@ -47,6 +47,27 @@ module.exports = function withRemoveStoragePermissions(config) {
       },
     });
 
+    if (!Array.isArray(androidManifest.manifest['queries'])) {
+      androidManifest.manifest['queries'] = [];
+    }
+    androidManifest.manifest['queries'].push({
+      intent: [
+        {
+          action: [{ $: { 'android:name': 'android.intent.action.VIEW' } }],
+          data: [{ $: { 'android:scheme': 'tg' } }],
+        },
+        {
+          action: [{ $: { 'android:name': 'android.intent.action.VIEW' } }],
+          data: [{ $: { 'android:scheme': 'https' } }],
+        },
+      ],
+      package: [
+        { $: { 'android:name': 'org.telegram.messenger' } },
+        { $: { 'android:name': 'org.telegram.messenger.web' } },
+        { $: { 'android:name': 'org.thunderdog.challegram' } },
+      ],
+    });
+
     return config;
   });
 };

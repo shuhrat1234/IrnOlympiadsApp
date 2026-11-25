@@ -25,6 +25,7 @@ import { Button, Dialog, Field, Segmented, Sheet, T, Tap } from '../components/u
 import { colors, fonts, radius, shadow } from '../theme';
 import { LINKS } from '../utils/constants';
 import { cleanUzPhone } from '../utils/format';
+import { openTelegram } from '../utils/telegram';
 
 // Web kept these in sessionStorage — module memory is the app-session equivalent.
 const attempts = { failed: 0, lockUntil: 0 };
@@ -105,6 +106,7 @@ export default function LoginScreen() {
 	};
 
 	const submit = async () => {
+		Keyboard.dismiss();
 		setError('');
 		setAccounts(null);
 		if (lockout > 0) {
@@ -128,6 +130,7 @@ export default function LoginScreen() {
 	};
 
 	const pickAccount = async (pid) => {
+		Keyboard.dismiss();
 		if (lockout > 0) return;
 		setLoading(true);
 		const res = await login(pid, password);
@@ -137,6 +140,7 @@ export default function LoginScreen() {
 	};
 
 	const submit2FA = async () => {
+		Keyboard.dismiss();
 		setLoading(true);
 		const res = await verify2FA(twoFAToken, code);
 		setLoading(false);
@@ -185,19 +189,19 @@ export default function LoginScreen() {
 			>
 				{/* Hero area */}
 				<Pressable onPress={Keyboard.dismiss} style={styles.heroContent}>
-					<Animated.View entering={FadeInDown.duration(500)} style={styles.logoWrap}>
+					<View style={styles.logoWrap}>
 						<View style={styles.heroArtWrap}>
 							<Image source={require('../../assets/brand/irn-official-gold-logo.png')} style={styles.heroArt} resizeMode="contain" />
 						</View>
-					</Animated.View>
-					<Animated.View entering={FadeInDown.delay(80).duration(450)}>
+					</View>
+					<View>
 						<T v="display" color="#fff" style={{ textAlign: 'center', marginTop: 4, fontSize: 22, lineHeight: 28 }}>{t('loginHero')}</T>
 						<T v="body" color="rgba(255,255,255,0.7)" style={{ textAlign: 'center', marginTop: 4, paddingHorizontal: 16, fontSize: 13, lineHeight: 18 }}>{t('loginHeroSub')}</T>
-					</Animated.View>
+					</View>
 				</Pressable>
 
 				{/* Form card */}
-				<Animated.View entering={FadeInUp.delay(80).duration(260)} style={[styles.card, { paddingBottom: Math.max(insets.bottom, 16) + 24 }]}>
+				<View style={[styles.card, { paddingBottom: Math.max(insets.bottom, 16) + 24 }]}>
 							<View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 2 }}>
 								{twoFAToken || accounts ? (
 									<Tap onPress={() => { setTwoFAToken(null); setAccounts(null); setCode(''); setError(''); }} style={styles.backBtn}>
@@ -280,8 +284,23 @@ export default function LoginScreen() {
 									) : (
 										<Field icon={User} value={participantId} onChangeText={setParticipantId} placeholder="USR-XXXXX" autoCapitalize="characters" autoCorrect={false} returnKeyType="next" />
 									)}
-									<Field icon={Lock} value={password} onChangeText={setPassword} placeholder={t('passwordPlaceholder')} secure autoCapitalize="none" autoCorrect={false} textContentType="password" returnKeyType="go" onSubmitEditing={submit} />
-									<Pressable onPress={() => setShowRecovery(true)} hitSlop={8} style={{ alignSelf: 'flex-end' }}>
+									<Field
+										icon={Lock}
+										value={password}
+										onChangeText={setPassword}
+										placeholder={t('passwordPlaceholder')}
+										secure
+										autoCapitalize="none"
+										autoCorrect={false}
+										textContentType="password"
+										returnKeyType="done"
+										blurOnSubmit={true}
+										onSubmitEditing={() => {
+											Keyboard.dismiss();
+											submit();
+										}}
+									/>
+									<Pressable onPress={() => { Keyboard.dismiss(); setShowRecovery(true); }} hitSlop={8} style={{ alignSelf: 'flex-end' }}>
 										<T v="strong" color={colors.amber} style={{ fontSize: 12.5 }}>{t('forgotPassword')}</T>
 									</Pressable>
 									<Button
@@ -310,7 +329,7 @@ export default function LoginScreen() {
 									</Pressable>
 								</View>
 							)}
-						</Animated.View>
+						</View>
 					</ScrollView>
 
 				{Platform.OS === 'ios' ? (
@@ -329,7 +348,15 @@ export default function LoginScreen() {
 							<Send size={30} color="#fff" />
 						</View>
 						<T v="body" style={{ textAlign: 'center' }}>{t('recoverText')}</T>
-						<Button title={t('openBot')} icon={Send} style={{ alignSelf: 'stretch', marginTop: 6 }} onPress={() => { setShowRecovery(false); Linking.openURL(LINKS.bot); }} />
+						<Button
+							title={t('openBot')}
+							icon={Send}
+							style={{ alignSelf: 'stretch', marginTop: 6 }}
+							onPress={async () => {
+								setShowRecovery(false);
+								await openTelegram(LINKS.bot);
+							}}
+						/>
 					</View>
 				</Sheet>
 

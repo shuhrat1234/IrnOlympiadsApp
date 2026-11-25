@@ -85,36 +85,34 @@ export default function HomeScreen() {
 			</View>
 
 			{/* Student pass */}
-			<Animated.View entering={FadeInDown.duration(500)}>
-				<View style={styles.pass}>
-					<View style={styles.passGlow} />
-					<View style={styles.passRing} />
-					<View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
-						<T v="label" color={colors.gold} style={{ letterSpacing: 2 }}>IRN · STUDENT</T>
-						<Image source={require('../../../assets/brand/trophy.png')} style={{ width: 30, height: 30 }} resizeMode="contain" />
-					</View>
-					<Tap onPress={copyId} style={styles.idChip}>
-						<T v="mono" style={{ color: '#fff', fontSize: 20, fontWeight: '800', letterSpacing: 1 }}>#{currentUser.participant_id}</T>
-						<Copy size={15} color="rgba(255,255,255,0.6)" />
-					</Tap>
-					<View style={{ flexDirection: 'row', gap: 8, flexWrap: 'wrap' }}>
-						{currentUser.grade ? <Pill icon={GraduationCap} label={gradeLabel(currentUser.grade, t)} color={colors.navyDeep} bg={colors.gold} /> : null}
-						{region ? <Pill icon={MapPin} label={pick(region, 'name')} color="#fff" bg="rgba(255,255,255,0.12)" /> : null}
-					</View>
-					<View style={styles.stats}>
-						{[
-							{ value: registrations.length, label: t('totalOlympiads'), icon: BookOpen },
-							{ value: completed, label: t('completedCount'), icon: Check },
-							{ value: best !== null ? best : '—', label: t('bestScore'), icon: Star },
-						].map((s, i) => (
-							<View key={i} style={[styles.stat, i > 0 && styles.statDivider]}>
-								<T style={styles.statValue}>{s.value}</T>
-								<T v="small" color="rgba(255,255,255,0.6)" style={{ fontSize: 11.5 }} numberOfLines={1}>{s.label}</T>
-							</View>
-						))}
-					</View>
+			<View style={styles.pass}>
+				<View style={styles.passGlow} />
+				<View style={styles.passRing} />
+				<View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
+					<T v="label" color={colors.gold} style={{ letterSpacing: 2 }}>IRN · STUDENT</T>
+					<Image source={require('../../../assets/brand/trophy.png')} style={{ width: 30, height: 30 }} resizeMode="contain" />
 				</View>
-			</Animated.View>
+				<Tap onPress={copyId} style={styles.idChip}>
+					<T v="mono" style={{ color: '#fff', fontSize: 20, fontWeight: '800', letterSpacing: 1 }}>#{currentUser.participant_id}</T>
+					<Copy size={15} color="rgba(255,255,255,0.6)" />
+				</Tap>
+				<View style={{ flexDirection: 'row', gap: 8, flexWrap: 'wrap' }}>
+					{currentUser.grade ? <Pill icon={GraduationCap} label={gradeLabel(currentUser.grade, t)} color={colors.navyDeep} bg={colors.gold} /> : null}
+					{region ? <Pill icon={MapPin} label={pick(region, 'name')} color="#fff" bg="rgba(255,255,255,0.12)" /> : null}
+				</View>
+				<View style={styles.stats}>
+					{[
+						{ value: registrations.length, label: t('totalOlympiads'), icon: BookOpen },
+						{ value: completed, label: t('completedCount'), icon: Check },
+						{ value: best !== null ? best : '—', label: t('bestScore'), icon: Star },
+					].map((s, i) => (
+						<View key={i} style={[styles.stat, i > 0 && styles.statDivider]}>
+							<T style={styles.statValue}>{s.value}</T>
+							<T v="small" color="rgba(255,255,255,0.6)" style={{ fontSize: 11.5 }} numberOfLines={1}>{s.label}</T>
+						</View>
+					))}
+				</View>
+			</View>
 
 			{/* Subject teachers promo (math / english) */}
 			<SubjectTeachers variant="banner" style={{ marginTop: 16 }} />
@@ -198,7 +196,7 @@ export default function HomeScreen() {
 			<SectionTitle title={t('quickActions')} style={{ marginTop: 24 }} />
 			<View style={styles.grid}>
 				{quick.map((q, i) => (
-					<Animated.View key={i} entering={FadeInDown.delay(60 * i)} style={{ width: '48.5%' }}>
+					<View key={i} style={{ width: '48.5%' }}>
 						<Tap onPress={q.onPress} style={styles.quick}>
 							<View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
 								<IconBadge icon={q.icon} bg={q.tint[0]} color={q.tint[1]} size={42} />
@@ -206,7 +204,7 @@ export default function HomeScreen() {
 							</View>
 							<T v="strong" numberOfLines={2} style={{ marginTop: 14, fontSize: 14.5 }}>{q.label}</T>
 						</Tap>
-					</Animated.View>
+					</View>
 				))}
 			</View>
 
