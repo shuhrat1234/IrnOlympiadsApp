@@ -61,7 +61,6 @@ export default function AppUpdateChecker() {
 				const data = res?.data;
 				if (!data || !isMounted) return;
 
-				const isIos = Platform.OS === 'ios';
 				const latestVersion = data.latest_version || '1.0.1';
 				const latestBuild = isIos ? (data.latest_build_ios || 29) : (data.latest_build_android || 3);
 				const currentBuild = isIos ? currentIosBuild : currentAndroidCode;
