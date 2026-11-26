@@ -14,6 +14,7 @@ import { OlympiadProvider } from '../context/OlympiadContext';
 import StudentGates from '../components/StudentGates';
 import BootLoader from '../components/BootLoader';
 import AppUpdateChecker from '../components/AppUpdateChecker';
+import { registerForPushNotificationsAsync, setupNotificationListeners } from '../services/notifications';
 import useIdleLogout from '../hooks/useIdleLogout';
 import { colors } from '../theme';
 
@@ -53,6 +54,14 @@ const RootNavigator = ({ onReady }) => {
 	useEffect(() => {
 		if (!booting) onReady?.();
 	}, [booting]);
+
+	useEffect(() => {
+		void registerForPushNotificationsAsync();
+		const cleanup = setupNotificationListeners();
+		return () => {
+			if (cleanup) cleanup();
+		};
+	}, []);
 
 	if (booting) return null;
 

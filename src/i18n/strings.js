@@ -322,7 +322,7 @@ const S = {
 	birthDatePlaceholder: { uz: 'KK.OO.YYYY', ru: 'ДД.ММ.ГГГГ', en: 'DD.MM.YYYY' },
 	schoolPlaceholder: { uz: 'Maktab nomi yoki raqami', ru: 'Номер или название школы', en: 'School name' },
 	phonePlaceholder: { uz: '+998 90 123 45 67', ru: '+998 90 123 45 67', en: '+998 90 123 45 67' },
-	passwordPlaceholder: { uz: 'Kamida 6 ta belgi', ru: 'Минимум 6 символов', en: 'Min. 6 characters' },
+	registerPasswordPlaceholder: { uz: 'Kamida 6 ta belgi', ru: 'Минимум 6 символов', en: 'Min. 6 characters' },
 	confirmPasswordPlaceholder: { uz: 'Parolni tasdiqlang', ru: 'Повторите пароль', en: 'Confirm password' },
 	stepCount: { uz: "{step}-qadam (jami 3 ta)", ru: "Шаг {step} из 3", en: "Step {step} of 3" },
 	teacherSearchLabel: { uz: "O'qituvchingizni toping", ru: 'Найдите своего учителя', en: 'Find your teacher' },

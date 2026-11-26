@@ -11,7 +11,7 @@
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "uz.irnolympiad.app",
-      "buildNumber": "1",
+      "buildNumber": "32",
       "appleTeamId": "XUBZC349A6",
       "infoPlist": {
         "NSPhotoLibraryUsageDescription": "Qo'llab-quvvatlash xizmatiga rasm yuborish uchun galereyaga ruxsat kerak.",
@@ -41,6 +41,13 @@
     },
     "plugins": [
       "./plugins/withRemoveStoragePermissions",
+      [
+        "expo-notifications",
+        {
+          "icon": "./assets/icon.png",
+          "color": "#f59e0b"
+        }
+      ],
       "expo-router",
       "expo-secure-store",
       "expo-sharing",

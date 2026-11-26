@@ -1,0 +1,48 @@
+{
+  "height": 932,
+  "overlays": [
+    {
+      "background": "rgb(253, 200, 0)",
+      "color": "rgb(12, 26, 54)",
+      "fontSize": "18px",
+      "fontWeight": "400",
+      "height": 24.5,
+      "kind": "avatar",
+      "letterSpacing": "normal",
+      "lineHeight": "normal",
+      "replacement": "IRN",
+      "width": 24.4296875,
+      "x": 30.78125,
+      "y": 26.75
+    },
+    {
+      "background": "rgb(251, 250, 247)",
+      "color": "rgb(16, 26, 51)",
+      "fontSize": "20px",
+      "fontWeight": "400",
+      "height": 26,
+      "kind": "name",
+      "letterSpacing": "-0.3px",
+      "lineHeight": "26px",
+      "replacement": "Участник IRN",
+      "width": 276,
+      "x": 80,
+      "y": 35
+    },
+    {
+      "background": "rgb(12, 26, 54)",
+      "color": "rgb(255, 255, 255)",
+      "fontSize": "20px",
+      "fontWeight": "800",
+      "height": 26,
+      "kind": "participant-id",
+      "letterSpacing": "1px",
+      "lineHeight": "26px",
+      "replacement": "ID участника",
+      "width": 195.625,
+      "x": 40,
+      "y": 148
+    }
+  ],
+  "width": 430
+}

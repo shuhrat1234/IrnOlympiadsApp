@@ -39,7 +39,25 @@ export default function AppUpdateChecker() {
 				const currentIosBuild = parseInt(Constants.expoConfig?.ios?.buildNumber || '1', 10);
 				const currentAndroidCode = parseInt(Constants.expoConfig?.android?.versionCode || '1', 10);
 
-				const res = await api.get(E.APP_VERSION, { timeout: 6000 });
+				const isIos = Platform.OS === 'ios';
+				let deviceId = await store.get('app_device_id');
+				if (!deviceId) {
+					deviceId = `${Platform.OS}_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`;
+					await store.set('app_device_id', deviceId);
+				}
+
+				const pushToken = await store.get('expo_push_token');
+
+				const res = await api.get(E.APP_VERSION, {
+					params: {
+						platform: Platform.OS,
+						version: currentVersion,
+						build: isIos ? currentIosBuild : currentAndroidCode,
+						device_id: deviceId,
+						push_token: pushToken || undefined,
+					},
+					timeout: 6000
+				});
 				const data = res?.data;
 				if (!data || !isMounted) return;
 

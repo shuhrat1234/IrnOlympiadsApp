@@ -1,0 +1,48 @@
+{
+  "height": 1376,
+  "overlays": [
+    {
+      "background": "rgb(12, 26, 54)",
+      "color": "rgb(253, 200, 0)",
+      "fontSize": "20.88px",
+      "fontWeight": "400",
+      "height": 29,
+      "kind": "avatar",
+      "letterSpacing": "normal",
+      "lineHeight": "normal",
+      "replacement": "IRN",
+      "width": 28.3359375,
+      "x": 187.828125,
+      "y": 105
+    },
+    {
+      "background": "rgb(255, 255, 255)",
+      "color": "rgb(16, 26, 51)",
+      "fontSize": "17px",
+      "fontWeight": "400",
+      "height": 22,
+      "kind": "name",
+      "letterSpacing": "normal",
+      "lineHeight": "22px",
+      "replacement": "Участник IRN",
+      "width": 614,
+      "x": 245,
+      "y": 89
+    },
+    {
+      "background": "rgb(255, 255, 255)",
+      "color": "rgb(124, 132, 150)",
+      "fontSize": "13px",
+      "fontWeight": "400",
+      "height": 18,
+      "kind": "participant-id",
+      "letterSpacing": "normal",
+      "lineHeight": "18px",
+      "replacement": "ID участника · 10-класс",
+      "width": 614,
+      "x": 245,
+      "y": 111
+    }
+  ],
+  "width": 1032
+}
