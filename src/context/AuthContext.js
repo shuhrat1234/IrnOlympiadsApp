@@ -217,47 +217,56 @@ export const AuthProvider = ({ children }) => {
 	);
 
 	const markNotificationAsRead = useCallback(async (id) => {
+		const user = userRef.current;
+		if (user) {
+			const updated = (user.notifications || []).map((n) => (n.id === id ? { ...n, is_read: true } : n));
+			persistUser({ ...user, notifications: updated });
+		}
 		try {
 			await api.post(E.NOTIFICATION_MARK_READ(id));
-			await fetchMe();
 			return { success: true };
 		} catch {
 			return { success: false };
 		}
-	}, [fetchMe]);
+	}, [persistUser]);
 
 	const markAllNotificationsAsRead = useCallback(async () => {
+		const user = userRef.current;
+		if (user) {
+			const updated = (user.notifications || []).map((n) => ({ ...n, is_read: true }));
+			persistUser({ ...user, notifications: updated });
+		}
 		try {
 			await api.post(E.NOTIFICATIONS_MARK_ALL_READ);
-			await fetchMe();
 			return { success: true };
 		} catch {
 			return { success: false };
 		}
-	}, [fetchMe]);
+	}, [persistUser]);
 
 	const deleteNotification = useCallback(async (id) => {
 		const user = userRef.current;
-		if (user) setCurrentUser({ ...user, notifications: (user.notifications || []).filter((n) => n.id !== id) });
+		if (user) {
+			const updated = (user.notifications || []).filter((n) => n.id !== id);
+			persistUser({ ...user, notifications: updated });
+		}
 		try {
 			await api.delete(`${E.NOTIFICATIONS}${id}/`);
 		} catch {}
-		await fetchMe();
-	}, [fetchMe]);
+	}, [persistUser]);
 
 	const deleteAllNotifications = useCallback(async () => {
 		const user = userRef.current;
 		const list = user?.notifications || [];
 		if (!list.length) return;
-		setCurrentUser({ ...user, notifications: [] });
+		persistUser({ ...user, notifications: [] });
 		// Sequential, like the website, so the backend isn't flooded.
 		for (const n of list) {
 			try {
 				await api.delete(`${E.NOTIFICATIONS}${n.id}/`);
 			} catch {}
 		}
-		await fetchMe();
-	}, [fetchMe]);
+	}, [persistUser]);
 
 	const value = useMemo(
 		() => ({
