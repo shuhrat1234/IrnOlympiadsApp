@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Linking, Modal, Platform, StyleSheet, View } from 'react-native';
+import { Linking, Modal, Platform, Pressable, StyleSheet, View } from 'react-native';
 import Constants from 'expo-constants';
 import Animated, { FadeIn, ZoomIn } from 'react-native-reanimated';
 import { ArrowUpCircle, ExternalLink, ShieldAlert, Sparkles, X } from 'lucide-react-native';
@@ -150,9 +150,9 @@ export default function AppUpdateChecker() {
 				<Animated.View entering={ZoomIn.duration(260)} style={styles.container}>
 					<Card style={styles.card}>
 						{!isForced && (
-							<Tap onPress={handleDismiss} style={styles.closeBtn}>
+							<Pressable hitSlop={14} onPress={handleDismiss} style={styles.closeBtn}>
 								<X size={18} color={colors.ink2} />
-							</Tap>
+							</Pressable>
 						)}
 
 						<View style={styles.iconCircle}>
@@ -210,19 +210,21 @@ const styles = StyleSheet.create({
 		padding: 22,
 		borderRadius: 24,
 		backgroundColor: colors.white,
-		alignItems: 'center'
+		alignItems: 'center',
+		position: 'relative'
 	},
 	closeBtn: {
 		position: 'absolute',
-		top: 16,
-		right: 16,
+		top: 14,
+		right: 14,
 		width: 32,
 		height: 32,
 		borderRadius: 16,
 		backgroundColor: '#F1F5F9',
 		alignItems: 'center',
 		justifyContent: 'center',
-		zIndex: 5
+		zIndex: 20,
+		elevation: 5
 	},
 	iconCircle: {
 		width: 72,
